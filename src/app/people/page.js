@@ -55,37 +55,57 @@ export default function People() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <Link 
-              href="/" 
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              ← 홈으로
-            </Link>
-            <div className="text-center flex-1">
-              <h1 className="text-3xl font-bold text-gray-900">
-                연구실 구성원
-              </h1>
-              <p className="text-gray-600 mt-2">
-                경희대학교 우주과학탑재체연구실 (Space Science Instrument Laboratory)
-              </p>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-8">
+              <Link 
+                href="/" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Home
+              </Link>
+              <Link 
+                href="/about" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                About
+              </Link>
+              <Link 
+                href="/people" 
+                className="text-gray-900 border-b-2 border-orange-500 px-3 py-2 text-sm font-medium"
+                style={{ color: '#ed6c1c' }}
+              >
+                People
+              </Link>
             </div>
-            <div className="w-20"></div> {/* Spacer for centering */}
           </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <h1 className="text-4xl font-bold text-center" 
+              style={{ fontFamily: 'Pretendard, sans-serif', color: '#ed6c1c' }}>
+            연구실 구성원
+          </h1>
+          <p className="text-gray-600 text-center mt-4">
+            Space Science Instrument Laboratory Members
+          </p>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        <div className="space-y-16">
         {/* Professor Section */}
-        <section className="bg-white rounded-lg shadow-md p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center border-b pb-4">
-            교수
-          </h2>
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8" 
+              style={{ fontFamily: 'Pretendard, sans-serif' }}>교수</h2>
+          <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-shrink-0">
               <div className="w-48 h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
                 <span className="text-blue-600 text-lg font-medium">교수님</span>
@@ -108,7 +128,7 @@ export default function People() {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-700">학력:</span>
-                  <ul className="ml-2 mt-1 space-y-1">
+                  <ul className="ml-2 mt-2 space-y-1">
                     {professor.education.map((edu, index) => (
                       <li key={index} className="text-gray-600 text-sm">• {edu}</li>
                     ))}
@@ -116,7 +136,7 @@ export default function People() {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-700">주요경력:</span>
-                  <ul className="ml-2 mt-1 space-y-1">
+                  <ul className="ml-2 mt-2 space-y-1">
                     {professor.career.map((career, index) => (
                       <li key={index} className="text-gray-600 text-sm">• {career}</li>
                     ))}
@@ -128,69 +148,76 @@ export default function People() {
         </section>
 
         {/* Researchers Section */}
-        <section className="space-y-8">
-          <h2 className="text-2xl font-bold text-gray-900 text-center border-b pb-4 bg-white rounded-lg shadow-md p-6">
-            연구진
-          </h2>
-          {researchers.map((researcher, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md p-8">
-              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-                <div className="flex-shrink-0">
-                  <div className={`w-48 h-64 rounded-lg flex items-center justify-center ${
-                    researcher.position === "Research Professor" 
-                      ? "bg-gradient-to-br from-green-100 to-green-200" 
-                      : "bg-gradient-to-br from-purple-100 to-purple-200"
-                  }`}>
-                    <span className={`text-lg font-medium ${
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8" 
+              style={{ fontFamily: 'Pretendard, sans-serif' }}>연구진</h2>
+          <div className="space-y-12">
+            {researchers.map((researcher, index) => (
+              <article key={index} className="border-b border-gray-200 pb-12 last:border-b-0 last:pb-0">
+                <div className="flex flex-col lg:flex-row gap-8">
+                  <div className="flex-shrink-0">
+                    <div className={`w-48 h-64 rounded-lg flex items-center justify-center ${
                       researcher.position === "Research Professor" 
-                        ? "text-green-600" 
-                        : "text-purple-600"
+                        ? "bg-gradient-to-br from-green-100 to-green-200" 
+                        : "bg-gradient-to-br from-purple-100 to-purple-200"
                     }`}>
-                      {researcher.position === "Research Professor" ? "연구교수" : "석사과정"}
-                    </span>
+                      <span className={`text-lg font-medium ${
+                        researcher.position === "Research Professor" 
+                          ? "text-green-600" 
+                          : "text-purple-600"
+                      }`}>
+                        {researcher.position === "Research Professor" ? "연구교수" : "석사과정"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{researcher.name}</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="font-semibold text-gray-700">연구분야:</span>
-                      <span className="ml-2 text-gray-600">{researcher.field}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-700">E-mail:</span>
-                      <span className="ml-2 text-blue-600">{researcher.email}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold text-gray-700">Position:</span>
-                      <span className="ml-2 text-gray-600">{researcher.position}</span>
-                    </div>
-                    {researcher.phd && (
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{researcher.name}</h3>
+                    <div className="space-y-3">
                       <div>
-                        <span className="font-semibold text-gray-700">Ph.D:</span>
-                        <span className="ml-2 text-gray-600">{researcher.phd}</span>
+                        <span className="font-semibold text-gray-700">연구분야:</span>
+                        <span className="ml-2 text-gray-600">{researcher.field}</span>
                       </div>
-                    )}
+                      <div>
+                        <span className="font-semibold text-gray-700">E-mail:</span>
+                        <span className="ml-2 text-blue-600">{researcher.email}</span>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-700">Position:</span>
+                        <span className="ml-2 text-gray-600">{researcher.position}</span>
+                      </div>
+                      {researcher.phd && (
+                        <div>
+                          <span className="font-semibold text-gray-700">Ph.D:</span>
+                          <span className="ml-2 text-gray-600">{researcher.phd}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </article>
+            ))}
+          </div>
         </section>
+        </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="mt-16 bg-white rounded-lg shadow-md p-8 text-center">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            경희대학교 우주과학탑재체연구실 (Space Science Instrument Laboratory)
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t border-gray-200 py-12">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h3 className="font-semibold text-gray-900 mb-2">
+            경희대학교 우주과학탑재체연구실
           </h3>
-          <p className="text-gray-600 mb-2">
+          <p className="text-sm text-gray-600 mb-1">
+            Space Science Instrument Laboratory
+          </p>
+          <p className="text-sm text-gray-500 mb-1">
             주소. (우)17104 경기도 용인시 기흥구 덕영대로 1732 경희대학교 국제캠퍼스 천문대
           </p>
-          <p className="text-gray-500 text-sm">
+          <p className="text-xs text-gray-400">
             Copyright © ssil.khu.ac.kr All rights reserved.
           </p>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }
