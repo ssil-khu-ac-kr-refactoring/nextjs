@@ -13,8 +13,21 @@ export default async function ResearchPage() {
   });
 
   const researchData = {
-    Current: allResearch.filter((p) => p.status === "IN_PROGRESS"),
-    Completed: allResearch.filter((p) => p.status === "COMPLETED"),
+   Current: allResearch
+    .filter((p) => p.status === "IN_PROGRESS")
+    .sort((a, b) => {
+      const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      return dateB - dateA; // 최신순
+    }),
+
+  Completed: allResearch
+    .filter((p) => p.status === "COMPLETED")
+    .sort((a, b) => {
+      const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      return dateB - dateA;
+    }),
   };
 
   return (
