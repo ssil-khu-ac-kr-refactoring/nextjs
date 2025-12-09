@@ -41,7 +41,7 @@ const Navbar = () => {
 
   const closeSoon = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setResearchOpen(false), 3000);
+    closeTimer.current = setTimeout(() => setResearchOpen(false), 1000);
   };
 
   useEffect(() => {
