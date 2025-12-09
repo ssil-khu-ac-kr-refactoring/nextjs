@@ -143,7 +143,7 @@ const Navbar = () => {
                 >
                   <Link
                     href="/research"
-                    className={`flex items-center text-sm font-medium transition-colors hover:text-primary ${isActive("/research") && "text-primary"}`}
+                    className={`flex items-center text-lg font-medium transition-colors hover:text-primary ${isActive("/research") && "text-primary"}`}
                   >
                     Research
                   </Link>
