@@ -113,8 +113,8 @@ const Navbar = () => {
                 key={resolvedTheme}
                 src={
                   resolvedTheme === "dark"
-                    ? "/main/logo_trans_03.png"
-                    : "/main/logo_trans_01.png"
+                    ? "/main/logo_trans_33.png"
+                    : "/main/logo_trans_11.png"
                 }
                 alt="SSIL Logo"
                 width={160}
