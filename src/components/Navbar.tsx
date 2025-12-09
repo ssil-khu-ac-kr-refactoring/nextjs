@@ -130,7 +130,7 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`flex items-center text-sm font-medium transition-colors hover:text-primary ${isActive(item.path) && "text-primary"}`}
+                  className={`flex items-center text-lg font-medium transition-colors hover:text-primary ${isActive(item.path) && "text-primary"}`}
                 >
                   {item.label}
                 </Link>
