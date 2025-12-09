@@ -85,6 +85,10 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                           }`}
                       >
                         {p.title}
+                         {p.startDate &&
+          ` (${new Date(p.startDate).getFullYear()}.${String(
+            new Date(p.startDate).getMonth() + 1
+          ).padStart(2, "0")})`}
                       </button>
                     </li>
                   ))}
