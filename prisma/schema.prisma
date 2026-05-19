@@ -19,6 +19,7 @@ model Research {
   imageUrl    String?
   contentHtml String?
   published   Boolean        @default(false)
+  order       Int            @default(0)
 }
 
 model News {

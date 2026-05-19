@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import PageLayout from "@/components/PageLayout";
+import { toast } from "@/components/Toast";
 import { defaultAbout } from "@/lib/aboutContent";
 import { sanitizeHtml } from "@/lib/sanitize";
 
@@ -53,7 +54,7 @@ export default function AboutPage() {
         body: JSON.stringify({ content }),
       });
       if (!res.ok) throw new Error("Failed to save");
-      alert("✅ About 페이지가 저장되었습니다.");
+      toast.success("About 페이지가 저장되었습니다.");
       setEditing(false);
     } catch (e: any) {
       setError(e.message);

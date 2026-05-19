@@ -22,6 +22,7 @@ export default function NewResearchPage() {
   const [status, setStatus] = useState<ResearchStatus>('IN_PROGRESS');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [order, setOrder] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -65,6 +66,7 @@ export default function NewResearchPage() {
           status,
           startDate: startDate || null,
           endDate: endDate || null,
+          order,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Failed to create research item');
@@ -132,7 +134,7 @@ export default function NewResearchPage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-gray-700 font-bold mb-2">Start Date</label>
             <input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 border rounded" />
@@ -140,6 +142,18 @@ export default function NewResearchPage() {
           <div>
             <label htmlFor="endDate" className="block text-gray-700 font-bold mb-2">End Date</label>
             <input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 border rounded" />
+          </div>
+          <div>
+            <label htmlFor="order" className="block text-gray-700 font-bold mb-2">
+              Order <span className="text-xs font-normal text-gray-500">(낮을수록 위)</span>
+            </label>
+            <input
+              id="order"
+              type="number"
+              value={order}
+              onChange={(e) => setOrder(Number(e.target.value) || 0)}
+              className="w-full p-2 border rounded"
+            />
           </div>
         </div>
 

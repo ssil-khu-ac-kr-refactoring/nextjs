@@ -126,7 +126,7 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
 
   useEffect(() => {
     if (images.length === 0) return;
-    const timer = setInterval(next, 7000);
+    const timer = setInterval(next, 12000);
     return () => clearInterval(timer);
   }, [images.length, next]);
 
@@ -416,14 +416,14 @@ const AboutSection = ({
             <motion.h2
               className="text-4xl font-bold mb-6"
               style={{ x: h2X, opacity: h2Opacity }}
-              transition={{ type: "spring", stiffness: 80, damping: 20 }}
+              transition={{ type: "spring", stiffness: 45, damping: 30, mass: 1.2 }}
             >
               {about.aboutTitle}
             </motion.h2>
             <motion.p
               className="text-lg text-foreground/70 max-w-3xl mx-auto"
               style={{ x: pX, opacity: pOpacity }}
-              transition={{ type: "spring", stiffness: 80, damping: 25, delay: 0.05 }}
+              transition={{ type: "spring", stiffness: 45, damping: 32, mass: 1.2, delay: 0.15 }}
             >
               {about.aboutBody}
             </motion.p>
@@ -467,7 +467,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
 
   useEffect(() => {
     if (total === 0) return;
-    const interval = setInterval(next, 6000);
+    const interval = setInterval(next, 10000);
     return () => clearInterval(interval);
   }, [total, next]);
 
@@ -481,20 +481,20 @@ const ResearchSection = ({ researchData, isAdmin }) => {
     <section id="research" className="bg-background text-foreground py-24 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-2">
-          <h2 className="text-4xl font-bold">Our Mission</h2>
+          <h2 className="text-4xl font-bold text-primary">Our Mission</h2>
           {isAdmin && (
             <Link
               href={`/admin/research?cat=${category}&id=${current.id}`}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md bg-foreground text-background hover:opacity-90"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90"
             >
               <Pencil className="w-4 h-4" />
               Edit This Project
             </Link>
           )}
         </div>
-        <p className="mb-8 text-foreground/70">Recent highlights from SSIL’s research and missions.</p>
+        <p className="mb-8 text-primary/80">Recent highlights from SSIL’s research and missions.</p>
       </div>
-      <div className="max-w-6xl mx-auto relative overflow-hidden rounded-lg">
+      <div className="max-w-6xl mx-auto relative overflow-hidden rounded-2xl">
         <div className="relative h-[500px] w-full">
           <Image
             src={current.imageUrl || "/images/main2.jpg"}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from '@/components/Toast';
 
 export type PublicationFormValues = {
   title: string;
@@ -41,7 +42,7 @@ export default function PublicationForm({
     e.preventDefault();
 
     if (!values.title.trim() || !values.authors.trim()) {
-      alert('title, authors는 필수입니다.');
+      toast.error('title, authors는 필수입니다.');
       return;
     }
 

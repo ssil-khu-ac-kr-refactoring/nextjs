@@ -10,7 +10,7 @@ export default async function HomePage() {
   noStore();
 
   const allResearch = await prisma.research.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { startDate: "desc" }, { createdAt: "desc" }],
   });
   const researchData = {
     Current: allResearch.filter((p) => p.status === "IN_PROGRESS"),

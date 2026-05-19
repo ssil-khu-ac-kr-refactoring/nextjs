@@ -3,6 +3,7 @@ import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import ImageResize from 'quill-image-resize-module-plus';
+import { toast } from '@/components/Toast';
 
 Quill.register('modules/imageResize', ImageResize);
 
@@ -101,7 +102,7 @@ export const RichEditor = React.forwardRef<RichEditorHandle, Props>(
                 quillRef.current.insertEmbed(range.index, 'image', data.url, 'user');
               } catch (e) {
                 console.error(e);
-                alert('이미지 업로드 실패');
+                toast.error('이미지 업로드 실패');
               }
             };
             input.click();

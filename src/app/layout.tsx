@@ -4,6 +4,7 @@ import "quill/dist/quill.snow.css";
 import Providers from "./providers";
 import "@/styles/font.css";
 import { FontProvider } from "@/context/FontContext";
+import { Toaster } from "@/components/Toast";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* ✅ FontProvider로 전역 감싸기 */}
           <FontProvider>
             {children}
+            <Toaster />
           </FontProvider>
         </Providers>
       </body>

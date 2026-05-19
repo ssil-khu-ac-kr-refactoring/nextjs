@@ -23,6 +23,7 @@ interface ResearchData {
   status: ResearchStatus;
   startDate?: string | null;
   endDate?: string | null;
+  order?: number;
 }
 
 export default function EditResearchPage() {
@@ -54,6 +55,7 @@ export default function EditResearchPage() {
           status: data.status,
           startDate: data.startDate ? new Date(data.startDate).toISOString().split('T')[0] : '',
           endDate: data.endDate ? new Date(data.endDate).toISOString().split('T')[0] : '',
+          order: data.order ?? 0,
         });
         setContentHtml(data.contentHtml ?? '');
         setImageUrl(data.imageUrl || '');
@@ -110,6 +112,7 @@ export default function EditResearchPage() {
           status: (formData.status as ResearchStatus) || 'IN_PROGRESS',
           startDate: formData.startDate || null,
           endDate: formData.endDate || null,
+          order: typeof formData.order === 'number' ? formData.order : 0,
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Failed to update research item');
@@ -180,7 +183,7 @@ export default function EditResearchPage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-gray-700 font-bold mb-2">Start Date</label>
             <input id="startDate" name="startDate" type="date" value={formData.startDate || ''} onChange={handleChange} className="w-full p-2 border rounded" />
@@ -188,6 +191,19 @@ export default function EditResearchPage() {
           <div>
             <label htmlFor="endDate" className="block text-gray-700 font-bold mb-2">End Date</label>
             <input id="endDate" name="endDate" type="date" value={formData.endDate || ''} onChange={handleChange} className="w-full p-2 border rounded" />
+          </div>
+          <div>
+            <label htmlFor="order" className="block text-gray-700 font-bold mb-2">
+              Order <span className="text-xs font-normal text-gray-500">(낮을수록 위)</span>
+            </label>
+            <input
+              id="order"
+              name="order"
+              type="number"
+              value={formData.order ?? 0}
+              onChange={(e) => setFormData((p) => ({ ...p, order: Number(e.target.value) || 0 }))}
+              className="w-full p-2 border rounded"
+            />
           </div>
         </div>
 
