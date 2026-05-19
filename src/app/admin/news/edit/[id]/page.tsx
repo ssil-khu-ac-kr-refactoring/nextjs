@@ -118,22 +118,22 @@ export default function EditNewsPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Edit News</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="bg-card p-6 rounded-2xl border border-border shadow-sm">
         <div className="mb-4">
-          <label htmlFor="title" className="block text-gray-700 font-bold mb-2">Title</label>
+          <label htmlFor="title" className="block text-foreground font-bold mb-2">Title</label>
           <input
             id="title"
             name="title"
             type="text"
             value={formData.title}
             onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="description" className="block text-gray-700 font-bold mb-2">Description</label>
+          <label htmlFor="description" className="block text-foreground font-bold mb-2">Description</label>
           {!isLoading && (
             <RichEditor
               value={formData.description}
@@ -143,26 +143,26 @@ export default function EditNewsPage() {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="imageUrl" className="block text-gray-700 font-bold mb-2">Image URL (Optional)</label>
+          <label htmlFor="imageUrl" className="block text-foreground font-bold mb-2">Image URL (Optional)</label>
           <input
             id="imageUrl"
             name="imageUrl"
             type="text"
             value={formData.imageUrl || ''}
             onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="publishedAt" className="block text-gray-700 font-bold mb-2">Published Date</label>
+          <label htmlFor="publishedAt" className="block text-foreground font-bold mb-2">Published Date</label>
           <input
             id="publishedAt"
             name="publishedAt"
             type="date"
             value={formData.publishedAt}
             onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:shadow-outline"
             required
           />
         </div>
@@ -172,7 +172,7 @@ export default function EditNewsPage() {
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline"
             disabled={isSubmitting || isLoading}
           >
             {isSubmitting ? 'Updating...' : 'Update'}
@@ -180,7 +180,7 @@ export default function EditNewsPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-zinc-600 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline"
           >
             Cancel
           </button>

@@ -83,25 +83,25 @@ export default function NewResearchPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Add New Research</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
+      <form onSubmit={handleSubmit} className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
         <div>
-          <label htmlFor="title" className="block text-gray-700 font-bold mb-2">Title</label>
+          <label htmlFor="title" className="block text-foreground font-bold mb-2">Title</label>
           <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2 border rounded" required />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-gray-700 font-bold mb-2">Summary (optional)</label>
+          <label htmlFor="description" className="block text-foreground font-bold mb-2">Summary (optional)</label>
           <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-2 border rounded h-28" />
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Content</label>
+          <label className="block text-foreground font-bold mb-2">Content</label>
           <RichEditor value={contentHtml} onChange={setContentHtml} />
         </div>
 
         {/* Thumbnail Upload */}
         <div>
-          <label className="block text-gray-700 font-bold mb-2">썸네일 이미지 (Optional)</label>
+          <label className="block text-foreground font-bold mb-2">썸네일 이미지 (Optional)</label>
           {imageUrl ? (
             <div className="space-y-2">
               <img src={imageUrl} alt="Thumbnail preview" className="w-48 h-32 object-cover rounded" />
@@ -119,15 +119,15 @@ export default function NewResearchPage() {
               accept="image/*"
               onChange={handleFileChange}
               disabled={isUploading}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full 
-                         file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
-                         hover:file:bg-blue-100"
+              className="block w-full text-sm text-foreground/60 file:mr-4 file:py-2 file:px-4 file:rounded-full 
+                         file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary 
+                         hover:file:bg-primary/20"
             />
           )}
         </div>
 
         <div>
-          <label htmlFor="status" className="block text-gray-700 font-bold mb-2">Status</label>
+          <label htmlFor="status" className="block text-foreground font-bold mb-2">Status</label>
           <select id="status" value={status} onChange={(e) => setStatus(e.target.value as ResearchStatus)} className="w-full p-2 border rounded">
             <option value="IN_PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
@@ -136,16 +136,16 @@ export default function NewResearchPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="startDate" className="block text-gray-700 font-bold mb-2">Start Date</label>
+            <label htmlFor="startDate" className="block text-foreground font-bold mb-2">Start Date</label>
             <input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 border rounded" />
           </div>
           <div>
-            <label htmlFor="endDate" className="block text-gray-700 font-bold mb-2">End Date</label>
+            <label htmlFor="endDate" className="block text-foreground font-bold mb-2">End Date</label>
             <input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 border rounded" />
           </div>
           <div>
-            <label htmlFor="order" className="block text-gray-700 font-bold mb-2">
-              Order <span className="text-xs font-normal text-gray-500">(낮을수록 위)</span>
+            <label htmlFor="order" className="block text-foreground font-bold mb-2">
+              Order <span className="text-xs font-normal text-foreground/60">(낮을수록 위)</span>
             </label>
             <input
               id="order"
@@ -160,10 +160,10 @@ export default function NewResearchPage() {
         {error && <p className="text-red-500 text-xs italic">{error}</p>}
 
         <div className="flex items-center justify-between">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" disabled={isSubmitting}>
+          <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
-          <button type="button" onClick={() => router.back()} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+          <button type="button" onClick={() => router.back()} className="bg-zinc-600 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-xl">
             Cancel
           </button>
         </div>

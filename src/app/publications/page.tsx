@@ -93,7 +93,7 @@ export default function PublicationPage() {
           <div className="text-right mb-10">
             <button
               onClick={() => setShowForm(true)}
-              className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 transition"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition"
             >
               + Add Publication
             </button>
@@ -102,13 +102,13 @@ export default function PublicationPage() {
 
         {showForm && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-neutral-900 p-6 rounded w-full max-w-2xl shadow-xl relative">
+            <div className="bg-card text-foreground p-6 rounded-2xl w-full max-w-2xl shadow-xl relative border border-border">
               <button
                 onClick={() => {
                   setShowForm(false);
                   setEditItem(null);
                 }}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="absolute top-4 right-4 text-foreground/60 hover:text-foreground transition"
               >
                 ✕
               </button>
@@ -141,9 +141,9 @@ export default function PublicationPage() {
         )}
 
         {byYear.length === 0 ? (
-          <p className="text-muted-foreground text-center">
-            No publications available yet.
-          </p>
+          <div className="text-center py-20 border border-dashed border-border rounded-2xl">
+            <p className="text-foreground/60">No publications available yet.</p>
+          </div>
         ) : (
           <div className="space-y-16">
             {byYear.map(([year, list]) => (
@@ -157,7 +157,7 @@ export default function PublicationPage() {
                     return (
                       <li
                         key={p.id}
-                        className="rounded border border-border bg-white dark:bg-neutral-900 hover:border-primary/40 transition p-6 shadow-sm"
+                        className="rounded-2xl border border-border bg-card hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 p-6 shadow-sm"
                       >
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                           <div className="flex-1">
@@ -219,7 +219,7 @@ export default function PublicationPage() {
                                 setEditItem(p);
                                 setShowForm(true);
                               }}
-                              className="text-blue-600 hover:underline"
+                              className="text-primary hover:underline"
                             >
                               Edit
                             </button>

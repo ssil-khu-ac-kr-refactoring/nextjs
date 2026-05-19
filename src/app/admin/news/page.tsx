@@ -81,21 +81,21 @@ export default function NewsAdminPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">News Management</h1>
-        <Link href="/admin/news/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <Link href="/admin/news/new" className="bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90">
           Add New News
         </Link>
       </div>
-      <div className="bg-white shadow-md rounded">
+      <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published At</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase tracking-wider">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase tracking-wider">Published At</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-foreground/60 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-border">
             {news.map((item) => (
               <tr key={item.id}>
                 <td className="px-6 py-4 whitespace-nowrap">{item.title}</td>

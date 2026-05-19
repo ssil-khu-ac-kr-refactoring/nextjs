@@ -63,22 +63,21 @@ export default function ManageAboutPage() {
       <h1 className="text-2xl font-bold mb-4">Manage About Page</h1>
 
       {/* ✅ 박스 배경 + 버튼 스타일 조정 */}
-      <div className="bg-white text-black rounded-lg shadow-md border border-gray-200 p-6">
-        <div className="[&_.ql-container]:bg-white [&_.ql-editor]:text-black">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+        <div className="[&_.ql-container]:bg-white [&_.ql-editor]:text-black [&_.ql-container]:rounded-xl">
           <RichEditor value={content} onChange={setContent} />
         </div>
 
         <div className="flex justify-end gap-3 pt-6">
           <Button
             variant="outline"
-            className="border-gray-400 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition"
             disabled={saving}
             onClick={() => window.location.reload()}
           >
             Cancel
           </Button>
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white transition"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground transition"
             onClick={handleSave}
             disabled={saving}
           >

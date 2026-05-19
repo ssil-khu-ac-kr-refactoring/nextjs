@@ -120,6 +120,7 @@ const Navbar = () => {
                 width={160}
                 height={70}
                 priority
+                className="w-[120px] sm:w-[160px] h-auto"
               />
             )}
           </Link>
@@ -183,23 +184,55 @@ const Navbar = () => {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className={`w-[240px] ${tone} flex flex-col`}>
-              <div className="flex-1 flex flex-col gap-4 mt-8 overflow-y-auto">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    onClick={() => setOpen(false)}
-                    className={`text-sm font-medium transition-colors px-2 py-2 rounded
-          hover:bg-gray-300 dark:hover:text-primary/80
-          ${isActive(item.path)
-                        ? "bg-gray-200 text-primary dark:bg-primary/10"
-                        : "text-gray-800 dark:text-muted-foreground"
-                      }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+            <SheetContent side="right" className={`w-[260px] ${tone} flex flex-col`}>
+              <div className="flex-1 flex flex-col gap-1 mt-8 overflow-y-auto">
+                {navItems.map((item) =>
+                  item.label !== "Research" ? (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setOpen(false)}
+                      className={`text-sm font-medium transition-colors px-3 py-2 rounded-xl
+            hover:bg-foreground/10
+            ${isActive(item.path)
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground/80"
+                        }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <div key="Research-mobile" className="flex flex-col">
+                      <Link
+                        href="/research"
+                        onClick={() => setOpen(false)}
+                        className={`text-sm font-medium transition-colors px-3 py-2 rounded-xl
+              hover:bg-foreground/10
+              ${isActive("/research")
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground/80"
+                          }`}
+                      >
+                        Research
+                      </Link>
+                      {researchNav.length > 0 && (
+                        <ul className="ml-3 mt-1 mb-1 flex flex-col border-l border-border pl-2">
+                          {researchNav.map((r) => (
+                            <li key={r.href}>
+                              <Link
+                                href={r.href}
+                                onClick={() => setOpen(false)}
+                                className="block px-3 py-1.5 text-xs rounded-lg text-foreground/70 hover:bg-primary/10 hover:text-primary transition"
+                              >
+                                {r.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )
+                )}
               </div>
 
               {status === "authenticated" && (

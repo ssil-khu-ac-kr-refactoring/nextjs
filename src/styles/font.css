@@ -1,40 +1,6 @@
 /* ===============================
-   MaruBuri (OTF)
+   MaruBuri — 본문/제목 기본
 ================================ */
-@font-face {
-  font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriOTF/MaruBuri-Regular.otf") format("opentype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriOTF/MaruBuri-Light.otf") format("opentype");
-  font-weight: 300;
-  font-display: swap;
-}
-@font-face {
-  font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriOTF/MaruBuri-ExtraLight.otf") format("opentype");
-  font-weight: 200;
-  font-display: swap;
-}
-@font-face {
-  font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriOTF/MaruBuri-SemiBold.otf") format("opentype");
-  font-weight: 600;
-  font-display: swap;
-}
-
-/* ===============================
-   MaruBuri (TTF)
-================================ */
-@font-face {
-  font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriTTF/MaruBuri-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-Light.ttf") format("truetype");
@@ -43,8 +9,8 @@
 }
 @font-face {
   font-family: "MaruBuri";
-  src: url("/fonts/MaruBuriTTF/MaruBuri-ExtraLight.ttf") format("truetype");
-  font-weight: 200;
+  src: url("/fonts/MaruBuriTTF/MaruBuri-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-display: swap;
 }
 @font-face {
@@ -61,111 +27,8 @@
 }
 
 /* ===============================
-   Nanum Gothic
+   Space Grotesk — 영문 디스플레이
 ================================ */
-@font-face {
-  font-family: "Nanum Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicLight.ttf") format("truetype");
-  font-weight: 300;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothic.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicBold.ttf") format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-display: swap;
-}
-
-/* ===============================
-   Nanum Barun Gothic
-================================ */
-@font-face {
-  font-family: "Nanum Barun Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicUltraLight.ttf") format("truetype");
-  font-weight: 200;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Barun Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicLight.ttf") format("truetype");
-  font-weight: 300;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Barun Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothic.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Barun Gothic";
-  src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicBold.ttf") format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
-
-/* ===============================
-   Nanum Gothic Eco
-================================ */
-@font-face {
-  font-family: "Nanum Gothic Eco";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEcoExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Gothic Eco";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEcoBold.ttf") format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Nanum Gothic Eco";
-  src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEco.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-
-/* ===============================
-   Nanum Myungjo
-================================ */
-@font-face {
-  font-family: "Nanum Myungjo";
-  src: url("/fonts/NanumFontSetup_TTF_MYUNGJO/NanumMyeongjo.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-
-/* ===============================
-   Holigas, Mickerr 등 기타 폰트
-================================ */
-@font-face {
-  font-family: "Holigas";
-  src: url("/fonts/Holigas.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Mickerr";
-  src: url("/fonts/Mickerr.ttf") format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-
-
-/* Space Grotesk Font */
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Light.ttf") format("truetype");
@@ -173,7 +36,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Regular.ttf") format("truetype");
@@ -181,7 +43,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Medium.ttf") format("truetype");
@@ -189,7 +50,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-SemiBold.ttf") format("truetype");
@@ -197,7 +57,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Bold.ttf") format("truetype");

@@ -131,10 +131,10 @@ export default function EditBoardPostPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">게시글 수정</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="bg-card p-6 rounded-2xl border border-border shadow-sm">
         {/* 카테고리 선택 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">카테고리</label>
+          <label className="block text-foreground font-bold mb-2">카테고리</label>
           <select
             name="tabId"
             value={formData.tabId}
@@ -153,7 +153,7 @@ export default function EditBoardPostPage() {
 
         {/* 제목 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">제목</label>
+          <label className="block text-foreground font-bold mb-2">제목</label>
           <input
             name="title"
             type="text"
@@ -166,7 +166,7 @@ export default function EditBoardPostPage() {
 
         {/* 본문 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">본문</label>
+          <label className="block text-foreground font-bold mb-2">본문</label>
           <RichEditor
             value={formData.description}
             onChange={handleDescriptionChange}
@@ -175,7 +175,7 @@ export default function EditBoardPostPage() {
 
         {/* 이미지 URL */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">이미지 URL</label>
+          <label className="block text-foreground font-bold mb-2">이미지 URL</label>
           <input
             name="imageUrl"
             type="text"
@@ -187,7 +187,7 @@ export default function EditBoardPostPage() {
 
         {/* 날짜 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">게시일</label>
+          <label className="block text-foreground font-bold mb-2">게시일</label>
           <input
             name="publishedAt"
             type="date"
@@ -203,14 +203,14 @@ export default function EditBoardPostPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
           >
             {isSubmitting ? '수정 중...' : '수정 완료'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-zinc-600 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-xl"
           >
             취소
           </button>

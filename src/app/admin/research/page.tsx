@@ -55,12 +55,12 @@ export default function ResearchAdminPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Research Management</h1>
-        <Link href="/admin/research/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <Link href="/admin/research/new" className="bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90">
           Add New Research
         </Link>
       </div>
 
-      <div className="bg-white shadow-md rounded overflow-x-auto">
+      <div className="bg-card rounded-2xl border border-border overflow-x-auto">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
@@ -70,7 +70,7 @@ export default function ResearchAdminPage() {
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
+          <tbody className="bg-card divide-y divide-border">
             {research.map((item) => (
               <tr key={item.id}>
                 <td className="px-6 py-4">{item.title}</td>
@@ -94,7 +94,7 @@ export default function ResearchAdminPage() {
             ))}
             {research.length === 0 && (
               <tr>
-                <td className="px-6 py-6 text-center text-sm text-gray-500" colSpan={4}>No items yet.</td>
+                <td className="px-6 py-6 text-center text-sm text-foreground/60" colSpan={4}>No items yet.</td>
               </tr>
             )}
           </tbody>

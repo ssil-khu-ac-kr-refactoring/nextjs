@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Research } from "@prisma/client";
 import PageLayout from "@/components/PageLayout";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 
 interface ResearchData {
   Current: Research[];
@@ -60,9 +61,9 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
           </h1>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 좌측 네비게이션 */}
-          <nav className="space-y-6">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* 좌측 네비게이션 — 고정 폭 240px */}
+          <nav className="w-full lg:w-60 lg:shrink-0 space-y-6">
             {categories.map((cat) => (
               <div key={cat}>
                 <button
@@ -98,8 +99,8 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
             ))}
           </nav>
 
-          {/* 우측 내용 */}
-          <div className="col-span-2 space-y-6">
+          {/* 우측 내용 — flex-1로 남는 폭 전부, min-w-0로 prose 오버플로 방지 */}
+          <div className="flex-1 min-w-0 space-y-6">
             {project ? (
               <div className="text-foreground">
                 {/* breadcrumb */}
@@ -115,14 +116,12 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                 {project.imageUrl && (
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4">
                     <Image
-                      src={
-                        project.imageUrl.startsWith("/")
-                          ? project.imageUrl
-                          : project.imageUrl
-                      }
+                      src={project.imageUrl}
                       alt={project.title}
                       fill
                       sizes="(min-width: 1024px) 66vw, 100vw"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL}
                       className="object-cover"
                     />
                   </div>
@@ -152,9 +151,11 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                 )}
               </div>
             ) : (
-              <p className="text-muted-foreground">
-                Select a project to see the details.
-              </p>
+              <div className="text-center py-20 border border-dashed border-border rounded-2xl">
+                <p className="text-foreground/60">
+                  Select a project to see the details.
+                </p>
+              </div>
             )}
           </div>
         </div>

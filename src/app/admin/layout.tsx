@@ -7,25 +7,25 @@ const adminPages = [
   { name: 'News', path: '/admin/news' },
   { name: 'People', path: '/admin/people' },
   { name: 'Contact', path: '/admin/contact' },
-
-
-  {name : 'Publication', path: '/admin/publications'},
-  {name : 'Tab Management', path: '/admin/board/tabs'},
-  {name : 'Post Management', path: '/admin/board/posts'},
-
+  { name: 'Publication', path: '/admin/publications' },
+  { name: 'Tab Management', path: '/admin/board/tabs' },
+  { name: 'Post Management', path: '/admin/board/posts' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside className="w-64 bg-gray-800 text-white  flex flex-col justify-between">
+    <div className="flex min-h-screen bg-background text-foreground">
+      <aside className="w-64 shrink-0 bg-zinc-900 text-zinc-100 flex flex-col justify-between border-r border-border">
         <div>
-          <div className="p-4 text-2xl font-bold">Admin Panel</div>
+          <div className="p-5 text-xl font-bold tracking-tight">Admin Panel</div>
           <nav>
             <ul>
               {adminPages.map((page) => (
                 <li key={page.name}>
-                  <Link href={page.path} className="block p-4 hover:bg-gray-700">
+                  <Link
+                    href={page.path}
+                    className="block px-5 py-3 text-sm hover:bg-zinc-800 transition-colors"
+                  >
                     {page.name}
                   </Link>
                 </li>
@@ -34,16 +34,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        <div className="p-4 border-t border-gray-700">
-          <Link href="/" className="block w-full text-center bg-gray-700 hover:bg-gray-600 rounded-md py-2">
+        <div className="p-4 border-t border-zinc-800">
+          <Link
+            href="/"
+            className="block w-full text-center bg-zinc-800 hover:bg-zinc-700 rounded-xl py-2 text-sm transition-colors"
+          >
             main page
           </Link>
         </div>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto text-black [color-scheme:light]">
-        {children}
-      </main>
+      <main className="flex-1 p-8 overflow-y-auto">{children}</main>
     </div>
   );
 }

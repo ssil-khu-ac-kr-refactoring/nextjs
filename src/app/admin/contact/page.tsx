@@ -65,7 +65,7 @@ export default function ManageContactPage() {
       <h1 className="text-3xl font-bold">Manage Contact</h1>
       {err && <p className="text-red-500">{err}</p>}
 
-      <form onSubmit={onSave}  className="space-y-6 bg-white p-6 rounded border border-gray-200 shadow-sm">
+      <form onSubmit={onSave}  className="space-y-6 bg-white p-6 rounded border border-border shadow-sm">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="font-semibold">Lab Name (Korean)</label>

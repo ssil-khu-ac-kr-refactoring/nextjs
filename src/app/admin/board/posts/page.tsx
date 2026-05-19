@@ -81,7 +81,7 @@ export default function BoardPostAdminPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">게시판 관리</h1>
-        <Link href="/admin/board/posts/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <Link href="/admin/board/posts/new" className="bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90">
           새 글 작성
         </Link>
       </div>
@@ -102,18 +102,18 @@ export default function BoardPostAdminPage() {
         </select>
       </div>
 
-      <div className="bg-white shadow-md rounded">
+      <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">제목</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">카테고리</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">게시일</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이미지</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">관리</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase">제목</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase">카테고리</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase">게시일</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-foreground/60 uppercase">이미지</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-foreground/60 uppercase">관리</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-border">
             {posts.map((p) => (
               <tr key={p.id}>
                 <td className="px-6 py-4">{p.title}</td>

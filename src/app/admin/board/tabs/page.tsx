@@ -155,7 +155,7 @@ export default function BoardTabAdminPage() {
         <div className="flex gap-4 mt-6">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90"
           >
             {editingTab ? '수정 완료' : '추가'}
           </button>
@@ -175,7 +175,7 @@ export default function BoardTabAdminPage() {
       </form>
 
       {/* ✅ 목록 테이블 */}
-      <div className="bg-white shadow rounded-md">
+      <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
