@@ -1,10 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "quill/dist/quill.snow.css";
+import Script from "next/script";
 import Providers from "./providers";
 import "@/styles/font.css";
 import { FontProvider } from "@/context/FontContext";
 import { Toaster } from "@/components/Toast";
+
+const UMAMI_SRC = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL;
+const UMAMI_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -69,6 +73,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Toaster />
           </FontProvider>
         </Providers>
+        {UMAMI_SRC && UMAMI_ID && (
+          <Script
+            src={UMAMI_SRC}
+            data-website-id={UMAMI_ID}
+            strategy="afterInteractive"
+            async
+          />
+        )}
       </body>
     </html>
   );
