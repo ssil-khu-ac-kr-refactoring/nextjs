@@ -110,8 +110,16 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -135,26 +143,28 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
      <div style={{ fontFamily: home.fontFamily || "MaruBuri" }}>
     
       <section className="relative h-screen w-full flex items-start text-foreground overflow-hidden pt-[200px]">
-        {images.length > 0 && (
+        {images.length > 0 ? (
           <Image
             key={current}
             src={images[current]}
             alt={`slide-${current}`}
             fill
             priority
+            sizes="100vw"
             className="object-cover z-10 animate-kenburns brightness-[.65] contrast-110"
           />
+        ) : (
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <Image
+              src="/main/HomepageMain.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover brightness-[.65] contrast-110"
+            />
+          </div>
         )}
-
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <Image
-            src="/main/HomepageMain.png"
-            alt=""
-            fill
-            className="object-cover brightness-[.65] contrast-110"
-            priority
-          />
-        </div>
 
         <div className="absolute inset-0 bg-black/55 z-20" />
 
@@ -310,7 +320,13 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
                   )}
                   <div className="relative w-full h-48 border-b border-border/20">
                     {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.title} fill className="object-cover" />
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, 100vw"
+                        className="object-cover"
+                      />
                     ) : (
                       <div className="absolute inset-0 bg-foreground/10" />
                     )}
@@ -500,6 +516,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             src={current.imageUrl || "/images/main2.jpg"}
             alt={current.title}
             fill
+            sizes="(min-width: 1024px) 80vw, 100vw"
             className="object-cover z-0"
           />
           <div className="absolute inset-0 bg-black/50 z-10" />

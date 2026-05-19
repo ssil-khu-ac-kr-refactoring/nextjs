@@ -49,8 +49,8 @@ export default async function BoardPostDetail({
               alt={post.title}
               width={900}
               height={500}
-              className="object-cover"
-              unoptimized
+              sizes="(min-width: 1024px) 900px, 100vw"
+              className="object-cover w-full h-auto"
             />
           </div>
         )}
