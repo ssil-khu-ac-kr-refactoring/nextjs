@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { ArrowLeft } from "lucide-react";
 import NewsForm from "../NewsForm";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 type NewsItem = {
   id: string;
@@ -171,7 +172,7 @@ export default function NewsDetailClient({
         <div
           className="prose prose-neutral dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{
-            __html: item.contentHtml || item.description || "",
+            __html: sanitizeHtml(item.contentHtml || item.description || ""),
           }}
         />
       ) : (

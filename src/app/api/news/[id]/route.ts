@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/news/[id]
 export async function GET(_req: Request, context: any) {
   try {
     const id = context?.params?.id as string;
@@ -19,8 +19,10 @@ export async function GET(_req: Request, context: any) {
   }
 }
 
-// PUT /api/news/[id]
 export async function PUT(req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const id = context?.params?.id as string;
     if (!id) return NextResponse.json({ error: 'Bad Request' }, { status: 400 });
@@ -28,7 +30,7 @@ export async function PUT(req: Request, context: any) {
     const body = await req.json();
     const { title, description, imageUrl, publishedAt } = body ?? {};
 
-    if (!title || !description) {
+    if (!title || !description || typeof title !== 'string' || typeof description !== 'string') {
       return NextResponse.json(
         { error: 'Title and description are required' },
         { status: 400 }
@@ -40,7 +42,7 @@ export async function PUT(req: Request, context: any) {
       data: {
         title,
         description,
-        imageUrl: imageUrl ?? null,
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : null,
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
       },
     });
@@ -55,8 +57,10 @@ export async function PUT(req: Request, context: any) {
   }
 }
 
-// DELETE /api/news/[id]
 export async function DELETE(_req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const id = context?.params?.id as string;
     if (!id) return NextResponse.json({ error: 'Bad Request' }, { status: 400 });

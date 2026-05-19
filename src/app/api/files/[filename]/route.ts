@@ -1,40 +1,58 @@
-// app/api/files/[filename]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-const READ_PATH = process.env.READ_PATH
+const READ_PATH = process.env.READ_PATH;
+
+const MIME_BY_EXT: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
+  '.tiff': 'image/tiff',
+  '.tif': 'image/tiff',
+  '.pdf': 'application/pdf',
+};
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    // Prevent directory traversal by normalizing and validating the filename
-    const filename = (await params).filename;
-    console.log('Requested filename:', filename);
-    const safeFilename = path.basename(filename);
+    if (!READ_PATH) {
+      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+    }
+
+    const filenameRaw = (await params).filename;
+    const safeFilename = path.basename(filenameRaw);
+    const ext = path.extname(safeFilename).toLowerCase();
+
+    // SVG 등 스크립트 실행 가능한 포맷 차단
+    const contentType = MIME_BY_EXT[ext];
+    if (!contentType) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
     const filePath = path.join(READ_PATH, safeFilename);
-    // 간단히 MIME 추정 (확장자 기준)
-    const ext = path.extname(filePath).toLowerCase();
-    let contentType = 'application/octet-stream';
-    if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
-    else if (ext === '.png') contentType = 'image/png';
-    else if (ext === '.gif') contentType = 'image/gif';
-    else if (ext === '.webp') contentType = 'image/webp';
-    else if (ext === '.svg') contentType = 'image/svg+xml';
-    else if (ext === '.bmp') contentType = 'image/bmp';
-    else if (ext === '.tiff' || ext === '.tif') contentType = 'image/tiff';
-    const buffer = await fs.readFile(filePath);
-    
+    const resolvedFile = path.resolve(filePath);
+    const resolvedRoot = path.resolve(READ_PATH);
+    if (!resolvedFile.startsWith(resolvedRoot + path.sep)) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
+    const buffer = await fs.readFile(resolvedFile);
+
     return new NextResponse(new Uint8Array(buffer), {
-      headers: { 'Content-Type': contentType },
+      headers: {
+        'Content-Type': contentType,
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; sandbox",
+        'Cache-Control': 'public, max-age=3600',
+      },
     });
-    
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message || 'File not found' },
-      { status: 404 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 }

@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
+
 export const dynamic = 'force-dynamic';
-// GET - 모든 인물 정보 조회
+
+const VALID_ROLES = new Set(['PROFESSOR', 'CURRENT', 'ALUMNI']);
+
 export async function GET() {
   try {
     const people = await prisma.person.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(people);
   } catch (error) {
@@ -16,31 +18,37 @@ export async function GET() {
   }
 }
 
-// POST - 새 인물 정보 생성
 export async function POST(request: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const data = await request.json();
-    const { name, position, description, image, email, degree, role } = data;
+    const { name, position, description, image, email, degree, role } = data ?? {};
 
-    if (!name || !position || !email || !role) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (
+      !name || typeof name !== 'string' ||
+      !position || typeof position !== 'string' ||
+      !email || typeof email !== 'string' ||
+      !role || typeof role !== 'string' || !VALID_ROLES.has(role)
+    ) {
+      return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 400 });
     }
 
     const newPerson = await prisma.person.create({
       data: {
         name,
         position,
-        description,
-        image,
+        description: typeof description === 'string' ? description : null,
+        image: typeof image === 'string' ? image : null,
         email,
-        degree,
-        role,
+        degree: typeof degree === 'string' ? degree : null,
+        role: role as any,
       },
     });
     return NextResponse.json(newPerson, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating person:', error);
-    // P2002 is the Prisma code for a unique constraint violation
     if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
       return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
     }

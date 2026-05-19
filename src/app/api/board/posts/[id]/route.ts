@@ -1,16 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import type { NextRequest } from 'next/server'
+import { requireAdmin } from '@/lib/api-auth';
 
-// ✅ 단일 게시글 조회
-export async function GET(
-  req: Request,
-
-  context: any
-
-) {
+export async function GET(req: Request, context: any) {
   try {
     const post = await prisma.boardPost.findUnique({
       where: { id: context.params.id },
@@ -28,29 +20,21 @@ export async function GET(
   }
 }
 
-// ✅ 게시글 수정
-export async function PUT(
-  req: Request,
-
-   context: any
-
-
-
-) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function PUT(req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await req.json();
-    const { title, description, imageUrl, tabId, publishedAt } = body;
+    const { title, description, imageUrl, tabId, publishedAt } = body ?? {};
 
     const updated = await prisma.boardPost.update({
       where: { id: context.params.id },
       data: {
-        title,
-        description,
-        imageUrl,
-        tabId: Number(tabId),
+        title: typeof title === 'string' ? title : undefined,
+        description: typeof description === 'string' ? description : undefined,
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : undefined,
+        tabId: tabId !== undefined ? Number(tabId) : undefined,
         publishedAt: publishedAt ? new Date(publishedAt) : undefined,
       },
     });
@@ -62,16 +46,9 @@ export async function PUT(
   }
 }
 
-// ✅ 게시글 삭제
-export async function DELETE(
-  req: Request,
-
-  context: any
-
-
-) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function DELETE(req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
 
   try {
     await prisma.boardPost.delete({ where: { id: context.params.id } });

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowLeft, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -517,7 +518,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             )}
             <div
               className="text-foreground text-base prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: current.description }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(current.description) }}
             />
           </div>
           <button

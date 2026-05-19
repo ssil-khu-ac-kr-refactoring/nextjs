@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireAdmin } from '@/lib/api-auth';
 
-// ✅ 전체 게시글 조회 (탭별 필터 가능)
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -22,27 +20,23 @@ export async function GET(req: Request) {
   }
 }
 
-// ✅ 게시글 생성 (로그인 + 관리자만)
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
 
   try {
     const body = await req.json();
-    const { title, description, imageUrl, tabId, publishedAt } = body;
+    const { title, description, imageUrl, tabId, publishedAt } = body ?? {};
 
-    if (!title || !tabId) {
+    if (!title || typeof title !== 'string' || !tabId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const newPost = await prisma.boardPost.create({
       data: {
         title,
-        description,
-        imageUrl,
+        description: typeof description === 'string' ? description : '',
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : null,
         tabId: Number(tabId),
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
         published: true,

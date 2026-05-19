@@ -2,17 +2,20 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAdmin } from '@/lib/api-auth';
+
 export const dynamic = 'force-dynamic';
 
-const UPLOAD_PATH = process.env.UPLOAD_PATH
+const UPLOAD_PATH = process.env.UPLOAD_PATH;
 
-// GET - 모든 슬라이더 이미지 조회
+const MAX_SIZE = 10 * 1024 * 1024;
+const ALLOWED_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
 export async function GET() {
   try {
     const sliderImages = await prisma.sliderImage.findMany({
-      orderBy: {
-        order: 'asc',
-      },
+      orderBy: { order: 'asc' },
     });
     return NextResponse.json(sliderImages);
   } catch (error) {
@@ -21,36 +24,52 @@ export async function GET() {
   }
 }
 
-// POST - 새 슬라이더 이미지 업로드 및 생성
 export async function POST(request: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+  if (!UPLOAD_PATH) {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+  }
+
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const altText = formData.get('altText') as string || 'Slider Image';
+    const file = formData.get('file') as File | null;
+    const altText = (formData.get('altText') as string | null) ?? 'Slider Image';
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ error: 'File too large' }, { status: 413 });
+    }
+    if (!ALLOWED_MIME.has(file.type)) {
+      return NextResponse.json({ error: 'Unsupported file type' }, { status: 415 });
+    }
 
-    // Convert file to buffer
+    const ext = path.extname(file.name).toLowerCase();
+    if (!ALLOWED_EXT.has(ext)) {
+      return NextResponse.json({ error: 'Unsupported file extension' }, { status: 415 });
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Generate a unique filename
-    const filename = `slider-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-    
-    // Define the path to save the file
+    const baseRaw = path.basename(file.name, ext).replace(/[^\w\-]/g, '_').slice(0, 64) || 'slider';
+    const filename = `slider-${Date.now()}-${baseRaw}${ext}`;
+
     const savePath = path.join(UPLOAD_PATH, filename);
+    const resolvedSave = path.resolve(savePath);
+    const resolvedRoot = path.resolve(UPLOAD_PATH);
+    if (!resolvedSave.startsWith(resolvedRoot + path.sep)) {
+      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
+    }
 
-    // Save the file to the filesystem
-    await fs.writeFile(savePath, buffer);
+    await fs.writeFile(resolvedSave, buffer);
 
-    // Create a record in the database
-    const imageUrl = `/api/files/${filename}`; // The public URL path
+    const imageUrl = `/api/files/${filename}`;
     const newImage = await prisma.sliderImage.create({
       data: {
         imageUrl,
         altText,
-        order: 0, // You might want to handle order differently
+        order: 0,
       },
     });
 

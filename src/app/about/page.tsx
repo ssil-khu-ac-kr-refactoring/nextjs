@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import PageLayout from "@/components/PageLayout";
 import { defaultAbout } from "@/lib/aboutContent";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const RichEditor = dynamic<{
   value: string;
@@ -105,7 +106,7 @@ export default function AboutPage() {
         {!editing ? (
           <div
             className="prose dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
           />
         ) : (
           <div className="bg-white text-black rounded-lg shadow-md border border-gray-200 p-6">

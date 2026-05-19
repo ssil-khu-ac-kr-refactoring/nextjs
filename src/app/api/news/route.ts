@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/news
 export async function GET() {
   try {
     const items = await prisma.news.findMany({
@@ -16,13 +16,15 @@ export async function GET() {
   }
 }
 
-// POST /api/news (인증 검사 없음)
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json();
     const { title, description, imageUrl, publishedAt } = body ?? {};
 
-    if (!title || !description) {
+    if (!title || !description || typeof title !== 'string' || typeof description !== 'string') {
       return NextResponse.json(
         { error: 'Title and description are required' },
         { status: 400 }
@@ -33,7 +35,7 @@ export async function POST(req: Request) {
       data: {
         title,
         description,
-        imageUrl: imageUrl ?? null,
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : null,
         publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
       },
     });

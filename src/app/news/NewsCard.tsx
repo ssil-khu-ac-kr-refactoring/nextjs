@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -51,7 +52,7 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
         </h3>
         <p
           className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3"
-          dangerouslySetInnerHTML={{ __html: item.description }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
         />
       </div>
 

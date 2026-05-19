@@ -11,12 +11,8 @@ function safeEqual(a: string, b: string) {
   return crypto.timingSafeEqual(abuf, bbuf);
 }
 
-// ADMIN_PASSWORD가 bcrypt 해시면 bcrypt 비교, 아니면 안전한 평문 비교
-async function checkPassword(input: string, secret: string) {
-  if (secret.startsWith("$2a$") || secret.startsWith("$2b$") || secret.startsWith("$2y$")) {
-    return bcrypt.compare(input, secret);
-  }
-  return safeEqual(input, secret);
+function isBcryptHash(s: string) {
+  return s.startsWith("$2a$") || s.startsWith("$2b$") || s.startsWith("$2y$");
 }
 
 export const authOptions: NextAuthOptions = {
@@ -34,12 +30,15 @@ export const authOptions: NextAuthOptions = {
 
         if (!credentials?.email || !credentials?.password) return null;
         if (!adminEmail || !adminPassword) return null;
+        if (!isBcryptHash(adminPassword)) {
+          // 평문 비밀번호 금지 — 반드시 bcrypt 해시여야 함
+          return null;
+        }
 
         const emailOK = safeEqual(credentials.email, adminEmail);
-        const pwOK = await checkPassword(credentials.password, adminPassword);
+        const pwOK = await bcrypt.compare(credentials.password, adminPassword);
         if (!emailOK || !pwOK) return null;
 
-        // role 없이 최소 정보만
         return { id: "admin-1", email: adminEmail, name: "Administrator" } as any;
       },
     }),
@@ -49,18 +48,15 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.email = (user as any).email;
         token.name = (user as any).name;
-          console.log("JWT 콜백")
       }
       return token as any;
     },
     async session({ session, token }) {
       if (session.user) {
-         console.log("세션 콜백")
         session.user.email = (token as any).email;
       }
       return session;
     },
- 
   },
   pages: { signIn: "/login" },
   secret: process.env.NEXTAUTH_SECRET,
