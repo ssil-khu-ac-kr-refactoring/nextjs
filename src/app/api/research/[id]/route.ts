@@ -1,7 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
+import { requireAdmin } from '@/lib/api-auth';
 
 export async function GET(_req: Request, context: any) {
   try {
@@ -16,20 +15,25 @@ export async function GET(_req: Request, context: any) {
 }
 
 export async function PUT(req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const { id } = context.params;
     const body = await req.json();
-    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body;
-    if (!title) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body ?? {};
+    if (!title || typeof title !== 'string') {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
 
     const updated = await prisma.research.update({
       where: { id },
       data: {
         title,
-        description: description ?? null,
-        contentHtml: contentHtml ?? null,
-        imageUrl: imageUrl ?? null,
-        status: status ?? 'IN_PROGRESS',
+        description: typeof description === 'string' ? description : null,
+        contentHtml: typeof contentHtml === 'string' ? contentHtml : null,
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : null,
+        status: status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
       },
@@ -43,6 +47,9 @@ export async function PUT(req: Request, context: any) {
 }
 
 export async function DELETE(_req: Request, context: any) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const { id } = context.params;
     await prisma.research.delete({ where: { id } });

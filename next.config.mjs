@@ -1,29 +1,53 @@
 // next.config.mjs
-import path from 'node:path'; // ← 꼭 import
-// __dirname 대신 process.cwd() 사용 (ESM에서 안전)
+import path from 'node:path';
 const projectRoot = process.cwd();
+
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload',
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "connect-src 'self' https:",
+      "frame-src 'self' https://www.google.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "frame-ancestors 'self'",
+    ].join('; '),
+  },
+];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-   images: {
-    // 둘 중 편한 방식으로 하나만 쓰면 됨
-    // 1) domains
+  poweredByHeader: false,
+  images: {
     domains: ['webrefactor.s3.ap-northeast-2.amazonaws.com'],
-remotePatterns: [
-      // 필요 도메인만 추가 (예시들)
+    remotePatterns: [
       { protocol: 'https', hostname: 'ssil.khu.ac.kr' },
-    
-      // 개발 중 임시로 로컬 파일서버 쓴다면:
       { protocol: 'http', hostname: 'localhost' },
       { protocol: 'http', hostname: '127.0.0.1' },
     ],
-    // 2) remotePatterns (더 정교)
-    // remotePatterns: [
-    //   { protocol: 'https', hostname: 'webrefactor.s3.ap-northeast-2.amazonaws.com' },
-    // ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+    ];
   },
   webpack(config) {
-    // tsconfig의 "@/..."를 webpack에도 동일하게 매핑
     config.resolve.alias['@'] = path.resolve(projectRoot, 'src');
     return config;
   },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
 
 // GET all
 export async function GET() {
@@ -14,21 +15,25 @@ export async function GET() {
   }
 }
 
-// POST create (JSON body, 권한체크 없음)
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json();
-    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body;
+    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body ?? {};
 
-    if (!title) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    if (!title || typeof title !== 'string') {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
 
     const created = await prisma.research.create({
       data: {
         title,
-        description: description ?? null,
-        contentHtml: contentHtml ?? null,
-        imageUrl: imageUrl ?? null,
-        status: status ?? 'IN_PROGRESS',
+        description: typeof description === 'string' ? description : null,
+        contentHtml: typeof contentHtml === 'string' ? contentHtml : null,
+        imageUrl: typeof imageUrl === 'string' ? imageUrl : null,
+        status: status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
       },

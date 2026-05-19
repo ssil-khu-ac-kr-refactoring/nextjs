@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Research } from "@prisma/client";
 import PageLayout from "@/components/PageLayout";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface ResearchData {
   Current: Research[];
@@ -144,7 +145,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                   <div className="p-6 rounded-lg prose dark:prose-invert max-w-none mt-4 bg-card/50 border border-border">
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: project.contentHtml,
+                        __html: sanitizeHtml(project.contentHtml),
                       }}
                     />
                   </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from '@/lib/api-auth';
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,12 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json();
-    const data = { content: body.content || "" };
+    const data = { content: typeof body?.content === 'string' ? body.content : "" };
 
     const updated = await prisma.aboutContent.upsert({
       where: { page: "about" },

@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // ✅ 본인 프로젝트 경로에 맞게 import
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/api-auth';
 
-// GET: 모든 탭 조회
 export async function GET() {
   try {
     const tabs = await prisma.boardTab.findMany({
@@ -16,20 +14,15 @@ export async function GET() {
   }
 }
 
-// POST: 새 탭 생성
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
-    const session = await getServerSession(authOptions);
-
-    // 세션이 없으면 로그인 안된 상태
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await req.json();
-    const { name, slug, description, order } = body;
+    const { name, slug, description, order } = body ?? {};
 
-    if (!name || !slug) {
+    if (!name || typeof name !== 'string' || !slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 });
     }
 
@@ -37,8 +30,8 @@ export async function POST(req: Request) {
       data: {
         name,
         slug,
-        description,
-        order: order ?? 0,
+        description: typeof description === 'string' ? description : null,
+        order: typeof order === 'number' ? order : 0,
       },
     });
 

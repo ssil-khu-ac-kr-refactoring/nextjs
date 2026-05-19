@@ -1,6 +1,7 @@
 // app/post/[slug]/[id]/page.tsx
 import Header from "@/components/Navbar";
 import { prisma } from "@/lib/prisma";
+import { sanitizeHtml } from "@/lib/sanitize";
 import Image from "next/image";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export default async function BoardPostDetail(
 
         <div
           className="prose dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.description || "" }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.description) }}
         />
       </article>
     </>

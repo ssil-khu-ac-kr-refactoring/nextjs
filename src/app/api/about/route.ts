@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import {prisma} from "@/lib/prisma";
-export const dynamic = 'force-dynamic';
+import { prisma } from "@/lib/prisma";
 import { defaultAbout } from "@/lib/aboutContent";
+import { requireAdmin } from '@/lib/api-auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const row = await prisma.aboutContent.findUnique({ where: { page: "about" } });
@@ -10,6 +12,9 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const body = await req.json().catch(() => ({}));
   const data = { ...defaultAbout, ...body };
 
