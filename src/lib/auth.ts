@@ -11,8 +11,12 @@ function safeEqual(a: string, b: string) {
   return crypto.timingSafeEqual(abuf, bbuf);
 }
 
-function isBcryptHash(s: string) {
-  return s.startsWith("$2a$") || s.startsWith("$2b$") || s.startsWith("$2y$");
+// ADMIN_PASSWORD가 bcrypt 해시면 bcrypt 비교, 아니면 안전한 평문 비교
+async function checkPassword(input: string, secret: string) {
+  if (secret.startsWith("$2a$") || secret.startsWith("$2b$") || secret.startsWith("$2y$")) {
+    return bcrypt.compare(input, secret);
+  }
+  return safeEqual(input, secret);
 }
 
 export const authOptions: NextAuthOptions = {
@@ -30,13 +34,9 @@ export const authOptions: NextAuthOptions = {
 
         if (!credentials?.email || !credentials?.password) return null;
         if (!adminEmail || !adminPassword) return null;
-        if (!isBcryptHash(adminPassword)) {
-          // 평문 비밀번호 금지 — 반드시 bcrypt 해시여야 함
-          return null;
-        }
 
         const emailOK = safeEqual(credentials.email, adminEmail);
-        const pwOK = await bcrypt.compare(credentials.password, adminPassword);
+        const pwOK = await checkPassword(credentials.password, adminPassword);
         if (!emailOK || !pwOK) return null;
 
         return { id: "admin-1", email: adminEmail, name: "Administrator" } as any;
