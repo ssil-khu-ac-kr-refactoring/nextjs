@@ -67,7 +67,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
               <div key={cat}>
                 <button
                   onClick={() => handleCategoryClick(cat)}
-                  className={`block w-full text-left py-2 px-4 rounded transition ${selectedCategory === cat
+                  className={`block w-full text-left py-2 px-4 rounded-xl transition ${selectedCategory === cat
                     ? "bg-primary/20 text-primary font-semibold"
                     : "bg-background/10 text-foreground/70 hover:bg-background/20"
                     }`}
@@ -80,7 +80,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                     <li key={p.id}>
                       <button
                         onClick={() => handleProjectClick(cat, idx)}
-                        className={`block w-full text-left py-1 px-4 rounded text-sm transition ${cat === selectedCategory && idx === selectedProjectIdx
+                        className={`block w-full text-left py-1 px-4 rounded-lg text-sm transition ${cat === selectedCategory && idx === selectedProjectIdx
                           ? "bg-primary/20 text-primary font-medium"
                           : "text-foreground/70 hover:bg-primary/10"
                           }`}
@@ -113,7 +113,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
 
                 {/* 이미지 */}
                 {project.imageUrl && (
-                  <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4">
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4">
                     <Image
                       src={
                         project.imageUrl.startsWith("/")
@@ -142,7 +142,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
 
                 {/* 내용 */}
                 {project.contentHtml && (
-                  <div className="p-6 rounded-lg prose dark:prose-invert max-w-none mt-4 bg-card/50 border border-border">
+                  <div className="p-6 rounded-2xl prose dark:prose-invert max-w-none mt-4 bg-card/50 border border-border">
                     <div
                       dangerouslySetInnerHTML={{
                         __html: sanitizeHtml(project.contentHtml),
