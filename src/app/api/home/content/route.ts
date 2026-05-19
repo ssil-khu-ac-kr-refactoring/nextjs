@@ -12,7 +12,7 @@ const DEFAULTS = {
   aboutTitle: 'Empowering cosmic discovery—one payload at a time.',
   aboutParagraph: 'Since ancient times, people have expressed a variety of interests, ranging from vague admiration for the universe to a brief curiosity. Now, even space travel has reached a time when it is no longer an imagination. Despite these times, and also in these times, people need more scientific understanding of cosmic phenomena, which requires various kinds of observational data in outer space. The Space Science Instrument Laboratory (SSIL) focuses on this research.',
   newsTitle: 'NEWS',
-  newsSubtitle: 'SSIL의 최신 소식과 공지사항을 확인하세요.',
+  newsSubtitle: 'Check out our latest news and announcements.',
 };
 
 function pickAllowed(body: any) {
