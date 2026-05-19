@@ -9,26 +9,19 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   noStore();
 
-  const allResearch = await prisma.research.findMany({
-    orderBy: [{ order: "asc" }, { startDate: "desc" }, { createdAt: "desc" }],
-  });
+  const [allResearch, newsData, homeContent, sliderImages] = await Promise.all([
+    prisma.research.findMany({
+      orderBy: [{ order: "asc" }, { startDate: "desc" }, { createdAt: "desc" }],
+    }),
+    prisma.news.findMany({ orderBy: { publishedAt: "desc" }, take: 3 }),
+    prisma.homePageContent.findUnique({ where: { id: 1 } }),
+    prisma.sliderImage.findMany({ orderBy: { order: "asc" } }),
+  ]);
+
   const researchData = {
     Current: allResearch.filter((p) => p.status === "IN_PROGRESS"),
     Completed: allResearch.filter((p) => p.status === "COMPLETED"),
   };
-
-  const newsData = await prisma.news.findMany({
-    orderBy: { publishedAt: "desc" },
-    take: 3,
-  });
-
-  const homeContent = await prisma.homePageContent.findUnique({
-    where: { id: 1 },
-  });
-
-  const sliderImages = await prisma.sliderImage.findMany({
-    orderBy: { order: "asc" },
-  });
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors">

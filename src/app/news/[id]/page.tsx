@@ -6,11 +6,6 @@ import NewsDetailClient from "./_client";
 
 export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  const newsItems = await prisma.news.findMany({ select: { id: true } });
-  return newsItems.map((item) => ({ id: item.id }));
-}
-
 export default async function NewsDetailPage({
   params,
   searchParams,

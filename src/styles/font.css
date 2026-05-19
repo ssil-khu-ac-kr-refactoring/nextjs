@@ -5,21 +5,25 @@
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriOTF/MaruBuri-Regular.otf") format("opentype");
   font-weight: 400;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriOTF/MaruBuri-Light.otf") format("opentype");
   font-weight: 300;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriOTF/MaruBuri-ExtraLight.otf") format("opentype");
   font-weight: 200;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriOTF/MaruBuri-SemiBold.otf") format("opentype");
   font-weight: 600;
+  font-display: swap;
 }
 
 /* ===============================
@@ -29,26 +33,31 @@
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-Regular.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-Light.ttf") format("truetype");
   font-weight: 300;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-ExtraLight.ttf") format("truetype");
   font-weight: 200;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-SemiBold.ttf") format("truetype");
   font-weight: 600;
+  font-display: swap;
 }
 @font-face {
   font-family: "MaruBuri";
   src: url("/fonts/MaruBuriTTF/MaruBuri-Bold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
 }
 
 /* ===============================
@@ -58,21 +67,25 @@
   font-family: "Nanum Gothic";
   src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicLight.ttf") format("truetype");
   font-weight: 300;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Gothic";
   src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothic.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Gothic";
   src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicBold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Gothic";
   src: url("/fonts/NanumFontSetup_TTF_GOTHIC/NanumGothicExtraBold.ttf") format("truetype");
   font-weight: 800;
+  font-display: swap;
 }
 
 /* ===============================
@@ -82,21 +95,25 @@
   font-family: "Nanum Barun Gothic";
   src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicUltraLight.ttf") format("truetype");
   font-weight: 200;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Barun Gothic";
   src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicLight.ttf") format("truetype");
   font-weight: 300;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Barun Gothic";
   src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothic.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Barun Gothic";
   src: url("/fonts/NanumFontSetup_TTF_BARUNGOTHIC/NanumBarunGothicBold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
 }
 
 /* ===============================
@@ -106,16 +123,19 @@
   font-family: "Nanum Gothic Eco";
   src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEcoExtraBold.ttf") format("truetype");
   font-weight: 800;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Gothic Eco";
   src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEcoBold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
 }
 @font-face {
   font-family: "Nanum Gothic Eco";
   src: url("/fonts/NanumFontSetup_TTF_GOTHICECO/NanumGothicEco.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 
 /* ===============================
@@ -125,6 +145,7 @@
   font-family: "Nanum Myungjo";
   src: url("/fonts/NanumFontSetup_TTF_MYUNGJO/NanumMyeongjo.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 
 /* ===============================
@@ -134,11 +155,13 @@
   font-family: "Holigas";
   src: url("/fonts/Holigas.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 @font-face {
   font-family: "Mickerr";
   src: url("/fonts/Mickerr.ttf") format("truetype");
   font-weight: 400;
+  font-display: swap;
 }
 
 
@@ -148,6 +171,7 @@
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -155,6 +179,7 @@
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -162,6 +187,7 @@
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -169,6 +195,7 @@
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -176,4 +203,5 @@
   src: url("/fonts/SpaceGrotesk/SpaceGrotesk-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
