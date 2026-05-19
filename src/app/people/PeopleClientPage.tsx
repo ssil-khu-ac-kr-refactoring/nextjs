@@ -37,9 +37,9 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
               <button
                 key={t}
                 onClick={() => setSelectedTab(t)}
-                className={`w-full text-left py-2.5 px-4 rounded-lg border transition-all ${selectedTab === t
+                className={`w-full text-left py-2.5 px-4 rounded-xl border transition-all ${selectedTab === t
                     ? "bg-primary/10 text-primary font-semibold border-primary/30"
-                    : "bg-white dark:bg-neutral-900 text-foreground/70 hover:text-foreground hover:border-border/60 border-border"
+                    : "bg-card text-foreground/70 hover:text-foreground hover:border-border/60 border-border"
                   }`}
               >
                 {t}
@@ -52,7 +52,7 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
               profiles.map((profile) => (
                 <section
                   key={profile.id}
-                  className="flex flex-col lg:flex-row items-start gap-6 p-6 border border-border bg-white dark:bg-neutral-900 rounded-2xl shadow-sm hover:shadow-md transition"
+                  className="flex flex-col lg:flex-row items-start gap-6 p-6 border border-border bg-card rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <div className="flex-shrink-0 self-center lg:self-start">
                     <Image
@@ -101,9 +101,11 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
                 </section>
               ))
             ) : (
-              <p className="text-center text-muted-foreground py-10">
-                No members in this category.
-              </p>
+              <div className="text-center py-20 border border-dashed border-border rounded-2xl">
+                <p className="text-foreground/60">
+                  No members in this category yet.
+                </p>
+              </div>
             )}
           </div>
         </div>

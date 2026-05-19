@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Research } from "@prisma/client";
 import PageLayout from "@/components/PageLayout";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 
 interface ResearchData {
   Current: Research[];
@@ -115,14 +116,12 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                 {project.imageUrl && (
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4">
                     <Image
-                      src={
-                        project.imageUrl.startsWith("/")
-                          ? project.imageUrl
-                          : project.imageUrl
-                      }
+                      src={project.imageUrl}
                       alt={project.title}
                       fill
                       sizes="(min-width: 1024px) 66vw, 100vw"
+                      placeholder="blur"
+                      blurDataURL={BLUR_DATA_URL}
                       className="object-cover"
                     />
                   </div>
@@ -152,9 +151,11 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                 )}
               </div>
             ) : (
-              <p className="text-muted-foreground">
-                Select a project to see the details.
-              </p>
+              <div className="text-center py-20 border border-dashed border-border rounded-2xl">
+                <p className="text-foreground/60">
+                  Select a project to see the details.
+                </p>
+              </div>
             )}
           </div>
         </div>

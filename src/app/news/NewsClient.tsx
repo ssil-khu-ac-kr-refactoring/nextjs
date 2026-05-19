@@ -47,7 +47,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
         <div className="text-right mb-8">
           <button
             onClick={() => setShowCreate(true)}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 transition"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition"
           >
             + Add News
           </button>
@@ -55,11 +55,17 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
       )}
 
       {/* News Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
-        {news.map((item) => (
-          <NewsCard key={item.id} item={item} isAdmin={isAdmin} />
-        ))}
-      </div>
+      {news.length === 0 ? (
+        <div className="text-center py-20 border border-dashed border-border rounded-2xl">
+          <p className="text-foreground/60">아직 등록된 뉴스가 없습니다.</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          {news.map((item) => (
+            <NewsCard key={item.id} item={item} isAdmin={isAdmin} />
+          ))}
+        </div>
+      )}
 
       {/* Create Modal */}
       {isAdmin && showCreate && (
@@ -75,7 +81,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
             className="absolute inset-0 bg-black/60"
           />
           {/* Dialog */}
-          <div className="relative bg-white dark:bg-neutral-900 text-foreground w-full max-w-2xl rounded-2xl shadow-xl mx-4">
+          <div className="relative bg-card text-foreground w-full max-w-2xl rounded-2xl shadow-xl mx-4 border border-border">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
               <h2 className="text-lg font-semibold">Add News</h2>
               <button

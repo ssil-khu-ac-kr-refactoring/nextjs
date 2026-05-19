@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowLeft, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -307,7 +308,7 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
               newsData.map((item) => (
                 <div
                   key={item.id}
-                  className="relative rounded-xl border border-border/30 bg-background overflow-hidden shadow-sm hover:shadow-md transition"
+                  className="relative rounded-2xl border border-border/30 bg-card overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                 >
                   {isAdmin && (
                     <Link
@@ -325,6 +326,8 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
                         alt={item.title}
                         fill
                         sizes="(min-width: 1024px) 33vw, 100vw"
+                        placeholder="blur"
+                        blurDataURL={BLUR_DATA_URL}
                         className="object-cover"
                       />
                     ) : (
@@ -517,6 +520,8 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             alt={current.title}
             fill
             sizes="(min-width: 1024px) 80vw, 100vw"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             className="object-cover z-0"
           />
           <div className="absolute inset-0 bg-black/50 z-10" />

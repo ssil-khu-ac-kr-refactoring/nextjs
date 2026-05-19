@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -21,7 +22,7 @@ interface NewsCardProps {
 
 export default function NewsCard({ item, isAdmin }: NewsCardProps) {
   return (
-    <div className="relative flex flex-col overflow-hidden bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-sm hover:shadow-lg transition-all duration-300 rounded-2xl">
+    <div className="relative flex flex-col overflow-hidden bg-card border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 rounded-2xl">
       {isAdmin && (
         <Link
           href={`/news/${item.id}?edit=1`}
@@ -37,6 +38,9 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
             src={item.imageUrl}
             alt={item.title}
             fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             className="object-cover transition-transform duration-500 hover:scale-105"
           />
         ) : (
