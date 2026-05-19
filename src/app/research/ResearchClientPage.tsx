@@ -60,9 +60,9 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
           </h1>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 좌측 네비게이션 */}
-          <nav className="space-y-6">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* 좌측 네비게이션 — 고정 폭 240px */}
+          <nav className="w-full lg:w-60 lg:shrink-0 space-y-6">
             {categories.map((cat) => (
               <div key={cat}>
                 <button
@@ -98,8 +98,8 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
             ))}
           </nav>
 
-          {/* 우측 내용 */}
-          <div className="col-span-2 space-y-6">
+          {/* 우측 내용 — flex-1로 남는 폭 전부, min-w-0로 prose 오버플로 방지 */}
+          <div className="flex-1 min-w-0 space-y-6">
             {project ? (
               <div className="text-foreground">
                 {/* breadcrumb */}
