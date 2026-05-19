@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { unstable_noStore as noStore } from 'next/cache';
 import Loading from "@/components/Loading";
+import { toast } from "@/components/Toast";
 type Contact = {
   labNameKo: string;
   labNameEn: string;
@@ -49,7 +50,7 @@ export default function ManageContactPage() {
         body: JSON.stringify(contact),
       });
       if (!res.ok) throw new Error("Failed to save");
-      alert("Saved!");
+      toast.success("Saved!");
     } catch (e: any) {
       setErr(e.message);
     } finally {

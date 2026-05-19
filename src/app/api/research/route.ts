@@ -6,7 +6,7 @@ import { requireAdmin } from '@/lib/api-auth';
 export async function GET() {
   try {
     const items = await prisma.research.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ order: 'asc' }, { startDate: 'desc' }, { createdAt: 'desc' }],
     });
     return NextResponse.json(items);
   } catch (e) {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body ?? {};
+    const { title, description, contentHtml, imageUrl, status, startDate, endDate, order } = body ?? {};
 
     if (!title || typeof title !== 'string') {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
         status: status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
+        order: typeof order === 'number' ? order : 0,
       },
     });
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Loading from '@/components/Loading';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/Toast';
 
 // ✅ 이미 프로젝트에 있는 RichEditor 재활용
 const RichEditor = dynamic<{
@@ -46,7 +47,7 @@ export default function ManageAboutPage() {
         body: JSON.stringify({ content }),
       });
       if (!res.ok) throw new Error('Failed to save content');
-      alert('✅ About 페이지가 저장되었습니다.');
+      toast.success('About 페이지가 저장되었습니다.');
     } catch (e: any) {
       setError(e.message);
     } finally {

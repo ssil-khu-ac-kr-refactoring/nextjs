@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { useSession } from 'next-auth/react';
 import type { ComponentProps } from 'react';
 import type RichEditorComponent from '@/components/RichEditor';
+import { toast } from '@/components/Toast';
 
 // ✅ RichEditor 동적 로드 (SSR 이슈 방지)
 const RichEditor = dynamic(() => import('@/components/RichEditor'), {
@@ -81,7 +82,7 @@ export default function NewBoardPostPage() {
     e.preventDefault();
 
     if (!tabId) {
-      alert('카테고리를 선택해주세요.');
+      toast.error('카테고리를 선택해주세요.');
       return;
     }
 

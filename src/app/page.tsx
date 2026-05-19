@@ -10,16 +10,11 @@ export default async function HomePage() {
   noStore();
 
   const allResearch = await prisma.research.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { startDate: "desc" }, { createdAt: "desc" }],
   });
-  const byStartDateDesc = (a: typeof allResearch[number], b: typeof allResearch[number]) => {
-    const da = a.startDate ? new Date(a.startDate).getTime() : 0;
-    const db = b.startDate ? new Date(b.startDate).getTime() : 0;
-    return db - da;
-  };
   const researchData = {
-    Current: allResearch.filter((p) => p.status === "IN_PROGRESS").sort(byStartDateDesc),
-    Completed: allResearch.filter((p) => p.status === "COMPLETED").sort(byStartDateDesc),
+    Current: allResearch.filter((p) => p.status === "IN_PROGRESS"),
+    Completed: allResearch.filter((p) => p.status === "COMPLETED"),
   };
 
   const newsData = await prisma.news.findMany({

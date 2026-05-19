@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import PageLayout from "@/components/PageLayout";
 import PublicationForm, { PublicationFormValues } from "@/components/PublicationForm";
+import { toast } from "@/components/Toast";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,11 @@ export default function PublicationPage() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this publication?")) return;
-    await fetch(`/api/publications/${id}`, { method: "DELETE" });
+    const delRes = await fetch(`/api/publications/${id}`, { method: "DELETE" });
+    if (!delRes.ok) {
+      toast.error("삭제에 실패했습니다.");
+      return;
+    }
     handleSave();
   };
 
@@ -122,7 +127,10 @@ export default function PublicationPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                   });
-                  if (!res.ok) alert("Error saving publication");
+                  if (!res.ok) {
+                    toast.error("Error saving publication");
+                    return;
+                  }
                   handleSave();
                 }}
                 buttonText={editItem ? "Update" : "Create"}

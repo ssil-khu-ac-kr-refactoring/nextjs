@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { unstable_noStore as noStore } from 'next/cache';
+import { toast } from '@/components/Toast';
 
 // Define types for our data
 interface HomePageContent {
@@ -96,7 +97,7 @@ export default function ManageHomePage() {
         body: JSON.stringify(content),
       });
       if (!res.ok) throw new Error('Failed to save content');
-      alert('Content saved successfully!');
+      toast.success('Content saved successfully!');
     } catch (err: any) {
       setContentError(err.message);
     } finally {

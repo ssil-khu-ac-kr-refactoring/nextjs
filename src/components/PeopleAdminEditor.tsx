@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "@/components/Toast";
 
 type Profile = {
   name: string;
@@ -59,14 +60,15 @@ export default function PeopleAdminEditor() {
 
   const handleSave = async () => {
     try {
-      await fetch("/api/people", {
+      const res = await fetch("/api/people", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(people),
       });
-      alert("저장 완료!");
-    } catch (e) {
-      alert("저장 실패");
+      if (!res.ok) throw new Error("저장 실패");
+      toast.success("저장 완료!");
+    } catch {
+      toast.error("저장 실패");
     }
   };
 

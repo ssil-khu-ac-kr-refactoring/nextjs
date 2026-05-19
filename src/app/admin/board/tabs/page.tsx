@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { unstable_noStore as noStore } from 'next/cache';
+import { toast } from '@/components/Toast';
 
 interface BoardTab {
   id: number;
@@ -67,7 +68,7 @@ export default function BoardTabAdminPage() {
       setFormData({ name: '', slug: '', description: '', order: 0 });
       setEditingTab(null);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -82,10 +83,13 @@ export default function BoardTabAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      await fetch(`/api/board/tabs/${id}`, { method: 'DELETE' });
-      fetchTabs();
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const res = await fetch(`/api/board/tabs/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      toast.error('삭제에 실패했습니다.');
+      return;
     }
+    fetchTabs();
   };
 
   if (loading) return <div>Loading...</div>;

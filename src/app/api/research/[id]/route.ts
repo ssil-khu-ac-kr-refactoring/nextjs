@@ -21,7 +21,7 @@ export async function PUT(req: Request, context: any) {
   try {
     const { id } = context.params;
     const body = await req.json();
-    const { title, description, contentHtml, imageUrl, status, startDate, endDate } = body ?? {};
+    const { title, description, contentHtml, imageUrl, status, startDate, endDate, order } = body ?? {};
     if (!title || typeof title !== 'string') {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
@@ -36,6 +36,7 @@ export async function PUT(req: Request, context: any) {
         status: status === 'COMPLETED' ? 'COMPLETED' : 'IN_PROGRESS',
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
+        order: typeof order === 'number' ? order : undefined,
       },
     });
     return NextResponse.json(updated);

@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const all = await prisma.research.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: { id: true, title: true, status: true }, // 필요만 선택
+      orderBy: [{ order: 'asc' }, { startDate: 'desc' }, { createdAt: 'desc' }],
+      select: { id: true, title: true, status: true },
     });
 
     // 상태를 페이지가 쓰는 카테고리명으로 매핑

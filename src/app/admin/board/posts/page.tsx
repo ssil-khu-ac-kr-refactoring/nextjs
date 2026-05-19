@@ -64,10 +64,13 @@ export default function BoardPostAdminPage() {
   }, [status, selectedTab]);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('삭제하시겠습니까?')) {
-      await fetch(`/api/board/posts/${id}`, { method: 'DELETE' });
-      fetchPosts(selectedTab ?? undefined);
+    if (!window.confirm('삭제하시겠습니까?')) return;
+    const res = await fetch(`/api/board/posts/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      toast.error('삭제에 실패했습니다.');
+      return;
     }
+    fetchPosts(selectedTab ?? undefined);
   };
 
   if (loading) return <div>Loading...</div>;
