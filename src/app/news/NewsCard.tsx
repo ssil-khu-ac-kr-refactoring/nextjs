@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { BLUR_DATA_URL } from "@/lib/blurDataURL";
+import { FadeIn } from "@/components/anim/FadeIn";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -22,7 +23,7 @@ interface NewsCardProps {
 
 export default function NewsCard({ item, isAdmin }: NewsCardProps) {
   return (
-    <div className="relative flex flex-col overflow-hidden bg-card border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 rounded-2xl">
+    <FadeIn className="relative flex flex-col overflow-hidden bg-card border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 rounded-2xl">
       {isAdmin && (
         <Link
           href={`/news/${item.id}?edit=1`}
@@ -73,6 +74,6 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
           READ MORE →
         </Link>
       </div>
-    </div>
+    </FadeIn>
   );
 }

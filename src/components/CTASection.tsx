@@ -8,6 +8,8 @@ import { ArrowRight, ArrowLeft, Pencil } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { BLUR_DATA_URL } from "@/lib/blurDataURL";
+import { AnimatedHeadline } from "@/components/anim/AnimatedHeadline";
+import { FadeIn } from "@/components/anim/FadeIn";
 
 const newsDateFormatter =
   typeof Intl !== "undefined"
@@ -222,19 +224,26 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
 
         <div className="relative z-30 w-full max-w-7xl mx-auto px-8 md:px-16 lg:px-24 text-center space-y-6">
           {!editingHero ? (
-            <h1
-              className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]"
+            <div
               style={{
                 transform: `translateY(${heroTranslate}px) scale(${heroScale})`,
                 opacity: heroOpacity,
-                textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
                 transition: "transform 0.1s linear, opacity 0.1s linear",
               }}
             >
-              <span className="text-primary">{home.heroTitle}</span>
-              <br />
-              <span className="text-white">{home.heroSubtitle}</span>
-            </h1>
+              <AnimatedHeadline
+                primary={home.heroTitle}
+                secondary={home.heroSubtitle}
+                className="text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
+              />
+              {home.heroParagraph && (
+                <FadeIn delay={0.6} y={16} className="mt-8 max-w-2xl mx-auto">
+                  <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                    {home.heroParagraph}
+                  </p>
+                </FadeIn>
+              )}
+            </div>
           ) : (
             <div
               className="mx-auto max-w-3xl rounded-xl bg-black/40 p-4 backdrop-blur"
@@ -286,13 +295,13 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
       <ResearchSection researchData={researchData} isAdmin={isAdmin} />
 
       <section id="news" className="bg-background text-foreground py-24 px-4">
-        <div className="max-w-7xl mx-auto">
+        <FadeIn className="max-w-7xl mx-auto">
           <div className="flex items-end justify-between mb-2">
-            <h2 className="text-4xl font-bold">{home.newsTitle || "NEWS"}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">{home.newsTitle || "NEWS"}</h2>
             {isAdmin && (
               <Link
                 href="/news"
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded bg-foreground text-background hover:opacity-90"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90 transition active:scale-95"
               >
                 <Pencil className="w-4 h-4" />
                 Manage News
@@ -302,6 +311,8 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
           <p className="mb-8 text-foreground/70">
             {home.newsSubtitle || "Check out our latest news and announcements."}
           </p>
+        </FadeIn>
+        <div className="max-w-7xl mx-auto">
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {Array.isArray(newsData) && newsData.length > 0 ? (
@@ -432,20 +443,16 @@ const AboutSection = ({
       <div className="max-w-4xl mx-auto text-center">
         {!editingAbout ? (
           <>
-            <motion.h2
-              className="text-4xl font-bold mb-6"
-              style={{ x: h2X, opacity: h2Opacity }}
-              transition={{ type: "spring", stiffness: 45, damping: 30, mass: 1.2 }}
-            >
-              {about.aboutTitle}
-            </motion.h2>
-            <motion.p
-              className="text-lg text-foreground/70 max-w-3xl mx-auto"
-              style={{ x: pX, opacity: pOpacity }}
-              transition={{ type: "spring", stiffness: 45, damping: 32, mass: 1.2, delay: 0.15 }}
-            >
-              {about.aboutBody}
-            </motion.p>
+            <FadeIn y={32} duration={0.9} className="mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+                {about.aboutTitle}
+              </h2>
+            </FadeIn>
+            <FadeIn y={24} delay={0.15} duration={0.9}>
+              <p className="text-lg text-foreground/80 max-w-3xl mx-auto leading-relaxed">
+                {about.aboutBody}
+              </p>
+            </FadeIn>
           </>
         ) : (
           <div className="mx-auto max-w-3xl text-left">
@@ -498,13 +505,13 @@ const ResearchSection = ({ researchData, isAdmin }) => {
 
   return (
     <section id="research" className="bg-background text-foreground py-24 px-4">
-      <div className="max-w-7xl mx-auto">
+      <FadeIn className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-2">
-          <h2 className="text-4xl font-bold text-primary">Our Mission</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">Our Mission</h2>
           {isAdmin && (
             <Link
               href={`/admin/research?cat=${category}&id=${current.id}`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90 transition active:scale-95"
             >
               <Pencil className="w-4 h-4" />
               Edit This Project
@@ -512,8 +519,8 @@ const ResearchSection = ({ researchData, isAdmin }) => {
           )}
         </div>
         <p className="mb-8 text-primary/80">Recent highlights from SSIL’s research and missions.</p>
-      </div>
-      <div className="max-w-6xl mx-auto relative overflow-hidden rounded-2xl">
+      </FadeIn>
+      <FadeIn y={32} delay={0.1} className="max-w-6xl mx-auto relative overflow-hidden rounded-2xl">
         <div className="relative h-[500px] w-full">
           <Image
             src={current.imageUrl || "/images/main2.jpg"}
@@ -559,12 +566,12 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             {allProjects.map((_, i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full ${i === index ? "bg-primary" : "bg-background/40 dark:bg-foreground/40"}`}
+                className={`w-2 h-2 rounded-full transition-all ${i === index ? "bg-primary w-6" : "bg-background/40 dark:bg-foreground/40"}`}
               />
             ))}
           </div>
         </div>
-      </div>
+      </FadeIn>
     </section>
   );
 };

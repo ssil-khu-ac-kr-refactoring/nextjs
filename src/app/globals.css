@@ -66,6 +66,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* 다크/라이트 토글 부드럽게 — 색 트랜지션 */
+html, body {
+  transition: background-color 350ms cubic-bezier(0.22, 1, 0.36, 1),
+              color 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 인풋 포커스 부드러운 글로우 */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.25);
+  border-color: hsl(var(--primary)) !important;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+/* prefers-reduced-motion 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* =============================== */
 /*  🌙 Quill Editor Dark Theme Fix */
 /* =============================== */
