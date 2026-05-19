@@ -3,25 +3,26 @@ import Image from "next/image";
 import Header from "@/components/Navbar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
-export const dynamic = "force-dynamic";
 import { unstable_noStore as noStore } from "next/cache";
 
-// 🧩 Helper: HTML 태그 제거 + 미리보기 생성
+export const dynamic = "force-dynamic";
+
 function createPreview(html: string, length: number = 100) {
-  const text = html.replace(/<[^>]*>/g, ""); // Strip HTML
+  const text = html.replace(/<[^>]*>/g, "");
   if (text.length <= length) return text;
   return text.substring(0, length) + "…";
 }
 
-
-export default async function BoardCategoryPage(
-  context : any) {
-const slug = context?.params?.slug;
+export default async function BoardCategoryPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   noStore();
+  const { slug } = await params;
 
-  // ✅ 탭(카테고리) + 게시글 가져오기
   const tab = await prisma.boardTab.findUnique({
-    where: { slug},
+    where: { slug },
     include: {
       posts: {
         orderBy: { publishedAt: "desc" },
@@ -48,17 +49,15 @@ const slug = context?.params?.slug;
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary-rgb/20">
         <main className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* 🧱 Page Header */}
             <header className="text-center mb-16">
               <h1 className="text-4xl lg:text-5xl font-bold mb-4">
                 {tab.name.toUpperCase()}
               </h1>
               {tab.description && (
-                <p className="text-xl text-foreground-rgb/80">{tab.description}</p>
+                <p className="text-xl text-foreground/80">{tab.description}</p>
               )}
             </header>
 
-            {/* 🧱 게시글 그리드 */}
             {posts.length === 0 ? (
               <p className="text-center text-gray-500">게시글이 없습니다.</p>
             ) : (
@@ -66,10 +65,9 @@ const slug = context?.params?.slug;
                 {posts.map((item) => (
                   <Card
                     key={item.id}
-                    className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 bg-card-rgb/20 border border-border-rgb/10"
+                    className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 bg-card/20 border border-border/10"
                   >
-                    {/* 썸네일 */}
-                    <div className="relative w-full h-48">
+                    <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
@@ -85,27 +83,25 @@ const slug = context?.params?.slug;
                       )}
                     </div>
 
-                    {/* 본문 */}
                     <CardContent className="p-4 flex-grow space-y-2">
                       <h3 className="text-lg font-bold text-foreground">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-foreground-rgb/70 line-clamp-3">
+                      <p className="text-sm text-foreground/70 line-clamp-3">
                         {createPreview(item.description || "")}
                       </p>
                     </CardContent>
 
-                    {/* 푸터 */}
                     <CardFooter className="p-4 pt-0 mt-auto">
                       <div className="w-full">
-                        <div className="text-xs text-foreground-rgb/50 mb-2">
+                        <div className="text-xs text-foreground/50 mb-2">
                           {item.publishedAt
                             ? new Date(item.publishedAt).toLocaleDateString()
                             : ""}
                         </div>
                         <Link
                           href={`/post/${tab.slug}/${item.id}`}
-                          className="text-primary font-semibold text-sm hover:text-primary-rgb/90 hover:underline"
+                          className="text-primary font-semibold text-sm hover:text-primary/80 hover:underline"
                         >
                           READ MORE »
                         </Link>

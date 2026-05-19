@@ -1,4 +1,3 @@
-// app/post/[slug]/[id]/page.tsx
 import Header from "@/components/Navbar";
 import { prisma } from "@/lib/prisma";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -6,12 +5,15 @@ import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
-
-export default async function BoardPostDetail(
-  params, context: any) {
+export default async function BoardPostDetail({
+  params,
+}: {
+  params: Promise<{ slug: string; id: string }>;
+}) {
+  const { id } = await params;
 
   const post = await prisma.boardPost.findUnique({
-    where: { id: context.params.id },
+    where: { id },
     include: { tab: true },
   });
 
@@ -41,13 +43,13 @@ export default async function BoardPostDetail(
         </p>
 
         {post.imageUrl && (
-          <div className="mb-8">
+          <div className="mb-8 overflow-hidden rounded-2xl">
             <Image
               src={post.imageUrl}
               alt={post.title}
               width={900}
               height={500}
-              className="rounded-lg object-cover"
+              className="object-cover"
               unoptimized
             />
           </div>
