@@ -17,15 +17,9 @@ interface HomePageContent {
   fontFamily?: string; // ✅ 추가
 }
 
-// font 목록 정의
+// font 목록 정의 (font.css에 정의된 family만 노출)
 const fontOptions = [
   "MaruBuri",
-  "Nanum Gothic",
-  "Nanum Barun Gothic",
-  "Nanum Gothic Eco",
-  "Nanum Myungjo",
-  "Holigas",
-  "Mickerr",
   "Space Grotesk",
 ];
 
@@ -172,7 +166,7 @@ export default function ManageHomePage() {
         {contentLoading ? (
           <p>Loading content...</p>
         ) : (
-          <form onSubmit={handleContentSubmit} className="space-y-4 bg-white p-6 shadow rounded">
+          <form onSubmit={handleContentSubmit} className="space-y-4 bg-card p-6 rounded-2xl border border-border shadow-sm">
 
             {/* ✅ 폰트 선택 섹션 */}
             <div>
@@ -290,7 +284,7 @@ export default function ManageHomePage() {
             <button
               type="submit"
               disabled={contentLoading}
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-400"
+              className="bg-primary text-primary-foreground py-2 px-4 rounded-xl hover:bg-primary/90 disabled:bg-gray-400"
             >
               {contentLoading ? 'Saving...' : 'Save Text Content'}
             </button>
@@ -303,7 +297,7 @@ export default function ManageHomePage() {
         <h2 className="text-2xl font-semibold mb-4">Slider Images</h2>
         {imagesError && <p className="text-red-500 py-2">{imagesError}</p>}
 
-        <form onSubmit={handleAddImage} className="flex items-center gap-4 mb-4 bg-white p-6 shadow rounded">
+        <form onSubmit={handleAddImage} className="flex items-center gap-4 mb-4 bg-card p-6 rounded-2xl border border-border shadow-sm">
           <div>
             <label htmlFor="file-upload" className="font-medium">Upload new image:</label>
             <input
@@ -311,7 +305,7 @@ export default function ManageHomePage() {
               type="file"
               onChange={handleFileChange}
               accept="image/*"
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="mt-1 block w-full text-sm text-foreground/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
             />
           </div>
           <button

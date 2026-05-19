@@ -123,10 +123,10 @@ export default function NewBoardPostPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">새 게시글 작성</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="bg-card p-6 rounded-2xl border border-border shadow-sm">
         {/* ✅ 카테고리 선택 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">카테고리</label>
+          <label className="block text-foreground font-bold mb-2">카테고리</label>
           <select
             value={tabId ?? ''}
             onChange={(e) => setTabId(Number(e.target.value))}
@@ -144,7 +144,7 @@ export default function NewBoardPostPage() {
 
         {/* ✅ 제목 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">제목</label>
+          <label className="block text-foreground font-bold mb-2">제목</label>
           <input
             type="text"
             value={title}
@@ -156,13 +156,13 @@ export default function NewBoardPostPage() {
 
         {/* ✅ 본문 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">본문</label>
+          <label className="block text-foreground font-bold mb-2">본문</label>
           <RichEditor value={description} onChange={(html) => setDescription(html)} />
         </div>
 
         {/* ✅ 썸네일 업로드 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">썸네일 이미지 (선택)</label>
+          <label className="block text-foreground font-bold mb-2">썸네일 이미지 (선택)</label>
           {imageUrl ? (
             <div className="space-y-2">
               <img
@@ -184,16 +184,16 @@ export default function NewBoardPostPage() {
               accept="image/*"
               onChange={handleFileChange}
               disabled={isUploading}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
+              className="block w-full text-sm text-foreground/60 file:mr-4 file:py-2 file:px-4 
                          file:rounded-full file:border-0 file:text-sm file:font-semibold 
-                         file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                         file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
             />
           )}
         </div>
 
         {/* ✅ 게시일 */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-bold mb-2">게시일</label>
+          <label className="block text-foreground font-bold mb-2">게시일</label>
           <input
             type="date"
             value={publishedAt}
@@ -208,14 +208,14 @@ export default function NewBoardPostPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
           >
             {isSubmitting ? '등록 중...' : '등록'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-zinc-600 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-xl"
           >
             취소
           </button>

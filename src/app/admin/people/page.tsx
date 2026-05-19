@@ -132,7 +132,7 @@ return (
           {/* ➕ 추가 버튼 */}
           <Link
             href="/admin/people/new"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
           >
             Add New Person
           </Link>
@@ -140,7 +140,7 @@ return (
       </div>
 
       {/* 테이블 */}
-      <div className="bg-white shadow-md rounded">
+      <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
@@ -151,7 +151,7 @@ return (
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-border">
             {sortedPeople.map((person) => (
               <tr key={person.id}>
                 <td className="px-6 py-4 whitespace-nowrap">{person.name}</td>
@@ -178,7 +178,7 @@ return (
         </table>
 
         {sortedPeople.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-foreground/60">
             No matching people found.
           </div>
         )}

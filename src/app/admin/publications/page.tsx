@@ -58,14 +58,14 @@ export default function ManagePublicationPage() {
         <h1 className="text-3xl font-bold">Manage Publications</h1>
         <Link
           href="/admin/publications/new"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
         >
           Add New Publication
         </Link>
       </div>
 
       {/* 테이블 */}
-      <div className="bg-white shadow-md rounded">
+      <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
@@ -76,7 +76,7 @@ export default function ManagePublicationPage() {
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-border">
             {pubs.map((p) => (
               <tr key={p.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -86,7 +86,7 @@ export default function ManagePublicationPage() {
                       href={(p.url ?? p.pdfUrl)!}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {p.title}
                     </a>
@@ -118,7 +118,7 @@ export default function ManagePublicationPage() {
             ))}
             {pubs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-6 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-6 text-center text-foreground/60">
                   No publications yet.
                 </td>
               </tr>
