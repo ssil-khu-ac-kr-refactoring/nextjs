@@ -35,7 +35,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@tsconfig/next": "^2.0.3",
+    "@tsconfig/next": "^2.0.6",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^24.0.13",
