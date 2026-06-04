@@ -136,6 +136,23 @@ model BoardPost {
   tab         BoardTab  @relation(fields: [tabId], references: [id])
 }
 
+// SPIS average-potential rows parsed from the All_node sheet.
+// Long format: one row per (env, resistance, day/night, node0 material,
+// node1/boom material, node) -> average potential value.
+model SpisPotential {
+  id       Int    @id @default(autoincrement())
+  env      String                      // e.g. "AUR"
+  res      String                      // "R0" | "R1"
+  dn       String                      // "DAY" | "NGT"
+  node0Mat String @map("node0_mat")
+  node1Mat String @map("node1_mat")
+  node     Int                         // 0 | 1
+  avPot    Float  @map("av_pot")
+
+  @@index([node0Mat, node1Mat, res, node, dn])
+  @@map("spis_potentials")
+}
+
 enum ResearchStatus {
   IN_PROGRESS
   COMPLETED
