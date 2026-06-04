@@ -1,52 +1,49 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/api-auth';
-import { generateSampleData, generatePotentialMatrix } from '@/lib/spis/excelParser';
 
 export const runtime = 'nodejs';
+
+// Admin-only: generate random SPIS potential data (no Excel needed) so the
+// globe can be exercised end-to-end. Replaces whatever is in the table.
+const NODE0 = ['AL2K', 'ALOX', 'GOLD', 'GOLD (2k)', 'KAPT', 'EPOX', 'Al2O3', 'CERS'];
+const NODE1 = ['AL2K', 'KAPT'];
+const RES = ['R0', 'R1'];
+const NODES = [0, 1];
+const DN = ['DAY', 'NGT'] as const;
 
 export async function POST() {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
   try {
-    const sim = generateSampleData();        // SimulationRow[] (camelCase)
-    const matrix = generatePotentialMatrix(); // PotentialResult[]
-    await prisma.simulationRow.deleteMany({});
-    await prisma.potentialMatrix.deleteMany({});
-    const simData = sim.map((r) => ({
-      form: r.form,
-      node0Mat: r.node0Mat,
-      timeMode: r.timeMode,
-      lat: r.lat,
-      lon: r.lon,
-      avPot: r.avPot,
-      nth: r.nth,
-      tth: r.tth,
-      ne: r.ne,
-      te: r.te,
-      ni: r.ni,
-      ti: r.ti,
-      alt: r.alt,
-      sey: r.sey,
-      mpd: r.mpd,
-      pey: r.pey,
-      ipe: r.ipe,
-      pee: r.pee,
-      msey: r.msey,
-      buc: r.buc,
-      sre: r.sre,
-    }));
-    for (let i = 0; i < simData.length; i += 500) {
-      await prisma.simulationRow.createMany({ data: simData.slice(i, i + 500) });
+    const data: {
+      env: string; res: string; dn: string;
+      node0Mat: string; node1Mat: string; node: number; avPot: number;
+    }[] = [];
+    let seed = 1;
+    const rnd = () => {
+      // deterministic pseudo-random so repeated demo loads are stable
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+    for (const node0Mat of NODE0)
+      for (const node1Mat of NODE1)
+        for (const res of RES)
+          for (const node of NODES)
+            for (const dn of DN) {
+              // night tends to charge more negative than day
+              const base = dn === 'NGT' ? -12000 : -5000;
+              const avPot = Math.round((base * (0.5 + rnd())) * 10) / 10;
+              data.push({ env: 'AUR', res, dn, node0Mat, node1Mat, node, avPot });
+            }
+
+    await prisma.spisPotential.deleteMany({});
+    for (let i = 0; i < data.length; i += 500) {
+      await prisma.spisPotential.createMany({ data: data.slice(i, i + 500) });
     }
-    const matrixData = matrix.map((m) => ({
-      form: m.form,
-      node0Mat: m.node0Mat,
-      potentials: m.potentials as any,
-    }));
-    if (matrixData.length) await prisma.potentialMatrix.createMany({ data: matrixData });
-    return NextResponse.json({ rows: simData.length, matrix: matrixData.length });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? 'sample load failed' }, { status: 500 });
+    return NextResponse.json({ rows: data.length, matrix: 0 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'sample load failed';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

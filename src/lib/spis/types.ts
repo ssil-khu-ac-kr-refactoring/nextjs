@@ -208,3 +208,32 @@ export function getPotentialKey(filters: FilterState): string {
   }
   return `${filters.boomMaterial}_${filters.resistance}_${filters.timeMode}`;
 }
+
+// =====================================================================
+// SPIS All_node data model (Hancell-exported workbook)
+// Long format: one average-potential value per
+// (env, resistance, day/night, node0 material, node1/boom material, node).
+// No spatial dimension — the globe paints the day hemisphere with the DAY
+// value and the night hemisphere with the NGT value (boundary by local time).
+// =====================================================================
+
+export interface SpisPotentialRow {
+  env: string;            // e.g. "AUR"
+  res: string;            // "R0" | "R1"
+  dn: TimeMode;           // "DAY" | "NGT"
+  node0Mat: string;
+  node1Mat: string;
+  node: number;           // 0 | 1
+  avPot: number;
+}
+
+// UI selection for the SPIS globe (selectors derived from the data at runtime).
+export interface SpisFilter {
+  node0Mat: string;
+  node1Mat: string;
+  res: string;
+  node: number;
+  viewMode: ViewMode;     // '2D' | '3D'
+  showAurora: boolean;
+  showSatellite: boolean;
+}

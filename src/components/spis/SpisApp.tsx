@@ -2,144 +2,182 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Toaster, toast } from "sonner";
-import { ControlPanel } from "@/components/spis/ControlPanel";
+import { SpisControls } from "@/components/spis/SpisControls";
 import { WorldMap } from "@/components/spis/WorldMap";
 import { Globe3D } from "@/components/spis/Globe3D";
-import type { FilterState, SimulationRow, PotentialResult, TimeMode } from "@/lib/spis/types";
-import { MATERIAL_PROP_VALUES } from "@/lib/spis/types";
-import { fetchAllSimulationRows, fetchAllPotentialMatrix } from "@/lib/spis/dataApi";
-import { generateSampleData, generatePotentialMatrix } from "@/lib/spis/excelParser";
+import type { SpisFilter, SpisPotentialRow, SimulationRow, FilterState } from "@/lib/spis/types";
+import { LAT_BINS, LON_BINS } from "@/lib/spis/types";
+import { fetchSpisPotentials } from "@/lib/spis/dataApi";
 import { isDaytime } from "@/lib/spis/solar";
 import { useNow } from "@/hooks/useNow";
 
+function uniq<T>(arr: T[]): T[] {
+  return [...new Set(arr)];
+}
+
 export default function SpisApp() {
-  const [simData, setSimData] = useState<SimulationRow[]>([]);
-  const [potentialMatrix, setPotentialMatrix] = useState<PotentialResult[]>([]);
+  const [data, setData] = useState<SpisPotentialRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const now = useNow(10000);
-  const [filters, setFilters] = useState<FilterState>({
-    bodyMode: "single",
-    form: "3U+Boom",
-    node0Material: "AL2K",
-    boomMaterial: "KAPT",
-    resistance: "R_INF",
-    timeMode: "AUTO",
+  const [filter, setFilter] = useState<SpisFilter>({
+    node0Mat: "",
+    node1Mat: "",
+    res: "",
+    node: 0,
     viewMode: "3D",
     showAurora: true,
     showSatellite: true,
-    nth: null, tth: null, ne: null, te: null, ni: null, ti: null, alt: null,
-    sey: MATERIAL_PROP_VALUES.sey[0],
-    mpd: MATERIAL_PROP_VALUES.mpd[0],
-    pey: MATERIAL_PROP_VALUES.pey[0],
-    ipe: MATERIAL_PROP_VALUES.ipe[0],
-    pee: MATERIAL_PROP_VALUES.pee[0],
-    msey: MATERIAL_PROP_VALUES.msey[0],
-    buc: MATERIAL_PROP_VALUES.buc[0],
-    sre: MATERIAL_PROP_VALUES.sre[0],
   });
 
-  const filteredSimData = useMemo(() => {
-    return simData.filter((row) => {
-      if (row.form !== filters.form) return false;
-      if (row.node0Mat !== filters.node0Material) return false;
+  // Distinct selector options derived from the data itself.
+  const options = useMemo(
+    () => ({
+      node0: uniq(data.map((d) => d.node0Mat)).filter(Boolean),
+      node1: uniq(data.map((d) => d.node1Mat)).filter(Boolean),
+      res: uniq(data.map((d) => d.res)).filter(Boolean),
+      node: uniq(data.map((d) => d.node)).sort((a, b) => a - b),
+    }),
+    [data],
+  );
 
-      const resolvedMode: TimeMode =
-        filters.timeMode === "AUTO"
-          ? (isDaytime(row.lat, row.lon, now) ? "DAY" : "NGT")
-          : filters.timeMode;
-      if (row.timeMode !== resolvedMode) return false;
-
-      if (filters.nth !== null && row.nth !== filters.nth) return false;
-      if (filters.tth !== null && row.tth !== filters.tth) return false;
-      if (filters.ne !== null && row.ne !== filters.ne) return false;
-      if (filters.te !== null && row.te !== filters.te) return false;
-      if (filters.ni !== null && row.ni !== filters.ni) return false;
-      if (filters.ti !== null && row.ti !== filters.ti) return false;
-      if (filters.alt !== null && row.alt !== filters.alt) return false;
-      if (filters.sey !== null && row.sey !== filters.sey) return false;
-      if (filters.mpd !== null && row.mpd !== filters.mpd) return false;
-      if (filters.pey !== null && row.pey !== filters.pey) return false;
-      if (filters.ipe !== null && row.ipe !== filters.ipe) return false;
-      if (filters.pee !== null && row.pee !== filters.pee) return false;
-      if (filters.msey !== null && row.msey !== filters.msey) return false;
-      if (filters.buc !== null && row.buc !== filters.buc) return false;
-      if (filters.sre !== null && row.sre !== filters.sre) return false;
-      return true;
+  // Initialize / repair the selection whenever the option set changes.
+  useEffect(() => {
+    if (data.length === 0) return;
+    setFilter((f) => {
+      const next = { ...f };
+      if (!options.node0.includes(next.node0Mat)) next.node0Mat = options.node0[0] ?? "";
+      if (options.node1.length && !options.node1.includes(next.node1Mat)) next.node1Mat = options.node1[0] ?? "";
+      if (options.res.length && !options.res.includes(next.res)) next.res = options.res[0] ?? "";
+      if (options.node.length && !options.node.includes(next.node)) next.node = options.node[0] ?? 0;
+      return next;
     });
-  }, [simData, filters, now]);
+  }, [data, options]);
 
-  const filteredPotentials = useMemo(() => {
-    return potentialMatrix.filter((p) => p.form === filters.form);
-  }, [potentialMatrix, filters.form]);
+  // DAY / NGT average potential for the current selection.
+  const { dayValue, ngtValue } = useMemo(() => {
+    const match = (dn: string) =>
+      data.find(
+        (d) =>
+          d.node0Mat === filter.node0Mat &&
+          (options.node1.length === 0 || d.node1Mat === filter.node1Mat) &&
+          (options.res.length === 0 || d.res === filter.res) &&
+          (options.node.length === 0 || d.node === filter.node) &&
+          d.dn === dn,
+      );
+    return { dayValue: match("DAY")?.avPot ?? null, ngtValue: match("NGT")?.avPot ?? null };
+  }, [data, filter, options]);
+
+  // Synthesize a lat/lon grid: day hemisphere = DAY value, night = NGT value.
+  // Day/night boundary comes from the solar terminator (local time), not raw longitude.
+  const gridCells = useMemo<SimulationRow[]>(() => {
+    if (dayValue === null && ngtValue === null) return [];
+    const cells: SimulationRow[] = [];
+    for (const latBin of LAT_BINS) {
+      for (const lonBin of LON_BINS) {
+        const day = isDaytime(latBin + 15, lonBin + 15, now);
+        const v = day ? dayValue : ngtValue;
+        if (v === null) continue; // no value for this side → leave dark
+        cells.push({
+          nth: 0, tth: 0, ne: 0, te: 0, ni: 0, ti: 0, alt: 0,
+          sey: null, mpd: null, pey: null, ipe: null, pee: null, msey: null, buc: null, sre: null,
+          lat: latBin,
+          lon: lonBin,
+          avPot: v,
+          form: "3U+Boom",
+          node0Mat: filter.node0Mat as unknown as SimulationRow["node0Mat"],
+          timeMode: day ? "DAY" : "NGT",
+        });
+      }
+    }
+    return cells;
+  }, [dayValue, ngtValue, now, filter.node0Mat]);
 
   const mapDataRange = useMemo(() => {
-    const values = filteredSimData.map((r) => r.avPot);
-    if (values.length === 0) return { min: 0, max: 100 };
-    return { min: Math.min(...values), max: Math.max(...values) };
-  }, [filteredSimData]);
+    const vals = [dayValue, ngtValue].filter((v): v is number => v !== null);
+    if (vals.length === 0) return { min: 0, max: 100 };
+    let min = Math.min(...vals);
+    let max = Math.max(...vals);
+    if (min === max) {
+      min -= 1;
+      max += 1;
+    }
+    return { min, max };
+  }, [dayValue, ngtValue]);
 
-  const potentialRange = useMemo(() => {
-    const values = filteredPotentials
-      .flatMap((p) => Object.values(p.potentials))
-      .filter((v): v is number => v !== null);
-    if (values.length === 0) return { min: -500, max: 500 };
-    return { min: Math.min(...values), max: Math.max(...values) };
-  }, [filteredPotentials]);
+  // Minimal FilterState shim for the existing renderers (they read only a few fields).
+  const renderFilters = useMemo<FilterState>(
+    () => ({
+      bodyMode: "multi",
+      form: `${filter.node0Mat}/${filter.node1Mat} ${filter.res} N${filter.node}` as unknown as FilterState["form"],
+      node0Material: filter.node0Mat as unknown as FilterState["node0Material"],
+      boomMaterial: "KAPT",
+      resistance: "R_INF",
+      timeMode: "AUTO",
+      viewMode: filter.viewMode,
+      showAurora: filter.showAurora,
+      showSatellite: filter.showSatellite,
+      nth: null, tth: null, ne: null, te: null, ni: null, ti: null, alt: null,
+      sey: null, mpd: null, pey: null, ipe: null, pee: null, msey: null, buc: null, sre: null,
+    }),
+    [filter],
+  );
 
-  // Load data from DB on mount (public read)
-  const refreshFromDb = useCallback(async () => {
+  const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [sim, pot] = await Promise.all([fetchAllSimulationRows(), fetchAllPotentialMatrix()]);
-      setSimData(sim);
-      setPotentialMatrix(pot);
+      setData(await fetchSpisPotentials());
     } catch (e: any) {
       toast.error(`데이터 로드 실패: ${e.message ?? e}`);
     } finally {
       setIsLoading(false);
     }
   }, []);
-
   useEffect(() => {
-    refreshFromDb();
-  }, [refreshFromDb]);
+    refresh();
+  }, [refresh]);
 
-  // Public: load sample data into local state only (no auth, no DB write)
+  // Public local demo (no DB write): random values across the option set.
   const handleLoadDemoLocal = useCallback(() => {
-    const sim = generateSampleData();
-    const matrix = generatePotentialMatrix();
-    setSimData(sim);
-    setPotentialMatrix(matrix);
-    toast.success(`데모 데이터 로드: ${sim.length}개 시뮬레이션 (로컬 미리보기)`);
+    const NODE0 = ["AL2K", "ALOX", "GOLD", "GOLD (2k)", "KAPT", "EPOX", "Al2O3", "CERS"];
+    const NODE1 = ["AL2K", "KAPT"];
+    const RES = ["R0", "R1"];
+    const NODES = [0, 1];
+    const DN: ("DAY" | "NGT")[] = ["DAY", "NGT"];
+    const out: SpisPotentialRow[] = [];
+    for (const node0Mat of NODE0)
+      for (const node1Mat of NODE1)
+        for (const res of RES)
+          for (const node of NODES)
+            for (const dn of DN) {
+              const base = dn === "NGT" ? -12000 : -5000;
+              out.push({ env: "AUR", res, dn, node0Mat, node1Mat, node, avPot: Math.round(base * (0.5 + Math.random()) * 10) / 10 });
+            }
+    setData(out);
+    toast.success(`데모 데이터 로드: ${out.length}개 (로컬 미리보기)`);
   }, []);
 
   return (
     <div className="flex w-full h-[calc(100vh-100px)] bg-background overflow-hidden">
       <Toaster richColors position="top-right" />
-      <ControlPanel
-        filters={filters}
-        onFilterChange={setFilters}
-        onLoadDemoLocal={handleLoadDemoLocal}
-        filteredData={filteredSimData}
-        dataRange={mapDataRange}
-        dataCount={simData.length}
+      <SpisControls
+        filter={filter}
+        onChange={setFilter}
+        options={options}
+        dayValue={dayValue}
+        ngtValue={ngtValue}
+        dataCount={data.length}
         isLoading={isLoading}
-        now={now}
+        onLoadDemoLocal={handleLoadDemoLocal}
       />
-      {filters.viewMode === "3D" ? (
-        <Globe3D
-          simData={filteredSimData}
-          filters={filters}
-          mapDataRange={mapDataRange}
-          now={now}
-        />
+      {filter.viewMode === "3D" ? (
+        <Globe3D simData={gridCells} filters={renderFilters} mapDataRange={mapDataRange} now={now} />
       ) : (
         <WorldMap
-          simData={filteredSimData}
-          potentials={filteredPotentials}
-          filters={filters}
+          simData={gridCells}
+          potentials={[]}
+          filters={renderFilters}
           mapDataRange={mapDataRange}
-          potentialRange={potentialRange}
+          potentialRange={mapDataRange}
           now={now}
         />
       )}

@@ -54,8 +54,8 @@ export default function ManageSpisPage() {
       <section className="bg-white dark:bg-neutral-900 p-6 rounded border border-border shadow-sm space-y-4">
         <h2 className="text-xl font-semibold">엑셀 업로드 (.xlsx)</h2>
         <p className="text-sm text-muted-foreground">
-          <code>All_node</code> 시트(없으면 첫 시트)를 읽어 입력 파라미터와 결과 컬럼
-          (SINGLE_DAY, KAPT_Boom_R_INF_DAY 등)을 파싱해 저장합니다.
+          <code>All_node</code> 시트의 <code>ENV, RES, DN, Node0_Mat, Node1_Mat, Node, AvPot</code>
+          컬럼을 읽어 저장합니다. 한컴 한셀(HCell)로 저장한 파일도 지원합니다.
         </p>
         <input
           ref={fileInputRef}

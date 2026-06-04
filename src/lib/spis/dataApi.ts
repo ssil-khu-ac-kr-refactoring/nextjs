@@ -1,14 +1,9 @@
-import type { SimulationRow, PotentialResult } from '@/lib/spis/types';
+import type { SpisPotentialRow } from '@/lib/spis/types';
 
-export async function fetchAllSimulationRows(): Promise<SimulationRow[]> {
+// Public read of all SPIS average-potential rows.
+export async function fetchSpisPotentials(): Promise<SpisPotentialRow[]> {
   const res = await fetch('/api/spis/simulations', { cache: 'no-store' });
-  if (!res.ok) throw new Error(`시뮬레이션 데이터 로드 실패 (${res.status})`);
-  return res.json();
-}
-
-export async function fetchAllPotentialMatrix(): Promise<PotentialResult[]> {
-  const res = await fetch('/api/spis/matrix', { cache: 'no-store' });
-  if (!res.ok) throw new Error(`매트릭스 로드 실패 (${res.status})`);
+  if (!res.ok) throw new Error(`데이터 로드 실패 (${res.status})`);
   return res.json();
 }
 
