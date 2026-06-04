@@ -8,6 +8,7 @@ const adminPages = [
   { name: 'People', path: '/admin/people' },
   { name: 'Contact', path: '/admin/contact' },
   { name: 'Publication', path: '/admin/publications' },
+  { name: 'SPIS', path: '/admin/spis' },
   { name: 'Tab Management', path: '/admin/board/tabs' },
   { name: 'Post Management', path: '/admin/board/posts' },
 ];

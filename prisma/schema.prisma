@@ -136,6 +136,44 @@ model BoardPost {
   tab         BoardTab  @relation(fields: [tabId], references: [id])
 }
 
+model SimulationRow {
+  id       Int    @id @default(autoincrement())
+  form     String
+  node0Mat String @map("node0_mat")
+  timeMode String @map("time_mode")
+  lat      Float
+  lon      Float
+  avPot    Float  @map("av_pot")
+  nth      Float
+  tth      Float
+  ne       Float
+  te       Float
+  ni       Float
+  ti       Float
+  alt      Float
+  sey      Float?
+  mpd      Float?
+  pey      Float?
+  ipe      Float?
+  pee      Float?
+  msey     Float?
+  buc      Float?
+  sre      Float?
+
+  @@index([form, node0Mat, timeMode])
+  @@map("simulation_rows")
+}
+
+model PotentialMatrix {
+  id         Int    @id @default(autoincrement())
+  form       String
+  node0Mat   String @map("node0_mat")
+  potentials Json
+
+  @@unique([form, node0Mat])
+  @@map("potential_matrix")
+}
+
 enum ResearchStatus {
   IN_PROGRESS
   COMPLETED
