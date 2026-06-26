@@ -9,6 +9,7 @@ import type { SpisFilter, SpisPotentialRow, SimulationRow, FilterState } from "@
 import { LAT_BINS, LON_BINS } from "@/lib/spis/types";
 import { fetchSpisPotentials } from "@/lib/spis/dataApi";
 import { isDaytime } from "@/lib/spis/solar";
+import { lonForLT } from "@/lib/spis/lt";
 import { useNow } from "@/hooks/useNow";
 
 function uniq<T>(arr: T[]): T[] {
@@ -67,9 +68,50 @@ export default function SpisApp() {
     return { dayValue: match("DAY")?.avPot ?? null, ngtValue: match("NGT")?.avPot ?? null };
   }, [data, filter, options]);
 
-  // Synthesize a lat/lon grid: day hemisphere = DAY value, night = NGT value.
-  // Day/night boundary comes from the solar terminator (local time), not raw longitude.
+  // LT-positioned rows for the current selection (the new data delivery format:
+  // position arrives as LOCAL TIME, not longitude).
+  const ltRows = useMemo(() => {
+    return data.filter(
+      (d) =>
+        d.lt != null &&
+        d.node0Mat === filter.node0Mat &&
+        (options.node1.length === 0 || d.node1Mat === filter.node1Mat) &&
+        (options.res.length === 0 || d.res === filter.res) &&
+        (options.node.length === 0 || d.node === filter.node),
+    );
+  }, [data, filter, options]);
+
+  // Helper: a blank SimulationRow shell (only lat/lon/avPot/timeMode matter to the renderers).
+  const makeCell = useCallback(
+    (lat: number, lon: number, avPot: number, day: boolean): SimulationRow => ({
+      nth: 0, tth: 0, ne: 0, te: 0, ni: 0, ti: 0, alt: 0,
+      sey: null, mpd: null, pey: null, ipe: null, pee: null, msey: null, buc: null, sre: null,
+      lat, lon, avPot,
+      form: "3U+Boom",
+      node0Mat: filter.node0Mat as unknown as SimulationRow["node0Mat"],
+      timeMode: day ? "DAY" : "NGT",
+    }),
+    [filter.node0Mat],
+  );
+
+  // Build the lat/lon grid the renderers consume.
+  //  • If the data carries LT → convert LT to a geographic longitude (lonForLT, now-relative)
+  //    and place each value there. When a row has no latitude, paint it across all bands.
+  //  • Otherwise → fall back to DAY/NGT synthesis split by the real-time solar terminator.
   const gridCells = useMemo<SimulationRow[]>(() => {
+    if (ltRows.length > 0) {
+      const cells: SimulationRow[] = [];
+      for (const r of ltRows) {
+        const lon = lonForLT(r.lt as number, now);
+        const lats = r.lat != null ? [Math.floor(r.lat / 30) * 30] : LAT_BINS;
+        for (const latBin of lats) {
+          const day = isDaytime(latBin + 15, lon, now);
+          cells.push(makeCell(latBin, lon, r.avPot, day));
+        }
+      }
+      return cells;
+    }
+
     if (dayValue === null && ngtValue === null) return [];
     const cells: SimulationRow[] = [];
     for (const latBin of LAT_BINS) {
@@ -77,23 +119,16 @@ export default function SpisApp() {
         const day = isDaytime(latBin + 15, lonBin + 15, now);
         const v = day ? dayValue : ngtValue;
         if (v === null) continue; // no value for this side → leave dark
-        cells.push({
-          nth: 0, tth: 0, ne: 0, te: 0, ni: 0, ti: 0, alt: 0,
-          sey: null, mpd: null, pey: null, ipe: null, pee: null, msey: null, buc: null, sre: null,
-          lat: latBin,
-          lon: lonBin,
-          avPot: v,
-          form: "3U+Boom",
-          node0Mat: filter.node0Mat as unknown as SimulationRow["node0Mat"],
-          timeMode: day ? "DAY" : "NGT",
-        });
+        cells.push(makeCell(latBin, lonBin, v, day));
       }
     }
     return cells;
-  }, [dayValue, ngtValue, now, filter.node0Mat]);
+  }, [ltRows, dayValue, ngtValue, now, makeCell]);
 
   const mapDataRange = useMemo(() => {
-    const vals = [dayValue, ngtValue].filter((v): v is number => v !== null);
+    const vals = gridCells.length
+      ? gridCells.map((c) => c.avPot)
+      : [dayValue, ngtValue].filter((v): v is number => v !== null);
     if (vals.length === 0) return { min: 0, max: 100 };
     let min = Math.min(...vals);
     let max = Math.max(...vals);
@@ -102,7 +137,7 @@ export default function SpisApp() {
       max += 1;
     }
     return { min, max };
-  }, [dayValue, ngtValue]);
+  }, [gridCells, dayValue, ngtValue]);
 
   // Minimal FilterState shim for the existing renderers (they read only a few fields).
   const renderFilters = useMemo<FilterState>(

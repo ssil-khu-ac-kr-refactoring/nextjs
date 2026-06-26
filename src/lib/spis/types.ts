@@ -225,6 +225,12 @@ export interface SpisPotentialRow {
   node1Mat: string;
   node: number;           // 0 | 1
   avPot: number;
+  // Optional spatial dimension. The client delivers position as LOCAL TIME (LT),
+  // not longitude. When `lt` is present we convert it to a geographic longitude
+  // at render time via lonForLT(lt, now) and place the value on the 2D/3D map.
+  // `lat` is optional: when absent the value is painted across all latitude bands.
+  lt?: number | null;     // local time, 0..24 (geographic, sun-relative)
+  lat?: number | null;    // latitude, -90..90
 }
 
 // UI selection for the SPIS globe (selectors derived from the data at runtime).
