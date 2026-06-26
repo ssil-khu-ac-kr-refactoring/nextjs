@@ -1,19 +1,57 @@
-name: Deploy to NAS via ngrok
+name: Build image (GHCR) & deploy to NAS
+
+# master에 push되면 GitHub Actions 러너(메모리 충분)에서 Docker 이미지를 빌드해
+# GHCR로 push한 뒤, NAS에 webhook을 보내 pull/restart만 하도록 한다.
+# (NAS에서 next build를 직접 돌리다 OOM나는 문제 해결)
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["master", "main"]
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Send webhook to NAS
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  notify-nas:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger NAS pull & restart
+        # NAS의 /deploy 핸들러는 이제 `docker compose pull && docker compose up -d`만 수행.
+        # TODO: 토큰/URL은 가능하면 GitHub Secrets로 옮기세요.
         run: |
           curl -v -X POST \
             -H "X-DEPLOY-TOKEN: my-secret-token" \
             -H "Content-Type: application/json" \
-            -d '{"ref":"main"}' \
+            -d '{"ref":"master"}' \
             https://702af93e259c.ngrok-free.app/deploy
