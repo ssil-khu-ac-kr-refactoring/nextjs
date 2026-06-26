@@ -39,6 +39,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# quarkify static-analysis output (local code-map; not part of the app)
+/_quarkify_out/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

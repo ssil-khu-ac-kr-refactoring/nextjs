@@ -148,6 +148,8 @@ model SpisPotential {
   node1Mat String @map("node1_mat")
   node     Int                         // 0 | 1
   avPot    Float  @map("av_pot")
+  lt       Float?                       // local time 0..24 (geographic); converted to longitude at render time
+  lat      Float?                       // latitude -90..90 (optional)
 
   @@index([node0Mat, node1Mat, res, node, dn])
   @@map("spis_potentials")

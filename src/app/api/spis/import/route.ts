@@ -52,12 +52,16 @@ export async function POST(req: Request) {
     const n1Key = find('node1mat', 'node1material', 'node1');
     const nodeKey = find('node');
     const avKey = find('avpot', 'averagepotential', 'potential');
+    // 위치는 경도가 아니라 LT(지방시)로 들어온다. LT/위도 컬럼이 있으면 함께 저장한다.
+    const ltKey = find('lt', 'localtime', 'lthr', 'lt_h');
+    const latKey = find('lat', 'latitude');
 
-    if (!dnKey || !n0Key || !avKey) {
+    // DN 컬럼이 없어도 LT가 있으면 LT로 주야를 도출할 수 있으므로 허용한다.
+    if (!n0Key || !avKey || (!dnKey && !ltKey)) {
       return NextResponse.json(
         {
           error:
-            '필수 컬럼을 찾을 수 없습니다. (DN, Node0_Mat, AvPot 필요) — 헤더: ' +
+            '필수 컬럼을 찾을 수 없습니다. (Node0_Mat, AvPot 와 DN 또는 LT 필요) — 헤더: ' +
             keys.join(', '),
         },
         { status: 400 },
@@ -67,12 +71,16 @@ export async function POST(req: Request) {
     const payload: {
       env: string; res: string; dn: string;
       node0Mat: string; node1Mat: string; node: number; avPot: number;
+      lt: number | null; lat: number | null;
     }[] = [];
 
     for (const r of rows) {
-      const dn = normDN(r[dnKey]);
       const avPot = toNumber(r[avKey]);
       const node0Mat = String(r[n0Key] ?? '').trim();
+      const lt = ltKey ? toNumber(r[ltKey]) : null;
+      let dn = dnKey ? normDN(r[dnKey]) : null;
+      // DN이 비어 있으면 LT로 도출 (낮 06~18시, 그 외 밤).
+      if (!dn && lt !== null) dn = lt >= 6 && lt < 18 ? 'DAY' : 'NGT';
       if (!dn || avPot === null || !node0Mat) continue; // 불완전 행 스킵
       payload.push({
         env: envKey ? String(r[envKey] ?? '').trim() || 'AUR' : 'AUR',
@@ -82,6 +90,8 @@ export async function POST(req: Request) {
         node1Mat: n1Key ? String(r[n1Key] ?? '').trim() : '',
         node: nodeKey ? (toNumber(r[nodeKey]) ?? 0) : 0,
         avPot,
+        lt,
+        lat: latKey ? toNumber(r[latKey]) : null,
       });
     }
 
