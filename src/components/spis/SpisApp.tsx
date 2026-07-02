@@ -25,18 +25,23 @@ export default function SpisApp() {
     node1Mat: "",
     res: "",
     node: 0,
+    condSolar: "",
+    kp: "",
     viewMode: "2D",
     showAurora: true,
     showSatellite: true,
   });
 
   // Distinct selector options derived from the data itself.
+  // Environment params (condSolar, kp) appear automatically when the data carries them.
   const options = useMemo(
     () => ({
       node0: uniq(data.map((d) => d.node0Mat)).filter(Boolean),
       node1: uniq(data.map((d) => d.node1Mat)).filter(Boolean),
       res: uniq(data.map((d) => d.res)).filter(Boolean),
       node: uniq(data.map((d) => d.node)).sort((a, b) => a - b),
+      condSolar: uniq(data.map((d) => d.condSolar ?? "")).filter(Boolean),
+      kp: uniq(data.map((d) => d.kp ?? "")).filter(Boolean),
     }),
     [data],
   );
@@ -50,36 +55,37 @@ export default function SpisApp() {
       if (options.node1.length && !options.node1.includes(next.node1Mat)) next.node1Mat = options.node1[0] ?? "";
       if (options.res.length && !options.res.includes(next.res)) next.res = options.res[0] ?? "";
       if (options.node.length && !options.node.includes(next.node)) next.node = options.node[0] ?? 0;
+      if (options.condSolar.length && !options.condSolar.includes(next.condSolar)) next.condSolar = options.condSolar[0] ?? "";
+      if (!options.condSolar.length) next.condSolar = "";
+      if (options.kp.length && !options.kp.includes(next.kp)) next.kp = options.kp[0] ?? "";
+      if (!options.kp.length) next.kp = "";
       return next;
     });
   }, [data, options]);
 
+  // Shared row predicate for the current selection (env params included when present).
+  const matchesFilter = useCallback(
+    (d: SpisPotentialRow) =>
+      d.node0Mat === filter.node0Mat &&
+      (options.node1.length === 0 || d.node1Mat === filter.node1Mat) &&
+      (options.res.length === 0 || d.res === filter.res) &&
+      (options.node.length === 0 || d.node === filter.node) &&
+      (options.condSolar.length === 0 || (d.condSolar ?? "") === filter.condSolar) &&
+      (options.kp.length === 0 || (d.kp ?? "") === filter.kp),
+    [filter, options],
+  );
+
   // DAY / NGT average potential for the current selection.
   const { dayValue, ngtValue } = useMemo(() => {
-    const match = (dn: string) =>
-      data.find(
-        (d) =>
-          d.node0Mat === filter.node0Mat &&
-          (options.node1.length === 0 || d.node1Mat === filter.node1Mat) &&
-          (options.res.length === 0 || d.res === filter.res) &&
-          (options.node.length === 0 || d.node === filter.node) &&
-          d.dn === dn,
-      );
+    const match = (dn: string) => data.find((d) => matchesFilter(d) && d.dn === dn);
     return { dayValue: match("DAY")?.avPot ?? null, ngtValue: match("NGT")?.avPot ?? null };
-  }, [data, filter, options]);
+  }, [data, matchesFilter]);
 
   // LT-positioned rows for the current selection (the new data delivery format:
   // position arrives as LOCAL TIME, not longitude).
   const ltRows = useMemo(() => {
-    return data.filter(
-      (d) =>
-        d.lt != null &&
-        d.node0Mat === filter.node0Mat &&
-        (options.node1.length === 0 || d.node1Mat === filter.node1Mat) &&
-        (options.res.length === 0 || d.res === filter.res) &&
-        (options.node.length === 0 || d.node === filter.node),
-    );
-  }, [data, filter, options]);
+    return data.filter((d) => d.lt != null && matchesFilter(d));
+  }, [data, matchesFilter]);
 
   // Helper: a blank SimulationRow shell (only lat/lon/avPot/timeMode matter to the renderers).
   const makeCell = useCallback(

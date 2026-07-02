@@ -13,7 +13,14 @@ import type { SpisFilter, ViewMode } from "@/lib/spis/types";
 interface SpisControlsProps {
   filter: SpisFilter;
   onChange: (f: SpisFilter) => void;
-  options: { node0: string[]; node1: string[]; res: string[]; node: number[] };
+  options: {
+    node0: string[];
+    node1: string[];
+    res: string[];
+    node: number[];
+    condSolar: string[];
+    kp: string[];
+  };
   dayValue: number | null;
   ngtValue: number | null;
   dataCount: number;
@@ -83,6 +90,36 @@ export function SpisControls({
         </div>
 
         <Separator />
+
+        {/* 태양 조건 (cond_Solar) — 데이터에 값이 있을 때만 표시 */}
+        {options.condSolar.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold">태양 조건 (Solar)</Label>
+            <Select value={filter.condSolar} onValueChange={(v) => set({ condSolar: v })}>
+              <SelectTrigger><SelectValue placeholder="태양 조건 선택" /></SelectTrigger>
+              <SelectContent>
+                {options.condSolar.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* 지자기 활동 (Kp) — 데이터에 값이 있을 때만 표시 */}
+        {options.kp.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold">지자기 활동 (Kp)</Label>
+            <Select value={filter.kp} onValueChange={(v) => set({ kp: v })}>
+              <SelectTrigger><SelectValue placeholder="Kp 선택" /></SelectTrigger>
+              <SelectContent>
+                {options.kp.map((k) => (
+                  <SelectItem key={k} value={k}>{k}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Node0 재질 */}
         <div className="space-y-2">
