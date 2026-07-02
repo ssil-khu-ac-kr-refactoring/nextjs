@@ -32,6 +32,8 @@ const securityHeaders = [
 const nextConfig = {
   // Docker 배포용 최소 실행본(.next/standalone) 생성 — Dockerfile runner 가 이것을 복사한다.
   output: 'standalone',
+  // jsdom/isomorphic-dompurify 는 webpack 번들 시 깨진다(createWindow: i is not a function). 런타임 로드.
+  serverExternalPackages: ['isomorphic-dompurify', 'jsdom'],
   // Prisma client 폴더(런타임 library.js + 쿼리엔진 .node)를 standalone 에 강제 포함.
   // 기본 파일 트레이싱은 Node 라이브러리 런타임을 놓쳐 서버가 런타임에 죽는다.
   outputFileTracingIncludes: {
