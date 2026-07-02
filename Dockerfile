@@ -55,4 +55,4 @@ USER node
 EXPOSE 3000
 # 컨테이너 시작 시 DB 마이그레이션 적용(idempotent) 후 서버 기동.
 # migrate deploy 실패 시 컨테이너가 죽으므로 DB가 먼저 떠 있어야 함.
-CMD ["sh", "-c", "node ./migrate/node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma || echo "[entrypoint] prisma migrate deploy failed — starting server anyway"; node server.js"]
+CMD ["sh", "-c", "node ./migrate/node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma || echo 'migrate deploy failed, starting server anyway'; node server.js"]
