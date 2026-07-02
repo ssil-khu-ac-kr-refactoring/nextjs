@@ -25,7 +25,7 @@ export default function SpisApp() {
     node1Mat: "",
     res: "",
     node: 0,
-    viewMode: "3D",
+    viewMode: "2D",
     showAurora: true,
     showSatellite: true,
   });
