@@ -231,6 +231,14 @@ export interface SpisPotentialRow {
   // `lat` is optional: when absent the value is painted across all latitude bands.
   lt?: number | null;     // local time, 0..24 (geographic, sun-relative)
   lat?: number | null;    // latitude, -90..90
+  // Environment parameters (client's real data format — all optional).
+  condSolar?: string | null; // e.g. "SOLARmin" | "SOLARmax"
+  kp?: string | null;        // e.g. "2lt4"
+  eN?: number | null;        // electron density
+  eT?: number | null;        // electron temperature
+  iN?: number | null;        // ion density
+  iT?: number | null;        // ion temperature
+  form?: string | null;      // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
 }
 
 // UI selection for the SPIS globe (selectors derived from the data at runtime).
@@ -239,6 +247,9 @@ export interface SpisFilter {
   node1Mat: string;
   res: string;
   node: number;
+  // Environment parameter selections (empty string = not applicable / no data).
+  condSolar: string;
+  kp: string;
   viewMode: ViewMode;     // '2D' | '3D'
   showAurora: boolean;
   showSatellite: boolean;

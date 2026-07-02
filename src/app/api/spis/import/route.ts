@@ -23,6 +23,34 @@ function normDN(v: unknown): 'DAY' | 'NGT' | null {
   return null;
 }
 
+// 문자열 셀 → 비어있으면 null (환경 파라미터용)
+function toStr(v: unknown): string | null {
+  const s = String(v ?? '').trim();
+  return s === '' ? null : s;
+}
+
+// 단순 CSV 파서 — 데이터에 따옴표로 감싼 콤마가 없으므로 split 으로 충분하다.
+// 첫 비어있지 않은 줄을 헤더로 삼아 parseWorkbookSheet 와 동일한 rows 형태를 만든다.
+function parseCsv(text: string): Record<string, string | number | null>[] {
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1); // BOM 제거
+  const lines = text.split(/\r?\n/);
+  const headerIdx = lines.findIndex((l) => l.trim() !== '');
+  if (headerIdx < 0) return [];
+  const header = lines[headerIdx].split(',').map((h) => h.trim());
+  const rows: Record<string, string | number | null>[] = [];
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === '') continue;
+    const cells = line.split(',');
+    const obj: Record<string, string | number | null> = {};
+    header.forEach((h, c) => {
+      if (h) obj[h] = (cells[c] ?? '').trim() || null;
+    });
+    rows.push(obj);
+  }
+  return rows;
+}
+
 export async function POST(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
@@ -35,10 +63,19 @@ export async function POST(req: Request) {
 
   try {
     const buf = await (file as File).arrayBuffer();
-    // Hancell(HCell) 호환 파서로 All_node 시트를 읽는다.
-    const { rows } = await parseWorkbookSheet(buf, (n) => n.toLowerCase().includes('all'));
+    const fileName = String((file as File).name ?? '');
+    // .csv 확장자이거나 zip(PK) 매직이 아니면 CSV 로 파싱, 아니면 xlsx(All_node 시트).
+    const bytes = new Uint8Array(buf.slice(0, 2));
+    const isZip = bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b;
+    let rows: Record<string, string | number | null>[];
+    if (/\.csv$/i.test(fileName) || !isZip) {
+      rows = parseCsv(new TextDecoder('utf-8').decode(buf));
+    } else {
+      // Hancell(HCell) 호환 파서로 All_node 시트를 읽는다.
+      ({ rows } = await parseWorkbookSheet(buf, (n) => n.toLowerCase().includes('all')));
+    }
     if (rows.length === 0) {
-      return NextResponse.json({ error: 'All_node 시트에 데이터가 없습니다.' }, { status: 400 });
+      return NextResponse.json({ error: '데이터 행이 없습니다. (All_node 시트 또는 CSV)' }, { status: 400 });
     }
 
     // 헤더 → 실제 키 매핑 (정규화 기반)
@@ -49,12 +86,22 @@ export async function POST(req: Request) {
     const resKey = find('res', 'resistance');
     const dnKey = find('dn', 'daynight', 'time', 'timemode');
     const n0Key = find('node0mat', 'node0material', 'node0');
-    const n1Key = find('node1mat', 'node1material', 'node1');
+    // 실데이터는 boom 재질을 node2Material 로 표기한다 (node1Mat 로 저장).
+    const n1Key = find('node1mat', 'node1material', 'node1', 'node2mat', 'node2material', 'node2');
     const nodeKey = find('node');
     const avKey = find('avpot', 'averagepotential', 'potential');
     // 위치는 경도가 아니라 LT(지방시)로 들어온다. LT/위도 컬럼이 있으면 함께 저장한다.
-    const ltKey = find('lt', 'localtime', 'lthr', 'lt_h');
-    const latKey = find('lat', 'latitude');
+    const ltKey = find('lt', 'localtime', 'lthr', 'lt_h', 'ltimecenter', 'ltime');
+    const latKey = find('lat', 'latitude', 'latcenter');
+    // 환경 파라미터 (실데이터 헤더: cond_Solar, Kp, e_n, e_T, i_n, i_T, type).
+    // norm() 은 공백/괄호/-/_ 제거 + 소문자화 — find() 는 정규화된 헤더와 정확히 일치할 때만 매칭.
+    const condKey = find('condsolar');
+    const kpKey = find('kp');
+    const eNKey = find('en');
+    const eTKey = find('et');
+    const iNKey = find('in');
+    const iTKey = find('it');
+    const formKey = find('form', 'type');
 
     // DN 컬럼이 없어도 LT가 있으면 LT로 주야를 도출할 수 있으므로 허용한다.
     if (!n0Key || !avKey || (!dnKey && !ltKey)) {
@@ -72,6 +119,9 @@ export async function POST(req: Request) {
       env: string; res: string; dn: string;
       node0Mat: string; node1Mat: string; node: number; avPot: number;
       lt: number | null; lat: number | null;
+      condSolar: string | null; kp: string | null;
+      eN: number | null; eT: number | null; iN: number | null; iT: number | null;
+      form: string | null;
     }[] = [];
 
     for (const r of rows) {
@@ -81,6 +131,7 @@ export async function POST(req: Request) {
       let dn = dnKey ? normDN(r[dnKey]) : null;
       // DN이 비어 있으면 LT로 도출 (낮 06~18시, 그 외 밤).
       if (!dn && lt !== null) dn = lt >= 6 && lt < 18 ? 'DAY' : 'NGT';
+      // Potential 이 비어있거나 숫자가 아닌 행은 스킵.
       if (!dn || avPot === null || !node0Mat) continue; // 불완전 행 스킵
       payload.push({
         env: envKey ? String(r[envKey] ?? '').trim() || 'AUR' : 'AUR',
@@ -92,6 +143,13 @@ export async function POST(req: Request) {
         avPot,
         lt,
         lat: latKey ? toNumber(r[latKey]) : null,
+        condSolar: condKey ? toStr(r[condKey]) : null,
+        kp: kpKey ? toStr(r[kpKey]) : null,
+        eN: eNKey ? toNumber(r[eNKey]) : null,
+        eT: eTKey ? toNumber(r[eTKey]) : null,
+        iN: iNKey ? toNumber(r[iNKey]) : null,
+        iT: iTKey ? toNumber(r[iTKey]) : null,
+        form: formKey ? toStr(r[formKey]) : null,
       });
     }
 

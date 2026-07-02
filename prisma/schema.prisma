@@ -167,6 +167,14 @@ model SpisPotential {
   avPot    Float  @map("av_pot")
   lt       Float?                       // local time 0..24 (geographic); converted to longitude at render time
   lat      Float?                       // latitude -90..90 (optional)
+  // Environment parameters (client's real data format — all optional)
+  condSolar String? @map("cond_solar")  // e.g. "SOLARmin" | "SOLARmax"
+  kp        String?                     // e.g. "2lt4"
+  eN        Float?  @map("e_n")         // electron density
+  eT        Float?  @map("e_t")         // electron temperature
+  iN        Float?  @map("i_n")         // ion density
+  iT        Float?  @map("i_t")         // ion temperature
+  form      String?                     // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
 
   @@index([node0Mat, node1Mat, res, node, dn])
   @@map("spis_potentials")
