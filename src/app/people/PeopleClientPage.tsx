@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Person } from "@prisma/client";
+import { Person } from "@/generated/prisma";
 import PageLayout from "@/components/PageLayout";
 import { FadeIn } from "@/components/anim/FadeIn";
 import { Mail, GraduationCap } from "lucide-react";

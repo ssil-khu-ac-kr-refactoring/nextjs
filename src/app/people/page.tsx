@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import PeopleClientPage from "./PeopleClientPage";
-import { Role } from '@prisma/client'; // Import the Role enum
+import { Role } from '@/generated/prisma'; // Import the Role enum
 export const dynamic = 'force-dynamic';
 import { unstable_noStore as noStore } from 'next/cache';
 export default async function PeoplePage() {

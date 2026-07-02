@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Research } from "@prisma/client";
+import { Research } from "@/generated/prisma";
 import PageLayout from "@/components/PageLayout";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { BLUR_DATA_URL } from "@/lib/blurDataURL";

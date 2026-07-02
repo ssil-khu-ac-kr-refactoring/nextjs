@@ -1,5 +1,9 @@
 generator client {
   provider = "prisma-client-js"
+  // 커스텀 출력 경로. pnpm은 client를 .pnpm 가상스토어 안에 생성하므로
+  // 최상위 node_modules/.prisma 가 없다. 소스 트리에 고정 출력해야
+  // Next standalone 파일 트레이싱이 client + 쿼리엔진(.so.node)을 확실히 번들한다.
+  output = "../src/generated/prisma"
 }
 
 datasource db {
