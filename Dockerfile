@@ -42,9 +42,9 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
-# Prisma 클라이언트/바이너리 + 스키마/마이그레이션
-COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=node:node /app/node_modules/@prisma ./node_modules/@prisma
+# Prisma client/쿼리엔진은 커스텀 output(src/generated/prisma) 으로 생성되어
+# Next standalone 트레이싱에 이미 포함된다(위 standalone COPY). 별도 복사 불필요.
+# migrate deploy 용 스키마/마이그레이션만 복사한다.
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 
 # 런타임 마이그레이션용 prisma CLI (별도 hoisted 설치본).
