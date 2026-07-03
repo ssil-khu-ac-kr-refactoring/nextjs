@@ -175,6 +175,8 @@ model SpisPotential {
   iN        Float?  @map("i_n")         // ion density
   iT        Float?  @map("i_t")         // ion temperature
   form      String?                     // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
+  // 인식되지 않은(미지의) 엑셀 컬럼 전부 — { 원본헤더: 값 } JSON. 새 인자 자동 수용용.
+  extras    Json?   @map("extras")
 
   @@index([node0Mat, node1Mat, res, node, dn])
   @@map("spis_potentials")

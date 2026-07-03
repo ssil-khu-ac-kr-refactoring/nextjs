@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@/generated/prisma';
 import { requireAdmin } from '@/lib/api-auth';
 import { parseWorkbookSheet } from '@/lib/spis/parseWorkbook';
 
@@ -103,6 +104,14 @@ export async function POST(req: Request) {
     const iTKey = find('it');
     const formKey = find('form', 'type');
 
+    // 인식(소비)된 헤더 집합 — 여기 없는 헤더는 전부 extras(JSON)로 자동 수용된다.
+    const consumedKeys = new Set(
+      [
+        envKey, resKey, dnKey, n0Key, n1Key, nodeKey, avKey, ltKey, latKey,
+        condKey, kpKey, eNKey, eTKey, iNKey, iTKey, formKey,
+      ].filter((k): k is string => Boolean(k)),
+    );
+
     // DN 컬럼이 없어도 LT가 있으면 LT로 주야를 도출할 수 있으므로 허용한다.
     if (!n0Key || !avKey || (!dnKey && !ltKey)) {
       return NextResponse.json(
@@ -122,6 +131,7 @@ export async function POST(req: Request) {
       condSolar: string | null; kp: string | null;
       eN: number | null; eT: number | null; iN: number | null; iT: number | null;
       form: string | null;
+      extras: Record<string, string | number> | typeof Prisma.DbNull;
     }[] = [];
 
     for (const r of rows) {
@@ -133,6 +143,19 @@ export async function POST(req: Request) {
       if (!dn && lt !== null) dn = lt >= 6 && lt < 18 ? 'DAY' : 'NGT';
       // Potential 이 비어있거나 숫자가 아닌 행은 스킵.
       if (!dn || avPot === null || !node0Mat) continue; // 불완전 행 스킵
+      // 인식되지 않은 나머지 컬럼 전부 → extras (원본 헤더명 그대로, 숫자는 숫자로 유지).
+      const extras: Record<string, string | number> = {};
+      for (const k of Object.keys(r)) {
+        if (consumedKeys.has(k)) continue;
+        const v = r[k];
+        if (v === null || v === undefined) continue;
+        if (typeof v === 'number') {
+          if (Number.isFinite(v)) extras[k] = v;
+          continue;
+        }
+        const s = String(v).trim();
+        if (s !== '') extras[k] = s;
+      }
       payload.push({
         env: envKey ? String(r[envKey] ?? '').trim() || 'AUR' : 'AUR',
         res: resKey ? String(r[resKey] ?? '').trim() || 'R0' : 'R0',
@@ -150,6 +173,7 @@ export async function POST(req: Request) {
         iN: iNKey ? toNumber(r[iNKey]) : null,
         iT: iTKey ? toNumber(r[iTKey]) : null,
         form: formKey ? toStr(r[formKey]) : null,
+        extras: Object.keys(extras).length > 0 ? extras : Prisma.DbNull,
       });
     }
 

@@ -21,6 +21,8 @@ interface SpisControlsProps {
     condSolar: string[];
     kp: string[];
   };
+  // 미인식 엑셀 컬럼(extras)에서 자동 발견된 필터 옵션: { 원본헤더: 값 목록 }.
+  extraOptions: Record<string, (string | number)[]>;
   dayValue: number | null;
   ngtValue: number | null;
   dataCount: number;
@@ -31,10 +33,14 @@ interface SpisControlsProps {
 const fmt = (v: number | null) =>
   v === null ? "데이터 없음" : `${v.toLocaleString(undefined, { maximumFractionDigits: 1 })} V`;
 
+// Radix Select 는 빈 문자열 value 를 허용하지 않으므로 '전체'는 센티널 값으로 표현한다.
+const EXTRA_ALL = "__all__";
+
 export function SpisControls({
   filter,
   onChange,
   options,
+  extraOptions,
   dayValue,
   ngtValue,
   dataCount,
@@ -120,6 +126,27 @@ export function SpisControls({
             </Select>
           </div>
         )}
+
+        {/* 자동 발견 파라미터 (extras) — 엑셀의 미인식 컬럼마다 드롭다운 자동 생성 */}
+        {Object.entries(extraOptions).map(([key, vals]) => (
+          <div key={key} className="space-y-2">
+            <Label className="text-xs font-semibold">{key}</Label>
+            <Select
+              value={filter.extraSel[key] ? filter.extraSel[key] : EXTRA_ALL}
+              onValueChange={(v) =>
+                set({ extraSel: { ...filter.extraSel, [key]: v === EXTRA_ALL ? "" : v } })
+              }
+            >
+              <SelectTrigger><SelectValue placeholder="전체" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={EXTRA_ALL}>전체</SelectItem>
+                {vals.map((v) => (
+                  <SelectItem key={String(v)} value={String(v)}>{String(v)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
 
         {/* Node0 재질 */}
         <div className="space-y-2">

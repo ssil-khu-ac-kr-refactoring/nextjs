@@ -27,6 +27,7 @@ export default function SpisApp() {
     node: 0,
     condSolar: "",
     kp: "",
+    extraSel: {},
     viewMode: "2D",
     showAurora: true,
     showSatellite: true,
@@ -46,6 +47,28 @@ export default function SpisApp() {
     [data],
   );
 
+  // Auto-discovered filter options from unrecognized Excel columns (extras JSON).
+  // Every key that appears in any row's extras (with ≥1 non-empty value) becomes a
+  // dropdown; keys with >50 distinct values are skipped (junk/continuous columns).
+  const extraOptions = useMemo(() => {
+    const sets: Record<string, Set<string | number>> = {};
+    for (const d of data) {
+      if (!d.extras) continue;
+      for (const [k, v] of Object.entries(d.extras)) {
+        if (v === null || v === undefined || v === "") continue;
+        (sets[k] ??= new Set()).add(v);
+      }
+    }
+    const out: Record<string, (string | number)[]> = {};
+    for (const [k, set] of Object.entries(sets)) {
+      if (set.size === 0 || set.size > 50) continue;
+      out[k] = [...set].sort((a, b) =>
+        typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b)),
+      );
+    }
+    return out;
+  }, [data]);
+
   // Initialize / repair the selection whenever the option set changes.
   useEffect(() => {
     if (data.length === 0) return;
@@ -59,9 +82,16 @@ export default function SpisApp() {
       if (!options.condSolar.length) next.condSolar = "";
       if (options.kp.length && !options.kp.includes(next.kp)) next.kp = options.kp[0] ?? "";
       if (!options.kp.length) next.kp = "";
+      // Extras: keep only keys still present; drop selections whose value disappeared.
+      const extraSel: Record<string, string> = {};
+      for (const [k, vals] of Object.entries(extraOptions)) {
+        const cur = next.extraSel[k] ?? "";
+        extraSel[k] = cur !== "" && vals.some((v) => String(v) === cur) ? cur : "";
+      }
+      next.extraSel = extraSel;
       return next;
     });
-  }, [data, options]);
+  }, [data, options, extraOptions]);
 
   // Shared row predicate for the current selection (env params included when present).
   const matchesFilter = useCallback(
@@ -71,7 +101,11 @@ export default function SpisApp() {
       (options.res.length === 0 || d.res === filter.res) &&
       (options.node.length === 0 || d.node === filter.node) &&
       (options.condSolar.length === 0 || (d.condSolar ?? "") === filter.condSolar) &&
-      (options.kp.length === 0 || (d.kp ?? "") === filter.kp),
+      (options.kp.length === 0 || (d.kp ?? "") === filter.kp) &&
+      // Auto-discovered extras filters: empty selection ("") = 전체 (pass-through).
+      Object.entries(filter.extraSel).every(
+        ([k, sel]) => sel === "" || String(d.extras?.[k] ?? "") === sel,
+      ),
     [filter, options],
   );
 
@@ -204,6 +238,7 @@ export default function SpisApp() {
         filter={filter}
         onChange={setFilter}
         options={options}
+        extraOptions={extraOptions}
         dayValue={dayValue}
         ngtValue={ngtValue}
         dataCount={data.length}
