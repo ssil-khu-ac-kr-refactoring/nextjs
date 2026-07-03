@@ -47,19 +47,19 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="text-center mb-12">
+      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="text-center mb-8">
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground">Outcome</h1>
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-5">
           {/* 좌측 항목 리스트 (네모박스) */}
-          <nav className="w-full lg:w-72 lg:shrink-0 space-y-2">
+          <nav className="w-full lg:w-48 lg:shrink-0 space-y-1.5">
             {outcomes.map((o, idx) => (
               <button
                 key={o.id}
                 onClick={() => handleClick(idx)}
-                className={`block w-full text-left py-3 px-4 rounded-xl border transition ${
+                className={`block w-full text-left py-2 px-3 rounded-lg border text-sm transition ${
                   idx === selectedIdx
                     ? "bg-primary/15 border-primary/40 text-primary font-semibold"
                     : "bg-card/40 border-border text-foreground/80 hover:bg-primary/10 hover:border-primary/30"
