@@ -12,6 +12,8 @@
 public/*
 !public/fonts/
 !public/fonts/**
+!public/spis/
+!public/spis/**
 
 # testing
 /coverage
