@@ -239,6 +239,9 @@ export interface SpisPotentialRow {
   iN?: number | null;        // ion density
   iT?: number | null;        // ion temperature
   form?: string | null;      // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
+  // Any UNRECOGNIZED Excel columns, keyed by the original header name.
+  // New parameters flow through here automatically (no code change needed).
+  extras?: Record<string, string | number> | null;
 }
 
 // UI selection for the SPIS globe (selectors derived from the data at runtime).
@@ -250,6 +253,9 @@ export interface SpisFilter {
   // Environment parameter selections (empty string = not applicable / no data).
   condSolar: string;
   kp: string;
+  // Selections for auto-discovered extras columns: { header: selectedValue }.
+  // Empty string = 전체 (no filtering on that key).
+  extraSel: Record<string, string>;
   viewMode: ViewMode;     // '2D' | '3D'
   showAurora: boolean;
   showSatellite: boolean;
