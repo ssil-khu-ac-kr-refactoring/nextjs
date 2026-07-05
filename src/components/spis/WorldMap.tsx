@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import type { SimulationRow, PotentialResult, FilterState } from '@/lib/spis/types';
-import { LAT_BINS, LON_BINS } from '@/lib/spis/types';
 import { getColorForValue } from '@/lib/spis/colorScale';
 import { solarElevation } from '@/lib/spis/solar';
 import { localTimeAtLon } from '@/lib/spis/lt';
@@ -16,25 +15,23 @@ interface WorldMapProps {
   mapDataRange: { min: number; max: number };
   potentialRange: { min: number; max: number };
   now: Date;
+  /** Cell size in degrees. Data-native (real data: 2°×15°); legacy synthesis: 30°×30°. */
+  cellSpan?: { latDeg: number; lonDeg: number };
 }
 
+// Cells arrive already positioned at their CENTERS at native resolution —
+// no re-binning here; just average duplicates sharing the same center.
 function buildHeatmapGrid(data: SimulationRow[]) {
   const grid = new Map<string, { lat: number; lon: number; values: number[] }>();
   data.forEach((row) => {
-    const latBin = Math.floor(row.lat / 30) * 30;
-    const lonBin = Math.floor((row.lon + 180) / 30) * 30 - 180;
-    const key = `${latBin}_${lonBin}`;
-    if (!grid.has(key)) grid.set(key, { lat: latBin, lon: lonBin, values: [] });
+    const key = `${row.lat}_${row.lon}`;
+    if (!grid.has(key)) grid.set(key, { lat: row.lat, lon: row.lon, values: [] });
     grid.get(key)!.values.push(row.avPot);
   });
   return Array.from(grid.values()).map(g => ({
     lat: g.lat, lon: g.lon,
     avg: g.values.reduce((a, b) => a + b, 0) / g.values.length,
   }));
-}
-
-function latLonToPercent(lat: number, lon: number) {
-  return { x: ((lon + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
 }
 
 function formatValue(v: number) {
@@ -72,13 +69,16 @@ function useNightShadowDataUrl(now: Date) {
   }, [now]);
 }
 
-export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now }: WorldMapProps) {
+export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now, cellSpan }: WorldMapProps) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
 
   const gridCells = useMemo(() => buildHeatmapGrid(simData), [simData]);
 
-  const cellWidthPct = (30 / 360) * 100;
-  const cellHeightPct = (30 / 180) * 100;
+  const span = cellSpan ?? { latDeg: 30, lonDeg: 30 };
+  const cellWidthPct = (span.lonDeg / 360) * 100;
+  const cellHeightPct = (span.latDeg / 180) * 100;
+  // 세밀 격자(위도 2°)에선 셀 테두리를 생략해 지도가 지저분해지지 않게.
+  const fineGrid = span.latDeg < 10;
 
   const nightShadowUrl = useNightShadowDataUrl(now);
 
@@ -122,8 +122,9 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             ))}
           </div>
 
-          <div className="relative rounded-lg overflow-hidden border border-border">
-            <img src={worldMapImage} alt="World Map" className="w-full h-auto select-none pointer-events-none block" draggable={false} />
+          {/* 위도 방향을 길게: 고정 높이 + object-fill 로 세로 확대 (오버레이는 %-배치라 그대로 정합) */}
+          <div className="relative rounded-lg overflow-hidden border border-border h-[440px] lg:h-[540px]">
+            <img src={worldMapImage} alt="World Map" className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none" draggable={false} />
 
             {/* Real-time night shadow overlay — under map labels but visible */}
             {nightShadowUrl && (
@@ -147,44 +148,37 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
               })}
             </svg>
 
-            {/* 30° 그리드 전체 셀 */}
-            {LAT_BINS.flatMap((latBin) =>
-              LON_BINS.map((lonBin) => {
-                const cell = gridCells.find((c) => c.lat === latBin && c.lon === lonBin);
-                const pos = latLonToPercent(latBin + 30, lonBin);
-                const hasData = !!cell;
-                const color = hasData
-                  ? getColorForValue(cell!.avg, mapDataRange.min, mapDataRange.max)
-                  : 'rgba(0, 0, 0, 0.55)';
-                const ltCenter = localTimeAtLon(lonBin + 15, now);
-                return (
-                  <div
-                    key={`${latBin}_${lonBin}`}
-                    className="absolute cursor-pointer border border-white/10 hover:border-white/50 transition-all"
-                    style={{
-                      left: `${pos.x}%`,
-                      top: `${pos.y}%`,
-                      width: `${cellWidthPct}%`,
-                      height: `${cellHeightPct}%`,
-                      backgroundColor: color,
-                      opacity: hasData ? 0.7 : 1,
-                    }}
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-                      const r = e.currentTarget.getBoundingClientRect();
-                      if (rect) setTooltip({
-                        x: r.left - rect.left + r.width / 2,
-                        y: r.top - rect.top,
-                        text: hasData
-                          ? `LAT ${latBin}°~${latBin + 30}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell!.avg)} [V]`
-                          : `LAT ${latBin}°~${latBin + 30}° / LT ${ltCenter.toFixed(1)}h\n데이터 없음`,
-                      });
-                    }}
-                    onMouseLeave={() => setTooltip(null)}
-                  />
-                );
-              })
-            )}
+            {/* 데이터 셀 — 중심(lat,lon) ± 스팬/2 로 native 해상도 렌더 (실데이터: 위도 2° × 경도 15°) */}
+            {gridCells.map((cell) => {
+              const color = getColorForValue(cell.avg, mapDataRange.min, mapDataRange.max);
+              const left = ((((cell.lon - span.lonDeg / 2 + 180) % 360) + 360) % 360 / 360) * 100;
+              const top = ((90 - (cell.lat + span.latDeg / 2)) / 180) * 100;
+              const ltCenter = localTimeAtLon(cell.lon, now);
+              return (
+                <div
+                  key={`${cell.lat}_${cell.lon}`}
+                  className={`absolute cursor-pointer transition-colors ${fineGrid ? 'hover:outline hover:outline-1 hover:outline-white/70' : 'border border-white/10 hover:border-white/50'}`}
+                  style={{
+                    left: `${left}%`,
+                    top: `${top}%`,
+                    width: `${cellWidthPct}%`,
+                    height: `${cellHeightPct}%`,
+                    backgroundColor: color,
+                    opacity: 0.7,
+                  }}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+                    const r = e.currentTarget.getBoundingClientRect();
+                    if (rect) setTooltip({
+                      x: r.left - rect.left + r.width / 2,
+                      y: r.top - rect.top,
+                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell.avg)} [V]`,
+                    });
+                  }}
+                  onMouseLeave={() => setTooltip(null)}
+                />
+              );
+            })}
 
             {/* Second shadow layer ON TOP of data cells to keep night clearly dim */}
             {nightShadowUrl && (
