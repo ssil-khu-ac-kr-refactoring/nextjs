@@ -134,19 +134,35 @@ export default function SpisApp() {
     [filter.node0Mat],
   );
 
-  // Build the lat/lon grid the renderers consume.
+  // Cell spans derived from the data's native resolution.
+  // Real delivery format: lat 2° × LT 1h (→ 15° lon). Falls back to 30° for the
+  // legacy DAY/NGT synthesis path (no lt/lat in rows).
+  const cellSpan = useMemo(() => {
+    const minGap = (vals: number[]) => {
+      const u = [...new Set(vals)].sort((a, b) => a - b);
+      let g = Infinity;
+      for (let i = 1; i < u.length; i++) g = Math.min(g, u[i] - u[i - 1]);
+      return Number.isFinite(g) && g > 0 ? g : null;
+    };
+    const latGap = minGap(ltRows.map((r) => r.lat).filter((v): v is number => v != null));
+    const ltGap = minGap(ltRows.map((r) => r.lt).filter((v): v is number => v != null));
+    return { latDeg: latGap ?? 30, lonDeg: ltGap != null ? ltGap * 15 : 30 };
+  }, [ltRows]);
+
+  // Build the lat/lon grid the renderers consume. Cell coords are CENTERS
+  // (matches the data's lat_center/ltime_center); span comes from cellSpan.
   //  • If the data carries LT → convert LT to a geographic longitude (lonForLT, now-relative)
-  //    and place each value there. When a row has no latitude, paint it across all bands.
-  //  • Otherwise → fall back to DAY/NGT synthesis split by the real-time solar terminator.
+  //    and place each value there at native resolution. Rows without latitude paint all bands.
+  //  • Otherwise → fall back to 30° DAY/NGT synthesis split by the real-time solar terminator.
   const gridCells = useMemo<SimulationRow[]>(() => {
     if (ltRows.length > 0) {
       const cells: SimulationRow[] = [];
       for (const r of ltRows) {
         const lon = lonForLT(r.lt as number, now);
-        const lats = r.lat != null ? [Math.floor(r.lat / 30) * 30] : LAT_BINS;
-        for (const latBin of lats) {
-          const day = isDaytime(latBin + 15, lon, now);
-          cells.push(makeCell(latBin, lon, r.avPot, day));
+        const lats = r.lat != null ? [r.lat] : LAT_BINS.map((b) => b + 15);
+        for (const lat of lats) {
+          const day = isDaytime(lat, lon, now);
+          cells.push(makeCell(lat, lon, r.avPot, day));
         }
       }
       return cells;
@@ -159,7 +175,7 @@ export default function SpisApp() {
         const day = isDaytime(latBin + 15, lonBin + 15, now);
         const v = day ? dayValue : ngtValue;
         if (v === null) continue; // no value for this side → leave dark
-        cells.push(makeCell(latBin, lonBin, v, day));
+        cells.push(makeCell(latBin + 15, lonBin + 15, v, day));
       }
     }
     return cells;
@@ -197,39 +213,60 @@ export default function SpisApp() {
     [filter],
   );
 
+  // Public local demo (no DB write) in the REAL delivery format:
+  // lat 2° (−87..89) × LT 1h (0.5..23.5) grid, CSV categorical values
+  // (cond_Solar/Kp/재질/저항/type). Values mimic auroral-zone night charging.
+  const handleLoadDemoLocal = useCallback(() => {
+    const NODE0 = ["Al", "ALOX", "Al2O3", "Epoxy", "Gold"];
+    const KP = ["2lt4", "SOLARmin_Kpge4"];
+    const MAT_F: Record<string, number> = { Al: 0.6, ALOX: 1.0, Al2O3: 1.15, Epoxy: 1.4, Gold: 0.45 };
+    const out: SpisPotentialRow[] = [];
+    for (const node0Mat of NODE0)
+      for (const kp of KP) {
+        const kpBoost = kp === "SOLARmin_Kpge4" ? 1.8 : 1.0;
+        for (let lat = -87; lat <= 89; lat += 2) {
+          for (let lt = 0.5; lt < 24; lt += 1) {
+            const night = lt >= 21 || lt < 6;
+            const auroral = Math.abs(lat) > 60 && Math.abs(lat) < 80;
+            let v = -(5 + Math.random() * 45); // quiet baseline
+            if (auroral && night) v = -(800 + Math.random() * 2500) * kpBoost;
+            else if (auroral) v = -(60 + Math.random() * 300);
+            else if (night) v = -(30 + Math.random() * 120);
+            v *= MAT_F[node0Mat];
+            out.push({
+              env: "AUR", res: "infinite", dn: lt >= 6 && lt < 18 ? "DAY" : "NGT",
+              node0Mat, node1Mat: "", node: 0, form: "3U",
+              condSolar: "SOLARmin", kp,
+              lat, lt, avPot: Math.round(v * 10) / 10,
+            });
+          }
+        }
+      }
+    setData(out);
+    toast.success(`데모 데이터 로드: ${out.length.toLocaleString()}행 (위도 2°×LT 1h, 실데이터 형식)`);
+  }, []);
+
+  // Load from DB; when the DB is empty, fall back to the demo automatically
+  // (요구사항: 아무것도 없으면 데모, 있으면 DB 데이터).
   const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
-      setData(await fetchSpisPotentials());
+      const rows = await fetchSpisPotentials();
+      if (rows.length === 0) {
+        handleLoadDemoLocal();
+        toast.info("DB가 비어 있어 데모 데이터를 표시합니다");
+      } else {
+        setData(rows);
+      }
     } catch (e: any) {
       toast.error(`데이터 로드 실패: ${e.message ?? e}`);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [handleLoadDemoLocal]);
   useEffect(() => {
     refresh();
   }, [refresh]);
-
-  // Public local demo (no DB write): random values across the option set.
-  const handleLoadDemoLocal = useCallback(() => {
-    const NODE0 = ["AL2K", "ALOX", "GOLD", "GOLD (2k)", "KAPT", "EPOX", "Al2O3", "CERS"];
-    const NODE1 = ["AL2K", "KAPT"];
-    const RES = ["R0", "R1"];
-    const NODES = [0, 1];
-    const DN: ("DAY" | "NGT")[] = ["DAY", "NGT"];
-    const out: SpisPotentialRow[] = [];
-    for (const node0Mat of NODE0)
-      for (const node1Mat of NODE1)
-        for (const res of RES)
-          for (const node of NODES)
-            for (const dn of DN) {
-              const base = dn === "NGT" ? -12000 : -5000;
-              out.push({ env: "AUR", res, dn, node0Mat, node1Mat, node, avPot: Math.round(base * (0.5 + Math.random()) * 10) / 10 });
-            }
-    setData(out);
-    toast.success(`데모 데이터 로드: ${out.length}개 (로컬 미리보기)`);
-  }, []);
 
   return (
     <div className="flex w-full h-[calc(100vh-100px)] bg-background overflow-hidden">
@@ -255,6 +292,7 @@ export default function SpisApp() {
           mapDataRange={mapDataRange}
           potentialRange={mapDataRange}
           now={now}
+          cellSpan={cellSpan}
         />
       )}
     </div>
