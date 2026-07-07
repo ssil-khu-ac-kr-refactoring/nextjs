@@ -49,7 +49,7 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
     <PageLayout>
       <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
         <header className="text-center mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">Outcome</h1>
+          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">Outcomes</h1>
         </header>
 
         <div className="flex flex-col lg:flex-row gap-5">
@@ -78,7 +78,7 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
             {item ? (
               <div className="text-foreground">
                 <div className="text-sm text-muted-foreground mb-4">
-                  <span>Outcome</span>
+                  <span>Outcomes</span>
                   <span className="mx-2">/</span>
                   <span className="text-primary font-medium">{item.title}</span>
                 </div>

@@ -109,6 +109,27 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             세계지도 · LT 기반 x축 (실시간 그림자)
           </h3>
 
+          <div className="flex">
+            {/* 위도(Y) 축 — LT 축처럼 항상 일정한 간격의 눈금 (30° 마다) */}
+            <div className="w-10 shrink-0 flex flex-col">
+              <div className="h-5" />
+              <div className="relative h-[440px] lg:h-[540px]">
+                {[90, 60, 30, 0, -30, -60, -90].map((lat) => (
+                  <div
+                    key={lat}
+                    className="absolute right-1.5 -translate-y-1/2 text-[10px] text-muted-foreground"
+                    style={{ top: `${((90 - lat) / 180) * 100}%` }}
+                  >
+                    {lat}°
+                  </div>
+                ))}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[10px] font-medium text-foreground">
+                  LAT
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-0">
           {/* LT axis (top) */}
           <div className="relative h-5 ml-0">
             {ltTicks.map((t) => (
@@ -212,6 +233,8 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
               </div>
             ))}
             <div className="absolute right-0 -top-0 text-[10px] font-medium text-foreground">LT [h]</div>
+          </div>
+            </div>
           </div>
 
           {/* Map legend — 3 discrete buckets */}
