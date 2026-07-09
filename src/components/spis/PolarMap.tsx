@@ -116,7 +116,7 @@ export function PolarMap({ hemisphere, simData, range, now, size = 320 }: PolarM
 
         {/* Cells */}
         {cells.map((c) => {
-          const color = getColorForValue(c.avg, range.min, range.max);
+          const color = getColorForValue(Math.abs(c.avg), range.min, range.max);
           return (
             <path
               key={`${c.latBin}_${c.lonBin}`}

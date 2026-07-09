@@ -181,10 +181,12 @@ export default function SpisApp() {
     return cells;
   }, [ltRows, dayValue, ngtValue, now, makeCell]);
 
+  // 대전 위험은 전위의 크기(|AvPot|) 기준 — 음전위가 클수록 위험(빨강).
   const mapDataRange = useMemo(() => {
-    const vals = gridCells.length
+    const vals = (gridCells.length
       ? gridCells.map((c) => c.avPot)
-      : [dayValue, ngtValue].filter((v): v is number => v !== null);
+      : [dayValue, ngtValue].filter((v): v is number => v !== null)
+    ).map(Math.abs);
     if (vals.length === 0) return { min: 0, max: 100 };
     let min = Math.min(...vals);
     let max = Math.max(...vals);

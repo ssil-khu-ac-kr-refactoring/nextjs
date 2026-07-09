@@ -171,7 +171,12 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
 
             {/* 데이터 셀 — 중심(lat,lon) ± 스팬/2 로 native 해상도 렌더 (실데이터: 위도 2° × 경도 15°) */}
             {gridCells.map((cell) => {
-              const color = getColorForValue(cell.avg, mapDataRange.min, mapDataRange.max);
+              const mag = Math.abs(cell.avg);
+              const color = getColorForValue(mag, mapDataRange.min, mapDataRange.max);
+              // 약한 대전은 거의 투명하게 → 지도가 안 덮이고 강한(오로라대) 영역만 도드라짐.
+              const t = mapDataRange.max > mapDataRange.min
+                ? (mag - mapDataRange.min) / (mapDataRange.max - mapDataRange.min) : 1;
+              const cellOpacity = 0.12 + 0.63 * Math.max(0, Math.min(1, t));
               const left = ((((cell.lon - span.lonDeg / 2 + 180) % 360) + 360) % 360 / 360) * 100;
               const top = ((90 - (cell.lat + span.latDeg / 2)) / 180) * 100;
               const ltCenter = localTimeAtLon(cell.lon, now);
@@ -185,7 +190,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                     width: `${cellWidthPct}%`,
                     height: `${cellHeightPct}%`,
                     backgroundColor: color,
-                    opacity: 0.7,
+                    opacity: cellOpacity,
                   }}
                   onMouseEnter={(e) => {
                     const rect = e.currentTarget.parentElement?.getBoundingClientRect();
@@ -239,7 +244,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
 
           {/* Map legend — 3 discrete buckets */}
           <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-            <span className="font-medium text-foreground">AvPot [V]</span>
+            <span className="font-medium text-foreground">|AvPot| [V]</span>
             <span className="inline-flex items-center gap-1">
               <span className="inline-block w-4 h-3 rounded-sm" style={{ background: 'hsl(130,65%,78%)' }} />
               낮음 (&lt; {formatValue(mapDataRange.min + (mapDataRange.max - mapDataRange.min) / 3)})
