@@ -133,7 +133,7 @@ function Heatmap({ simData, range, filters, now }: HeatmapProps) {
     <group>
       {cells.map((cell) => {
         const pos = latLonToVec3(cell.lat, cell.lon, RADIUS * 1.005);
-        const color = getColorForValue(cell.avg, range.min, range.max);
+        const color = getColorForValue(Math.abs(cell.avg), range.min, range.max);
         const day = filters.timeMode === 'AUTO'
           ? isDaytime(cell.lat, cell.lon, now)
           : filters.timeMode === 'DAY';
