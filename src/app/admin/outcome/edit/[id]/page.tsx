@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import type { ComponentProps } from 'react';
 import type RichEditorComponent from '@/components/RichEditor';
 import Loading from '@/components/Loading';
+import SpisChargingDataSection from '../../SpisChargingDataSection';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), {
   ssr: false,
@@ -233,6 +234,8 @@ export default function EditOutcomePage() {
           </button>
         </div>
       </form>
+
+      {isProtected && <SpisChargingDataSection />}
     </div>
   );
 }
