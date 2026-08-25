@@ -56,8 +56,8 @@ jobs:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
         run: |
           if [ -z "$DEPLOY_TOKEN" ] || [ -z "$DEPLOY_URL" ]; then
-            echo "::error::DEPLOY_TOKEN / DEPLOY_URL secrets 미설정 — 배포 webhook 생략"
-            exit 1
+            echo "::warning::DEPLOY_TOKEN / DEPLOY_URL secrets 미설정 — 배포 webhook 생략(수동 배포 필요)"
+            exit 0
           fi
           curl -fsS -X POST \
             -H "X-DEPLOY-TOKEN: $DEPLOY_TOKEN" \
