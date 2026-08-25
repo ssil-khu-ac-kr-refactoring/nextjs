@@ -15,14 +15,14 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata = {
   title: {
-    default: "경희대학교 우주탑재체 연구실 SSIL | Space Science & Instrumentation Laboratory",
+    default: "경희대학교 우주탑 연구실 SSIL | Space Science & Instrumentation Laboratory",
     template: "%s | SSIL Lab",
   },
   description:
-    "경희대학교 응용과학대학 우주탑재체 연구실(SSIL, Space Science & Instrumentation Laboratory)은 위성 및 우주관측기기 개발을 중심으로 연구를 수행하고 있습니다. 연구 주제, 논문, 구성원, 장비 정보를 제공합니다.",
+    "경희대학교 응용과학대학 우주탑 연구실(SSIL, Space Science & Instrumentation Laboratory)은 위성 및 우주관측기기 개발을 중심으로 연구를 수행하고 있습니다. 연구 주제, 논문, 구성원, 장비 정보를 제공합니다.",
   keywords: [
     "경희대학교",
-    "우주탑재체 연구실",
+    "우주탑 연구실",
     "SSIL",
     "Space Science and Instrumentation Laboratory",
     "우주과학과",
@@ -30,9 +30,9 @@ export const metadata = {
   ],
   authors: [{ name: "SSIL Lab, Kyung Hee University" }],
   openGraph: {
-    title: "경희대학교 우주탑재체 연구실 SSIL",
+    title: "경희대학교 우주탑 연구실 SSIL",
     description:
-      "경희대학교 응용과학대학 우주탑재체 연구실(SSIL)의 연구 및 프로젝트를 소개합니다.",
+      "경희대학교 응용과학대학 우주탑 연구실(SSIL)의 연구 및 프로젝트를 소개합니다.",
     url: "https://ssil.khu.ac.kr",
     siteName: "SSIL Lab",
     locale: "ko_KR",

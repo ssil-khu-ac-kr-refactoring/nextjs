@@ -18,6 +18,13 @@ function groupByYear<T extends { year: number }>(items: T[]) {
   return Array.from(map.entries()).sort((a, b) => b[0] - a[0]);
 }
 
+// 표시 우선순위: SCI 논문 → 기타 Publication → 학회 초록/Conference
+const CATEGORY_ORDER = [
+  { key: "SCI", label: "SCI Papers / Journal Papers" },
+  { key: "OTHER", label: "Other Publications" },
+  { key: "CONFERENCE", label: "Conference & Abstracts" },
+] as const;
+
 export default function PublicationPage() {
   const { data: session } = useSession();
   const isAdmin = !!session;
@@ -75,7 +82,10 @@ export default function PublicationPage() {
       </PageLayout>
     );
 
-  const byYear = groupByYear(pubs);
+  const byCategory = CATEGORY_ORDER.map((c) => ({
+    ...c,
+    years: groupByYear(pubs.filter((p) => (p.category ?? "SCI") === c.key)),
+  })).filter((c) => c.years.length > 0);
 
   return (
     <PageLayout>
@@ -140,18 +150,24 @@ export default function PublicationPage() {
           </div>
         )}
 
-        {byYear.length === 0 ? (
+        {byCategory.length === 0 ? (
           <div className="text-center py-20 border border-dashed border-border rounded-2xl">
             <p className="text-foreground/60">No publications available yet.</p>
           </div>
         ) : (
-          <div className="space-y-16">
-            {byYear.map(([year, list]) => (
-              <section key={year}>
-                <h2 className="text-3xl font-bold text-primary mb-6 border-b border-border pb-2">
-                  {year}
+          <div className="space-y-20">
+            {byCategory.map((cat) => (
+              <div key={cat.key}>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-8 tracking-tight">
+                  {cat.label}
                 </h2>
-                <ul className="space-y-6">
+                <div className="space-y-12">
+                  {cat.years.map(([year, list]) => (
+                    <section key={year}>
+                      <h3 className="text-xl font-bold text-primary mb-6 border-b border-border pb-2">
+                        {year}
+                      </h3>
+                      <ul className="space-y-6">
                   {list.map((p) => {
                     const link = p.url || p.pdfUrl;
                     return (
@@ -234,8 +250,11 @@ export default function PublicationPage() {
                       </li>
                     );
                   })}
-                </ul>
-              </section>
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}

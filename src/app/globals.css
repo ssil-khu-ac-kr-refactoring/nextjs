@@ -262,3 +262,31 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="poppins"]::before { content: 'Poppins'; }
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="open-sans"]::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="open-sans"]::before { content: 'Open Sans'; }
+
+/* ============================================================= */
+/* 공개 페이지(.prose) 렌더링 정렬 처리                            */
+/* Quill 은 정렬을 ql-align-* class 로 저장하지만, quill.snow.css */
+/* 의 정렬 규칙은 .ql-editor 안에서만 적용된다. 공개 페이지는     */
+/* .prose 컨테이너를 쓰므로 admin 에서 지정한 정렬이 반영되지     */
+/* 않았다. 아래 규칙으로 렌더링된 본문에도 정렬을 적용한다.       */
+/* ============================================================= */
+
+/* 기본값: 본문 줄글은 전체 정렬(justify) */
+.prose p {
+  text-align: justify;
+}
+
+/* Quill 정렬 버튼(가운데/오른쪽/전체정렬)이 그대로 반영되도록 */
+.prose .ql-align-center { text-align: center; }
+.prose .ql-align-right { text-align: right; }
+.prose .ql-align-justify { text-align: justify; }
+.prose .ql-align-center img,
+.prose .ql-align-center .ql-video { margin-left: auto; margin-right: auto; }
+
+/* 기본값: 사진은 가운데 정렬 */
+.prose img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose .ql-align-right img { margin-left: auto; margin-right: 0; }

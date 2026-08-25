@@ -493,7 +493,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
 
   useEffect(() => {
     if (total === 0) return;
-    const interval = setInterval(next, 10000);
+    const interval = setInterval(next, 3000);
     return () => clearInterval(interval);
   }, [total, next]);
 
@@ -532,6 +532,11 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             className="object-cover z-0"
           />
           <div className="absolute inset-0 bg-black/50 z-10" />
+          <Link
+            href={`/research?cat=${category}&idx=${projectIndexInList}`}
+            aria-label={current.title}
+            className="absolute inset-0 z-10"
+          />
           <div className="absolute bottom-12 left-12 z-20 max-w-md">
             <Link href={`/research?cat=${category}&idx=${projectIndexInList}`}>
               <h2 className="text-primary text-3xl font-bold mb-2 cursor-pointer hover:underline">

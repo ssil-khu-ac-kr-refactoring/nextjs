@@ -22,12 +22,13 @@ export async function PUT(req: NextRequest, { params }: any) {
   }
   try {
     const body = await req.json();
-    const { title, authors, venue, year, month, url, pdfUrl } = body ?? {};
+    const { title, authors, venue, year, month, url, pdfUrl, category } = body ?? {};
 
     if (!title || typeof title !== 'string' || !authors || typeof authors !== 'string' || typeof year !== 'number') {
       return NextResponse.json({ error: 'title, authors, year are required' }, { status: 400 });
     }
 
+    const CATEGORIES = ['SCI', 'OTHER', 'CONFERENCE'];
     const updated = await prisma.publication.update({
       where: { id },
       data: {
@@ -38,6 +39,7 @@ export async function PUT(req: NextRequest, { params }: any) {
         month: typeof month === 'number' ? month : null,
         url: typeof url === 'string' ? url : null,
         pdfUrl: typeof pdfUrl === 'string' ? pdfUrl : null,
+        category: CATEGORIES.includes(category) ? category : 'SCI',
       },
     });
     return NextResponse.json(updated);

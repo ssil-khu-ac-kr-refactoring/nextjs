@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/api-auth';
 
+const CATEGORIES = ['SCI', 'OTHER', 'CONFERENCE'] as const;
+function normalizeCategory(v: unknown): 'SCI' | 'OTHER' | 'CONFERENCE' {
+  return (CATEGORIES as readonly string[]).includes(v as string)
+    ? (v as 'SCI' | 'OTHER' | 'CONFERENCE')
+    : 'SCI';
+}
+
 export async function GET() {
   const pubs = await prisma.publication.findMany({
     orderBy: [{ year: 'desc' }, { month: 'desc' }],
@@ -15,7 +22,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { title, authors, venue, year, month, url, pdfUrl } = body ?? {};
+    const { title, authors, venue, year, month, url, pdfUrl, category } = body ?? {};
 
     if (!title || typeof title !== 'string' || !authors || typeof authors !== 'string' || typeof year !== 'number') {
       return NextResponse.json({ error: 'title, authors, year are required' }, { status: 400 });
@@ -30,6 +37,7 @@ export async function POST(req: Request) {
         month: typeof month === 'number' ? month : null,
         url: typeof url === 'string' ? url : null,
         pdfUrl: typeof pdfUrl === 'string' ? pdfUrl : null,
+        category: normalizeCategory(category),
       },
     });
     return NextResponse.json(created, { status: 201 });

@@ -122,10 +122,13 @@ model Publication {
   month     Int?
   url       String?
   pdfUrl    String?
+  // 분류: SCI(SCI 논문/Journal) > OTHER(기타 Publication) > CONFERENCE(학회 초록/Conference)
+  category  String   @default("SCI")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([year], map: "idx_publication_year")
+  @@index([category], map: "idx_publication_category")
 }
 
 model BoardTab {

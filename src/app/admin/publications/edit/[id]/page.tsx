@@ -28,6 +28,7 @@ export default function EditPublicationPage() {
           month: data.month,
           url: data.url,
           pdfUrl: data.pdfUrl,
+          category: data.category ?? 'SCI',
         });
       } catch (e: any) {
         setError(e.message);

@@ -3,6 +3,14 @@
 import { useState } from 'react';
 import { toast } from '@/components/Toast';
 
+export type PublicationCategory = 'SCI' | 'OTHER' | 'CONFERENCE';
+
+export const PUBLICATION_CATEGORY_OPTIONS: { value: PublicationCategory; label: string }[] = [
+  { value: 'SCI', label: 'SCI 논문 / Journal Papers' },
+  { value: 'OTHER', label: '기타 Publication' },
+  { value: 'CONFERENCE', label: '학회 초록 / Conference' },
+];
+
 export type PublicationFormValues = {
   title: string;
   authors: string;
@@ -11,6 +19,7 @@ export type PublicationFormValues = {
   month?: number | null;
   url?: string | null;
   pdfUrl?: string | null;
+  category: PublicationCategory;
 };
 
 export default function PublicationForm({
@@ -32,6 +41,7 @@ export default function PublicationForm({
     month: initialData?.month ?? null,
     url: initialData?.url ?? '',
     pdfUrl: initialData?.pdfUrl ?? '',
+    category: initialData?.category ?? 'SCI',
   });
 
   function set<K extends keyof PublicationFormValues>(k: K, v: PublicationFormValues[K]) {
@@ -63,6 +73,21 @@ export default function PublicationForm({
       onSubmit={handleSubmit}
       className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-background/10 p-4 rounded"
     >
+      <div className="md:col-span-2">
+        <label className="block text-sm text-foreground/70 mb-1">분류 (Category)</label>
+        <select
+          className="p-2 rounded bg-background/20 w-full"
+          value={values.category}
+          onChange={(e) => set('category', e.target.value as PublicationCategory)}
+        >
+          {PUBLICATION_CATEGORY_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <input
         className="p-2 rounded bg-background/20"
         placeholder="Title *"
