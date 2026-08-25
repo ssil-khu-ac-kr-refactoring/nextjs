@@ -33,7 +33,7 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
             People
           </h1>
           <p className="mt-4 text-foreground/60">
-            우주탑 연구실의 구성원을 소개합니다.
+            우주탑재체 연구실의 구성원을 소개합니다.
           </p>
         </FadeIn>
 

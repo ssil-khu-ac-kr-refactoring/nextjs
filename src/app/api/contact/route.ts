@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = "nodejs";
 
 const DEFAULT_CONTACT = {
-  labNameKo: "우주과학탑연구실",
+  labNameKo: "우주과학탑재체연구실",
   labNameEn: "Space Science Instrument Laboratory",
   addressKo:
     "(우)17104 경기도 용인시 기흥구 덕영대로 1732\n경희대학교 국제캠퍼스 천문대",
