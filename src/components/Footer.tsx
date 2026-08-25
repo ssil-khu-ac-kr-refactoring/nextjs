@@ -1,4 +1,5 @@
 import React from "react";
+import { prisma } from "@/lib/prisma";
 
 type Contact = {
   labNameKo: string;
@@ -19,12 +20,12 @@ const DEFAULT_CONTACT: Contact = {
 };
 
 async function getContact(): Promise<Contact> {
+  // 서버 컴포넌트에서 상대경로 fetch("/api/contact")는 Node 런타임에서
+  // "Failed to parse URL"로 항상 실패해 DEFAULT_CONTACT만 반환됐다(=CMS 무시).
+  // DB를 직접 조회한다. 빌드 프리렌더 시 DB 미연결이면 catch로 기본값 사용.
   try {
-    // 서버 컴포넌트에서 상대 경로 fetch 가능. 캐시 없이 항상 최신값.
-    const res = await fetch("/api/contact", { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed to fetch contact");
-    const data = (await res.json()) as Partial<Contact>;
-    return { ...DEFAULT_CONTACT, ...data };
+    const row = await prisma.contact.findUnique({ where: { id: 1 } });
+    return { ...DEFAULT_CONTACT, ...(row ?? {}) };
   } catch {
     return DEFAULT_CONTACT;
   }

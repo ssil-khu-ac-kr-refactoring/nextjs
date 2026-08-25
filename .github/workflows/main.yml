@@ -47,11 +47,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger NAS pull & restart
-        # NAS의 /deploy 핸들러는 이제 `docker compose pull && docker compose up -d`만 수행.
-        # TODO: 토큰/URL은 가능하면 GitHub Secrets로 옮기세요.
+        # NAS의 /deploy 핸들러는 `docker compose pull && docker compose up -d`만 수행.
+        # 토큰/URL은 GitHub Secrets(DEPLOY_TOKEN, DEPLOY_URL)에서 주입한다.
+        # ⚠️ 과거 평문 토큰(my-secret-token)이 공개 히스토리에 남아있으니 반드시 회전할 것.
+        # -f: HTTP 4xx/5xx에서 잡을 실패시킴(터널 죽었는데 초록불로 표시되는 문제 방지).
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
         run: |
-          curl -v -X POST \
-            -H "X-DEPLOY-TOKEN: my-secret-token" \
+          if [ -z "$DEPLOY_TOKEN" ] || [ -z "$DEPLOY_URL" ]; then
+            echo "::error::DEPLOY_TOKEN / DEPLOY_URL secrets 미설정 — 배포 webhook 생략"
+            exit 1
+          fi
+          curl -fsS -X POST \
+            -H "X-DEPLOY-TOKEN: $DEPLOY_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"ref":"master"}' \
-            https://702af93e259c.ngrok-free.app/deploy
+            "$DEPLOY_URL"
