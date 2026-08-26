@@ -84,7 +84,7 @@ const Navbar = () => {
     { path: "/news", label: "News" },
     { path: "/people", label: "People" },
     { path: "/contact", label: "Contact" },
-    { path: "/outcome", label: "Outcomes" },
+    { path: "/outcome", label: "Tools & Data" },
   ];
 
   const isActive = (path: string) =>
