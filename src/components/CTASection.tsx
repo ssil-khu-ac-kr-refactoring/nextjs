@@ -18,9 +18,7 @@ function toUiContent(c: any) {
     heroSubtitle: x.heroSubtitle ?? "Space Science Instrument Laboratory",
     heroParagraph: x.heroParagraph ?? "",
     aboutTitle: x.aboutTitle ?? "Empowering cosmic discovery—one payload at a time.",
-    aboutBody:
-      x.aboutParagraph ??
-      "Since ancient times, people have expressed a variety of interests, ranging from vague admiration for the universe to a brief curiosity. Now, even space travel has reached a time when it is no longer an imagination. Despite these times, and also in these times, people need more scientific understanding of cosmic phenomena, which requires various kinds of observational data in outer space. The Space Science Instrument Laboratory (SSIL) focuses on this research.",
+    aboutBody: x.aboutParagraph ?? "",
     fontFamily: x.fontFamily ?? "MaruBuri",
   };
 }
