@@ -1,8 +1,7 @@
 const defaultAbout = {
   heading: "About Us",
   tagline: "Empowering cosmic discovery—one payload at a time.",
-  body1:
-    "Since ancient times, people have expressed a variety of interests ... The Space Science Instrument Laboratory (SSIL) focuses on this research.",
+  body1: "",
   body2:
     "Most of the people who have been with us in the Space Science Embedded Laboratory continue to work in the space science industry ...",
   professorName: "Dr. JongHo Seon",
