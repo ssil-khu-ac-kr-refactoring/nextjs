@@ -11,16 +11,6 @@ import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 import { AnimatedHeadline } from "@/components/anim/AnimatedHeadline";
 import { FadeIn } from "@/components/anim/FadeIn";
 
-const newsDateFormatter =
-  typeof Intl !== "undefined"
-    ? new Intl.DateTimeFormat("en-GB", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      timeZone: "UTC",
-    })
-    : null;
-
 function toUiContent(c: any) {
   const x = c || {};
   return {
@@ -28,11 +18,7 @@ function toUiContent(c: any) {
     heroSubtitle: x.heroSubtitle ?? "Space Science Instrument Laboratory",
     heroParagraph: x.heroParagraph ?? "",
     aboutTitle: x.aboutTitle ?? "Empowering cosmic discovery—one payload at a time.",
-    aboutBody:
-      x.aboutParagraph ??
-      "Since ancient times, people have expressed a variety of interests, ranging from vague admiration for the universe to a brief curiosity. Now, even space travel has reached a time when it is no longer an imagination. Despite these times, and also in these times, people need more scientific understanding of cosmic phenomena, which requires various kinds of observational data in outer space. The Space Science Instrument Laboratory (SSIL) focuses on this research.",
-    newsTitle: x.newsTitle ?? "NEWS",
-    newsSubtitle: x.newsSubtitle ?? "Check out our latest news and announcements.",
+    aboutBody: x.aboutParagraph ?? "",
     fontFamily: x.fontFamily ?? "MaruBuri",
   };
 }
@@ -44,13 +30,11 @@ function toApiPayload(ui: Partial<ReturnType<typeof toUiContent>>) {
   if ("heroParagraph" in ui) p.heroParagraph = ui.heroParagraph;
   if ("aboutTitle" in ui) p.aboutTitle = ui.aboutTitle;
   if ("aboutBody" in ui) p.aboutParagraph = ui.aboutBody;
-  if ("newsTitle" in ui) p.newsTitle = ui.newsTitle;
-  if ("newsSubtitle" in ui) p.newsSubtitle = ui.newsSubtitle;
    if ("fontFamily" in ui) p.fontFamily = ui.fontFamily;
   return p;
 }
 
-const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
+const CTASection = ({ researchData, homeContent, sliderImages }) => {
   const { data: session } = useSession();
   const isAdmin = !!session;
 
@@ -294,81 +278,6 @@ const CTASection = ({ researchData, newsData, homeContent, sliderImages }) => {
 
       <ResearchSection researchData={researchData} isAdmin={isAdmin} />
 
-      <section id="news" className="bg-background text-foreground py-24 px-4">
-        <FadeIn className="max-w-7xl mx-auto">
-          <div className="flex items-end justify-between mb-2">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">{home.newsTitle || "NEWS"}</h2>
-            {isAdmin && (
-              <Link
-                href="/news"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90 transition active:scale-95"
-              >
-                <Pencil className="w-4 h-4" />
-                Manage News
-              </Link>
-            )}
-          </div>
-          <p className="mb-8 text-foreground/70">
-            {home.newsSubtitle || "Check out our latest news and announcements."}
-          </p>
-        </FadeIn>
-        <div className="max-w-7xl mx-auto">
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Array.isArray(newsData) && newsData.length > 0 ? (
-              newsData.map((item) => (
-                <div
-                  key={item.id}
-                  className="relative rounded-2xl border border-border/30 bg-card overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-                >
-                  {isAdmin && (
-                    <Link
-                      href={`/news/${item.id}?edit=1`}
-                      className="absolute right-2 top-2 z-20 inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-black/70 text-white hover:bg-black/90"
-                    >
-                      <Pencil className="w-3 h-3" />
-                      Edit
-                    </Link>
-                  )}
-                  <div className="relative w-full h-48 border-b border-border/20">
-                    {item.imageUrl ? (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.title}
-                        fill
-                        sizes="(min-width: 1024px) 33vw, 100vw"
-                        placeholder="blur"
-                        blurDataURL={BLUR_DATA_URL}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-foreground/10" />
-                    )}
-                  </div>
-
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-                    <Link
-                      href={`/news/${item.id}`}
-                      className="text-primary font-semibold text-sm hover:text-primary/80"
-                    >
-                      READ MORE »
-                    </Link>
-                    <p className="text-xs mt-2 text-foreground/50">
-                      {newsDateFormatter
-                        ? newsDateFormatter.format(new Date(item.publishedAt))
-                        : new Date(item.publishedAt).toISOString().slice(0, 10)}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="col-span-3 text-center text-foreground/60">No news available.</p>
-            )}
-          </div>
-        </div>
-      </section>
-
       {errorMsg && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-md bg-red-600 text-white px-4 py-2 shadow">
           {errorMsg}
@@ -545,7 +454,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             </Link>
             {current.subtitle && (
               <Link href={`/research?cat=${category}&idx=${projectIndexInList}`}>
-                <h3 className="text-xl text-foreground font-semibold italic mb-4 cursor-pointer hover:underline">
+                <h3 className="text-xl text-gray-300 dark:text-foreground font-semibold italic mb-4 cursor-pointer hover:underline">
                   {current.subtitle}
                 </h3>
               </Link>
