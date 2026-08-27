@@ -45,7 +45,7 @@ export default async function HomePage() {
   const currentResearchCards = researchData.Current.map((research, idx) => ({
     research,
     idx,
-  })).filter(({ research }) => research.published);
+  }));
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors">
