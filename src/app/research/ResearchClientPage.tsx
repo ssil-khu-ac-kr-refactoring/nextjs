@@ -17,6 +17,26 @@ interface ResearchClientPageProps {
   researchData: ResearchData;
 }
 
+const RESEARCH_MONTHS = [
+  "Jan.",
+  "Feb.",
+  "Mar.",
+  "Apr.",
+  "May",
+  "June",
+  "July",
+  "Aug.",
+  "Sep.",
+  "Oct.",
+  "Nov.",
+  "Dec.",
+];
+
+function formatResearchMonth(date: Date) {
+  const value = new Date(date);
+  return `${RESEARCH_MONTHS[value.getUTCMonth()]} ${value.getUTCFullYear()}`;
+}
+
 export default function ResearchClientPage({ researchData }: ResearchClientPageProps) {
   const router = useRouter();
   const params = useSearchParams();
@@ -51,6 +71,16 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
     researchData[selectedCategory]?.[selectedProjectIdx] ||
     researchData["Current"]?.[0] ||
     null;
+
+  const researchPeriod = project?.startDate
+    ? `${formatResearchMonth(project.startDate)}${
+        project.endDate
+          ? ` – ${formatResearchMonth(project.endDate)}`
+          : project.status === "IN_PROGRESS"
+            ? " – Present"
+            : ""
+      }`
+    : null;
 
   return (
     <PageLayout>
@@ -112,6 +142,33 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                   </span>
                 </div>
 
+                {/* 타이틀 */}
+                <div className="mb-6">
+                  <h2 className="text-2xl lg:text-3xl font-bold mb-2">
+                    {project.title}
+                  </h2>
+
+                  {/* 설명 */}
+                  {project.description && (
+                    <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
+                      {project.description}
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${
+                        project.status === "IN_PROGRESS"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground"
+                      }`}
+                    >
+                      {project.status === "IN_PROGRESS" ? "In Progress" : "Completed"}
+                    </span>
+                    {researchPeriod && <span>{researchPeriod}</span>}
+                  </div>
+                </div>
+
                 {/* 이미지 */}
                 {project.imageUrl && (
                   <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-4">
@@ -125,18 +182,6 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                       className="object-cover"
                     />
                   </div>
-                )}
-
-                {/* 타이틀 */}
-                <h2 className="text-2xl lg:text-3xl font-bold mb-2">
-                  {project.title}
-                </h2>
-
-                {/* 설명 */}
-                {project.description && (
-                  <p className="text-muted-foreground mb-4">
-                    {project.description}
-                  </p>
                 )}
 
                 {/* 내용 */}
