@@ -11,6 +11,7 @@ interface Person {
   position: string;
   email: string;
   role: string;
+  order: number;
 }
 
 export default function ManagePeoplePage() {
@@ -22,7 +23,7 @@ export default function ManagePeoplePage() {
  
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
-  const [sortKey, setSortKey] = useState<keyof Person>('name');
+  const [sortKey, setSortKey] = useState<keyof Person>('order');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
@@ -70,6 +71,9 @@ export default function ManagePeoplePage() {
   });
     // 정렬 적용
   const sortedPeople = [...filteredPeople].sort((a, b) => {
+    if (sortKey === 'order') {
+      return sortOrder === 'asc' ? a.order - b.order : b.order - a.order;
+    }
     const valA = a[sortKey]?.toString().toLowerCase();
     const valB = b[sortKey]?.toString().toLowerCase();
     if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
@@ -114,6 +118,7 @@ return (
             onChange={(e) => setSortKey(e.target.value as keyof Person)}
             className="border rounded px-3 py-2 text-sm"
           >
+            <option value="order">Sort by Order</option>
             <option value="name">Sort by Name</option>
             <option value="position">Sort by Position</option>
             <option value="role">Sort by Role</option>
@@ -148,6 +153,7 @@ return (
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Position</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Order</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -158,6 +164,7 @@ return (
                 <td className="px-6 py-4 whitespace-nowrap">{person.position}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{person.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{person.role}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{person.order}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => router.push(`/admin/people/edit/${person.id}`)}

@@ -6,6 +6,13 @@ import { Person } from "@/generated/prisma";
 import PageLayout from "@/components/PageLayout";
 import { FadeIn } from "@/components/anim/FadeIn";
 import { Mail, GraduationCap } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
+
+function getPersonDescriptionHtml(description: string) {
+  const containsHtml = /<\/?[a-z][\s\S]*>/i.test(description);
+  const sanitized = sanitizeHtml(description);
+  return containsHtml ? sanitized : sanitized.replace(/\r?\n/g, "<br />");
+}
 
 interface PeopleClientPageProps {
   peopleData: {
@@ -33,7 +40,7 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
             People
           </h1>
           <p className="mt-4 text-foreground/60">
-            우주탑재체 연구실의 구성원을 소개합니다.
+            Meet the members of the Space Science Instrument Laboratory (SSIL).
           </p>
         </FadeIn>
 
@@ -109,9 +116,12 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
                       )}
                     </div>
                     {profile.description && (
-                      <p className="text-foreground/85 leading-relaxed whitespace-pre-line">
-                        {profile.description}
-                      </p>
+                      <div
+                        className="prose max-w-none leading-relaxed text-foreground/85 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-justify [&_.ql-align-right]:text-right"
+                        dangerouslySetInnerHTML={{
+                          __html: getPersonDescriptionHtml(profile.description),
+                        }}
+                      />
                     )}
                   </div>
                 </article>
@@ -159,9 +169,12 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
                       </div>
                     )}
                     {profile.description && (
-                      <p className="text-foreground/60 line-clamp-3 pt-2 border-t border-border/60">
-                        {profile.description}
-                      </p>
+                      <div
+                        className="prose prose-sm line-clamp-3 max-h-20 max-w-none overflow-hidden border-t border-border/60 pt-2 text-foreground/60 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-justify [&_.ql-align-right]:text-right [&_h1]:text-base [&_h2]:text-base [&_h3]:text-sm [&_ol]:my-0 [&_p]:my-0 [&_ul]:my-0"
+                        dangerouslySetInnerHTML={{
+                          __html: getPersonDescriptionHtml(profile.description),
+                        }}
+                      />
                     )}
                   </div>
                 </article>

@@ -6,9 +6,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 export default async function PeoplePage() {
 noStore();
   const allPeople = await prisma.person.findMany({
-    orderBy: {
-      createdAt: 'asc',
-    },
+    orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
   });
 
   const peopleData = {

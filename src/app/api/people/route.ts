@@ -9,7 +9,7 @@ const VALID_ROLES = new Set(['PROFESSOR', 'CURRENT', 'ALUMNI']);
 export async function GET() {
   try {
     const people = await prisma.person.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
     });
     return NextResponse.json(people);
   } catch (error) {
@@ -24,13 +24,22 @@ export async function POST(request: Request) {
 
   try {
     const data = await request.json();
-    const { name, position, description, image, email, degree, role } = data ?? {};
+    const { name, position, description, image, email, degree, role, order } = data ?? {};
+    const normalizedOrder =
+      order === undefined
+        ? 0
+        : typeof order === 'number'
+          ? order
+          : typeof order === 'string' && /^-?\d+$/.test(order.trim())
+            ? Number(order)
+            : Number.NaN;
 
     if (
       !name || typeof name !== 'string' ||
       !position || typeof position !== 'string' ||
       !email || typeof email !== 'string' ||
-      !role || typeof role !== 'string' || !VALID_ROLES.has(role)
+      !role || typeof role !== 'string' || !VALID_ROLES.has(role) ||
+      !Number.isSafeInteger(normalizedOrder)
     ) {
       return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 400 });
     }
@@ -44,6 +53,7 @@ export async function POST(request: Request) {
         email,
         degree: typeof degree === 'string' ? degree : null,
         role: role as any,
+        order: normalizedOrder,
       },
     });
     return NextResponse.json(newPerson, { status: 201 });

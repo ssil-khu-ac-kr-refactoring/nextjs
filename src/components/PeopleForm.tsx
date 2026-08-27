@@ -1,6 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import type { ComponentProps } from 'react';
+import type RichEditorComponent from '@/components/RichEditor';
+
+const RichEditor = dynamic(() => import('@/components/RichEditor'), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+}) as React.ComponentType<ComponentProps<typeof RichEditorComponent>>;
 
 interface PersonFormData {
   name: string;
@@ -10,6 +18,7 @@ interface PersonFormData {
   email: string;
   degree: string;
   role: 'PROFESSOR' | 'CURRENT' | 'ALUMNI';
+  order: number;
 }
 
 interface PersonFormProps {
@@ -31,6 +40,7 @@ export default function PersonForm({ initialData, onSubmit, isSubmitting, button
     email: initialData?.email || '',
     degree: initialData?.degree || '',
     role: initialData?.role || 'CURRENT',
+    order: initialData?.order ?? 0,
   });
   
 
@@ -99,6 +109,20 @@ export default function PersonForm({ initialData, onSubmit, isSubmitting, button
         </select>
       </div>
 
+      <div>
+        <label htmlFor="order" className="block text-sm font-medium text-gray-700">
+          Order <span className="font-normal text-gray-500">(lower numbers appear first)</span>
+        </label>
+        <input
+          type="number"
+          name="order"
+          id="order"
+          value={formData.order}
+          onChange={(e) => setFormData((prev) => ({ ...prev, order: Number(e.target.value) || 0 }))}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
        {/* Thumbnail Upload */}
         <div>
           <label className="block text-gray-700 mb-2">Person Image</label>
@@ -127,8 +151,13 @@ export default function PersonForm({ initialData, onSubmit, isSubmitting, button
         </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-        <textarea name="description" id="description" value={formData.description} onChange={handleChange} rows={5} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <RichEditor
+          value={formData.description}
+          onChange={(description) => setFormData((prev) => ({ ...prev, description }))}
+          minHeight={220}
+          placeholder="Add a formatted profile description..."
+        />
       </div>
 
       <div className="flex justify-end">
