@@ -1,13 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ArrowLeft, Pencil } from "lucide-react";
+import { Moon, Pencil, Radio, Telescope } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { sanitizeHtml } from "@/lib/sanitize";
-import { BLUR_DATA_URL } from "@/lib/blurDataURL";
 import { AnimatedHeadline } from "@/components/anim/AnimatedHeadline";
 import { FadeIn } from "@/components/anim/FadeIn";
 
@@ -17,8 +13,10 @@ function toUiContent(c: any) {
     heroTitle: x.heroTitle ?? "SSIL",
     heroSubtitle: x.heroSubtitle ?? "Space Science Instrument Laboratory",
     heroParagraph: x.heroParagraph ?? "",
-    aboutTitle: x.aboutTitle ?? "Empowering cosmic discovery—one payload at a time.",
-    aboutBody: x.aboutParagraph ?? "",
+    aboutTitle: x.aboutTitle ?? "From space instruments to scientific insight.",
+    aboutBody:
+      x.aboutParagraph ??
+      "SSIL develops space science instruments and analysis technologies to measure and understand space environments, from near-Earth space to the lunar surface.",
     fontFamily: x.fontFamily ?? "MaruBuri",
   };
 }
@@ -34,7 +32,7 @@ function toApiPayload(ui: Partial<ReturnType<typeof toUiContent>>) {
   return p;
 }
 
-const CTASection = ({ researchData, homeContent, sliderImages }) => {
+const CTASection = ({ homeContent, sliderImages }) => {
   const { data: session } = useSession();
   const isAdmin = !!session;
 
@@ -276,8 +274,6 @@ const CTASection = ({ researchData, homeContent, sliderImages }) => {
         }}
       />
 
-      <ResearchSection researchData={researchData} isAdmin={isAdmin} />
-
       {errorMsg && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-md bg-red-600 text-white px-4 py-2 shadow">
           {errorMsg}
@@ -289,6 +285,24 @@ const CTASection = ({ researchData, homeContent, sliderImages }) => {
   );
 };
 
+const missionAreas = [
+  {
+    title: "Space Science Instrumentation",
+    description: "Detectors, electronics, and data acquisition systems for space missions.",
+    icon: Telescope,
+  },
+  {
+    title: "Space Environment & Plasma",
+    description: "Energetic particles, radiation, spacecraft charging, and plasma environments.",
+    icon: Radio,
+  },
+  {
+    title: "Lunar & Planetary Exploration",
+    description: "Lunar environment observations and instrumentation for planetary exploration.",
+    icon: Moon,
+  },
+];
+
 const AboutSection = ({
   isAdmin,
   about,
@@ -299,22 +313,10 @@ const AboutSection = ({
   saving,
   onSaveAbout,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start 90%", "center 60%"],
-  });
-
-  const h2X = useTransform(scrollYProgress, [0, 1], ["-300px", "0px"]);
-  const h2Opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const pX = useTransform(scrollYProgress, [0, 1], ["300px", "0px"]);
-  const pOpacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
   return (
     <section
-      ref={ref}
       id="about"
-      className="bg-background text-foreground py-40 px-6 overflow-hidden relative"
+      className="relative overflow-hidden bg-background px-6 py-20 text-foreground sm:py-24"
     >
       {isAdmin && (
         <div className="absolute right-4 top-4 text-sm text-muted-foreground">
@@ -349,143 +351,60 @@ const AboutSection = ({
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto text-center">
+      <div className="mx-auto max-w-7xl">
+        <FadeIn y={20} duration={0.7} className="mb-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
+            Our Mission
+          </p>
+        </FadeIn>
+
         {!editingAbout ? (
-          <>
-            <FadeIn y={32} duration={0.9} className="mb-6">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <div className="max-w-4xl">
+            <FadeIn y={28} duration={0.8} className="mb-5">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
                 {about.aboutTitle}
               </h2>
             </FadeIn>
-            <FadeIn y={24} delay={0.15} duration={0.9}>
-              <p className="text-lg text-foreground/80 max-w-3xl mx-auto leading-relaxed">
+            <FadeIn y={20} delay={0.12} duration={0.8}>
+              <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
                 {about.aboutBody}
               </p>
             </FadeIn>
-          </>
+          </div>
         ) : (
-          <div className="mx-auto max-w-3xl text-left">
+          <div className="max-w-3xl">
             <input
               value={aboutDraft.aboutTitle}
               onChange={(e) => setAboutDraft((p) => ({ ...p, aboutTitle: e.target.value }))}
-              className="w-full mb-4 text-2xl font-bold bg-transparent outline-none border-b border-border pb-2"
-              placeholder="About title"
+              className="mb-4 w-full border-b border-border bg-transparent pb-2 text-2xl font-bold outline-none"
+              placeholder="Mission headline"
             />
             <textarea
               value={aboutDraft.aboutBody}
               onChange={(e) => setAboutDraft((p) => ({ ...p, aboutBody: e.target.value }))}
-              rows={8}
+              rows={5}
               className="w-full rounded-lg border border-border bg-background p-3 leading-7"
-              placeholder="About body"
+              placeholder="Mission introduction"
             />
           </div>
         )}
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {missionAreas.map(({ title, description, icon: Icon }, index) => (
+            <FadeIn key={title} y={24} delay={0.1 * index} className="h-full">
+              <article className="h-full rounded-2xl border border-border bg-card/60 p-6">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {description}
+                </p>
+              </article>
+            </FadeIn>
+          ))}
+        </div>
       </div>
-    </section>
-  );
-};
-
-const ResearchSection = ({ researchData, isAdmin }) => {
-  const [index, setIndex] = useState(0);
-  const allProjects = researchData ? [...researchData.Current, ...researchData.Completed] : [];
-  const total = allProjects.length;
-
-  const next = useCallback(() => {
-    if (total === 0) return;
-    setIndex((prev) => (prev + 1) % total);
-  }, [total]);
-
-  const prev = useCallback(() => {
-    if (total === 0) return;
-    setIndex((prev) => (prev - 1 + total) % total);
-  }, [total]);
-
-  useEffect(() => {
-    if (total === 0) return;
-    const interval = setInterval(next, 3000);
-    return () => clearInterval(interval);
-  }, [total, next]);
-
-  if (total === 0) return null;
-
-  const current = allProjects[index];
-  const category = current.status === "IN_PROGRESS" ? "Current" : "Completed";
-  const projectIndexInList = researchData[category].findIndex((p) => p.id === current.id);
-
-  return (
-    <section id="research" className="bg-background text-foreground py-24 px-4">
-      <FadeIn className="max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-2">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">Our Mission</h2>
-          {isAdmin && (
-            <Link
-              href={`/admin/research?cat=${category}&id=${current.id}`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full bg-primary text-primary-foreground hover:opacity-90 transition active:scale-95"
-            >
-              <Pencil className="w-4 h-4" />
-              Edit This Project
-            </Link>
-          )}
-        </div>
-        <p className="mb-8 text-primary/80">Recent highlights from SSIL’s research and missions.</p>
-      </FadeIn>
-      <FadeIn y={32} delay={0.1} className="max-w-6xl mx-auto relative overflow-hidden rounded-2xl">
-        <div className="relative h-[500px] w-full">
-          <Image
-            src={current.imageUrl || "/images/main2.jpg"}
-            alt={current.title}
-            fill
-            sizes="(min-width: 1024px) 80vw, 100vw"
-            placeholder="blur"
-            blurDataURL={BLUR_DATA_URL}
-            className="object-cover z-0"
-          />
-          <div className="absolute inset-0 bg-black/50 z-10" />
-          <Link
-            href={`/research?cat=${category}&idx=${projectIndexInList}`}
-            aria-label={current.title}
-            className="absolute inset-0 z-10"
-          />
-          <div className="absolute bottom-12 left-12 z-20 max-w-md">
-            <Link href={`/research?cat=${category}&idx=${projectIndexInList}`}>
-              <h2 className="text-primary text-3xl font-bold mb-2 cursor-pointer hover:underline">
-                {current.title}
-              </h2>
-            </Link>
-            {current.subtitle && (
-              <Link href={`/research?cat=${category}&idx=${projectIndexInList}`}>
-                <h3 className="text-xl text-[#AAAAAA] dark:text-foreground font-semibold italic mb-4 cursor-pointer hover:underline">
-                  {current.subtitle}
-                </h3>
-              </Link>
-            )}
-            <div
-              className="text-[#AAAAAA] dark:text-foreground [&_*]:text-[#AAAAAA] dark:[&_*]:text-foreground text-base prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(current.description) }}
-            />
-          </div>
-          <button
-            onClick={prev}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-black/40 hover:bg-black/70 rounded-full"
-          >
-            <ArrowLeft className="w-6 h-6 text-background dark:text-foreground" />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-2 bg-black/40 hover:bg-black/70 rounded-full"
-          >
-            <ArrowRight className="w-6 h-6 text-background dark:text-foreground" />
-          </button>
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-            {allProjects.map((_, i) => (
-              <div
-                key={i}
-                className={`w-2 h-2 rounded-full transition-all ${i === index ? "bg-primary w-6" : "bg-background/40 dark:bg-foreground/40"}`}
-              />
-            ))}
-          </div>
-        </div>
-      </FadeIn>
     </section>
   );
 };
