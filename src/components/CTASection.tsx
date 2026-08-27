@@ -460,7 +460,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
               </Link>
             )}
             <div
-              className="text-foreground text-base prose prose-invert max-w-none"
+              className="text-[#AAAAAA] dark:text-foreground [&_*]:text-[#AAAAAA] dark:[&_*]:text-foreground text-base prose prose-invert max-w-none"
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(current.description) }}
             />
           </div>
