@@ -52,7 +52,6 @@ export default async function HomePage() {
       <Header />
 
       <CTASection
-        researchData={researchData}
         homeContent={homeContent}
         sliderImages={sliderImages}
       />
