@@ -454,7 +454,7 @@ const ResearchSection = ({ researchData, isAdmin }) => {
             </Link>
             {current.subtitle && (
               <Link href={`/research?cat=${category}&idx=${projectIndexInList}`}>
-                <h3 className="text-xl text-foreground font-semibold italic mb-4 cursor-pointer hover:underline">
+                <h3 className="text-xl text-gray-300 dark:text-foreground font-semibold italic mb-4 cursor-pointer hover:underline">
                   {current.subtitle}
                 </h3>
               </Link>
