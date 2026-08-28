@@ -2,14 +2,12 @@
 
 import { useState } from 'react';
 import { toast } from '@/components/Toast';
+import {
+  PUBLICATION_CATEGORY_OPTIONS,
+  type PublicationCategory,
+} from '@/lib/publications';
 
-export type PublicationCategory = 'SCI' | 'OTHER' | 'CONFERENCE';
-
-export const PUBLICATION_CATEGORY_OPTIONS: { value: PublicationCategory; label: string }[] = [
-  { value: 'SCI', label: 'SCI 논문 / Journal Papers' },
-  { value: 'OTHER', label: '기타 Publication' },
-  { value: 'CONFERENCE', label: '학회 초록 / Conference' },
-];
+export { PUBLICATION_CATEGORY_OPTIONS, type PublicationCategory } from '@/lib/publications';
 
 export type PublicationFormValues = {
   title: string;

@@ -1,10 +1,15 @@
 // app/admin/publication/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
+import PublicationBulkImport from '@/components/PublicationBulkImport';
+import {
+  PUBLICATION_CATEGORY_LABELS,
+  type PublicationCategory,
+} from '@/lib/publications';
 
 type Publication = {
   id: number;
@@ -15,6 +20,7 @@ type Publication = {
   month?: number | null;
   url?: string | null;
   pdfUrl?: string | null;
+  category: PublicationCategory;
 };
 
 export default function ManagePublicationPage() {
@@ -23,19 +29,21 @@ export default function ManagePublicationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/publications', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch publications');
-        setPubs(await res.json());
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const fetchPublications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/publications', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to fetch publications');
+      setPubs(await res.json());
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void fetchPublications();
+  }, [fetchPublications]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this publication?')) return;
@@ -64,6 +72,11 @@ export default function ManagePublicationPage() {
         </Link>
       </div>
 
+      <PublicationBulkImport
+        existingPublications={pubs}
+        onImported={fetchPublications}
+      />
+
       {/* 테이블 */}
       <div className="bg-card rounded-2xl border border-border">
         <table className="min-w-full table-auto">
@@ -73,6 +86,7 @@ export default function ManagePublicationPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Authors</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Venue</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Year</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Category</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -100,6 +114,9 @@ export default function ManagePublicationPage() {
                   {p.month ? `${String(p.month).padStart(2, '0')}/` : ''}
                   {p.year}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {PUBLICATION_CATEGORY_LABELS[p.category]}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => router.push(`/admin/publications/edit/${p.id}`)}
@@ -118,7 +135,7 @@ export default function ManagePublicationPage() {
             ))}
             {pubs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-6 text-center text-foreground/60">
+                <td colSpan={6} className="px-6 py-6 text-center text-foreground/60">
                   No publications yet.
                 </td>
               </tr>
