@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import PageLayout from "@/components/PageLayout";
 import PublicationForm, { PublicationFormValues } from "@/components/PublicationForm";
 import { toast } from "@/components/Toast";
+import { PUBLICATION_CATEGORY_OPTIONS } from "@/lib/publications";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +20,10 @@ function groupByYear<T extends { year: number }>(items: T[]) {
 }
 
 // 표시 우선순위: SCI 논문 → 기타 Publication → 학회 초록/Conference
-const CATEGORY_ORDER = [
-  { key: "SCI", label: "SCI Papers / Journal Papers" },
-  { key: "OTHER", label: "Other Publications" },
-  { key: "CONFERENCE", label: "Conference & Abstracts" },
-] as const;
+const CATEGORY_ORDER = PUBLICATION_CATEGORY_OPTIONS.map(({ value, label }) => ({
+  key: value,
+  label,
+}));
 
 export default function PublicationPage() {
   const { data: session } = useSession();
@@ -84,7 +84,11 @@ export default function PublicationPage() {
 
   const byCategory = CATEGORY_ORDER.map((c) => ({
     ...c,
-    years: groupByYear(pubs.filter((p) => (p.category ?? "SCI") === c.key)),
+    years: groupByYear(
+      pubs
+        .filter((p) => (p.category ?? "SCI") === c.key)
+        .sort((a, b) => b.year - a.year || (b.month ?? 0) - (a.month ?? 0)),
+    ),
   })).filter((c) => c.years.length > 0);
 
   return (

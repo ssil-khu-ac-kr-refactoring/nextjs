@@ -1,10 +1,16 @@
 // app/admin/publication/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
+import PublicationBulkImport from '@/components/PublicationBulkImport';
+import PublicationBulkUpdate from '@/components/PublicationBulkUpdate';
+import {
+  PUBLICATION_CATEGORY_LABELS,
+  type PublicationCategory,
+} from '@/lib/publications';
 
 type Publication = {
   id: number;
@@ -15,7 +21,15 @@ type Publication = {
   month?: number | null;
   url?: string | null;
   pdfUrl?: string | null;
+  category: PublicationCategory;
 };
+
+const EXPORT_COLUMNS = ['id', 'title', 'year', 'month', 'venue', 'url', 'pdfUrl', 'category'] as const;
+
+function escapeCsvValue(value: unknown) {
+  const text = value === null || value === undefined ? '' : String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
 
 export default function ManagePublicationPage() {
   const router = useRouter();
@@ -23,19 +37,21 @@ export default function ManagePublicationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/publications', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch publications');
-        setPubs(await res.json());
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const fetchPublications = useCallback(async () => {
+    try {
+      const res = await fetch('/api/publications', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Failed to fetch publications');
+      setPubs(await res.json());
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void fetchPublications();
+  }, [fetchPublications]);
 
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this publication?')) return;
@@ -48,6 +64,22 @@ export default function ManagePublicationPage() {
     }
   };
 
+  const handleExport = () => {
+    const lines = [
+      EXPORT_COLUMNS.join(','),
+      ...pubs.map((publication) =>
+        EXPORT_COLUMNS.map((column) => escapeCsvValue(publication[column])).join(','),
+      ),
+    ];
+    const blob = new Blob([`\uFEFF${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.download = 'publications.csv';
+    anchor.click();
+    URL.revokeObjectURL(href);
+  };
+
   if (loading) return <Loading />;
   if (error)   return <div>Error: {error}</div>;
 
@@ -56,13 +88,32 @@ export default function ManagePublicationPage() {
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Publications</h1>
-        <Link
-          href="/admin/publications/new"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
-        >
-          Add New Publication
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExport}
+            className="rounded-xl border border-border px-4 py-2 font-bold text-foreground hover:bg-muted"
+          >
+            Export CSV
+          </button>
+          <Link
+            href="/admin/publications/new"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl"
+          >
+            Add New Publication
+          </Link>
+        </div>
       </div>
+
+      <PublicationBulkImport
+        existingPublications={pubs}
+        onImported={fetchPublications}
+      />
+
+      <PublicationBulkUpdate
+        existingPublications={pubs}
+        onUpdated={fetchPublications}
+      />
 
       {/* 테이블 */}
       <div className="bg-card rounded-2xl border border-border">
@@ -73,6 +124,7 @@ export default function ManagePublicationPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Authors</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Venue</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Year</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Category</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -100,6 +152,9 @@ export default function ManagePublicationPage() {
                   {p.month ? `${String(p.month).padStart(2, '0')}/` : ''}
                   {p.year}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {PUBLICATION_CATEGORY_LABELS[p.category]}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => router.push(`/admin/publications/edit/${p.id}`)}
@@ -118,7 +173,7 @@ export default function ManagePublicationPage() {
             ))}
             {pubs.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-6 text-center text-foreground/60">
+                <td colSpan={6} className="px-6 py-6 text-center text-foreground/60">
                   No publications yet.
                 </td>
               </tr>
