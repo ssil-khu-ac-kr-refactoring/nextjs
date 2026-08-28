@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import {
   normalizePublicationTitle,
+  parseCsv,
   PUBLICATION_CATEGORY_LABELS,
   validatePublicationImport,
   type PublicationCategory,
@@ -22,46 +23,6 @@ type PreviewRow = {
   errors: string[];
   warnings: string[];
 };
-
-function parseCsv(text: string) {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = '';
-  let quoted = false;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    if (quoted) {
-      if (character === '"' && text[index + 1] === '"') {
-        field += '"';
-        index += 1;
-      } else if (character === '"') {
-        quoted = false;
-      } else {
-        field += character;
-      }
-    } else if (character === '"') {
-      quoted = true;
-    } else if (character === ',') {
-      row.push(field);
-      field = '';
-    } else if (character === '\n') {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = '';
-    } else if (character !== '\r') {
-      field += character;
-    }
-  }
-
-  if (quoted) throw new Error('CSV contains an unclosed quoted field.');
-  if (field || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows;
-}
 
 export default function PublicationBulkImport({
   existingPublications,

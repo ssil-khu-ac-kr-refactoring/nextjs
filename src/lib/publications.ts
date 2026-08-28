@@ -15,6 +15,46 @@ export const PUBLICATION_CATEGORY_LABELS = Object.fromEntries(
   PUBLICATION_CATEGORY_OPTIONS.map(({ value, label }) => [value, label]),
 ) as Record<PublicationCategory, string>;
 
+export function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (quoted) {
+      if (character === '"' && text[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (character === '"') {
+        quoted = false;
+      } else {
+        field += character;
+      }
+    } else if (character === '"') {
+      quoted = true;
+    } else if (character === ',') {
+      row.push(field);
+      field = '';
+    } else if (character === '\n') {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+    } else if (character !== '\r') {
+      field += character;
+    }
+  }
+
+  if (quoted) throw new Error('CSV contains an unclosed quoted field.');
+  if (field || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows;
+}
+
 export type PublicationImportCandidate = {
   title?: unknown;
   authors?: unknown;
@@ -35,6 +75,21 @@ export type ValidatedPublicationImport = {
   url: string | null;
   pdfUrl: string | null;
   category: PublicationCategory;
+};
+
+export type PublicationUpdateCandidate = Omit<PublicationImportCandidate, 'authors'> & {
+  id?: unknown;
+};
+
+export type ValidatedPublicationUpdate = Omit<
+  ValidatedPublicationImport,
+  'authors' | 'venue' | 'month' | 'url' | 'pdfUrl'
+> & {
+  id: number;
+  venue?: string;
+  month?: number;
+  url?: string;
+  pdfUrl?: string;
 };
 
 function optionalString(value: unknown) {
@@ -99,6 +154,30 @@ export function validatePublicationImport(candidate: PublicationImportCandidate)
       url,
       pdfUrl,
       category: category as PublicationCategory,
+    },
+    errors,
+  };
+}
+
+export function validatePublicationUpdate(candidate: PublicationUpdateCandidate): {
+  data: ValidatedPublicationUpdate;
+  errors: string[];
+} {
+  const id = parseInteger(candidate.id);
+  const validation = validatePublicationImport({ ...candidate, authors: 'unchanged' });
+  const errors = [...validation.errors];
+  if (!Number.isSafeInteger(id) || id <= 0) errors.unshift('ID must be a positive integer.');
+  const { authors: _authors, venue, month, url, pdfUrl, ...data } = validation.data;
+  const hasValue = (value: unknown) => String(value ?? '').trim().length > 0;
+
+  return {
+    data: {
+      id,
+      ...data,
+      venue: hasValue(candidate.venue) ? venue ?? undefined : undefined,
+      month: hasValue(candidate.month) ? month ?? undefined : undefined,
+      url: hasValue(candidate.url) ? url ?? undefined : undefined,
+      pdfUrl: hasValue(candidate.pdfUrl) ? pdfUrl ?? undefined : undefined,
     },
     errors,
   };
