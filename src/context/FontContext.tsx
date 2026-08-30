@@ -35,8 +35,15 @@ export const FontProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <FontContext.Provider value={{ fontFamily, setFontFamily, reloadFont }}>
-      {/* ✅ body 안쪽 전체에 폰트 적용 */}
-      <div style={{ fontFamily, minHeight: "100vh" }}>{children}</div>
+      {/* ✅ body 안쪽 전체에 폰트 적용 (MaruBuri 미로드 시 한글 시스템폰트로 폴백 — serif 낙하 방지) */}
+      <div
+        style={{
+          fontFamily: `${fontFamily}, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif`,
+          minHeight: "100vh",
+        }}
+      >
+        {children}
+      </div>
     </FontContext.Provider>
   );
 };

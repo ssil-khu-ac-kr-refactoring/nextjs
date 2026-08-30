@@ -46,9 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="dark light" />
-        {/* MaruBuri 프리로드 — SSIL 대형 제목 폰트 스왑으로 인한 레이아웃 이동 방지 */}
-        <link rel="preload" href="/fonts/MaruBuriTTF/MaruBuri-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/MaruBuriTTF/MaruBuri-Bold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        {/* MaruBuri woff2 서브셋 프리로드 (각 ~250KB) — 폰트 스왑/레이아웃 이동 방지 + 첫 로드 가속 */}
+        <link rel="preload" href="/fonts/MaruBuriTTF/MaruBuri-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/MaruBuriTTF/MaruBuri-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <style
           id="__theme_preload"
           dangerouslySetInnerHTML={{ __html: "html{background:#0a0a0a;color:#ededed}" }}

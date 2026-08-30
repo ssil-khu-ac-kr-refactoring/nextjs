@@ -125,7 +125,7 @@ const CTASection = ({ homeContent, sliderImages }) => {
 
   return (
     <>
-     <div style={{ fontFamily: home.fontFamily || "MaruBuri" }}>
+     <div style={{ fontFamily: `${home.fontFamily || "MaruBuri"}, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif` }}>
     
       <section className="relative h-screen w-full flex items-start text-foreground overflow-hidden pt-[200px]">
         {images.length > 0 ? (
