@@ -1,80 +1,30 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-
 type Props = {
   primary: string;
   secondary?: string;
   className?: string;
 };
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-const word = {
-  hidden: { opacity: 0, y: 40, filter: "blur(8px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] as any },
-  },
-};
-
+/**
+ * 히어로 제목(SSIL).
+ *
+ * 이전 버전은 framer-motion으로 글자별 blur+y+stagger 진입 애니메이션을 했는데,
+ * SSR가 initial="hidden"(opacity:0; translateY(40px))을 인라인으로 심고 나서
+ * 클라이언트 애니메이션이 (백그라운드 탭 rAF 정지·재렌더 등으로) 제대로 안 돌면
+ * 글자가 hidden에 멈추거나, 표시되는 순간 text-center가 아직 안 먹어 "왼쪽에
+ * 나타났다가 중앙으로 튀는" 현상이 났다.
+ *
+ * 신뢰성 우선으로 진입 애니메이션을 제거하고 정적으로 렌더한다.
+ * text-align:center를 인라인으로 박아 CSS 번들 로드 타이밍과 무관하게
+ * 첫 페인트부터 항상 가운데·항상 표시되도록 한다.
+ */
 export function AnimatedHeadline({ primary, secondary, className }: Props) {
-  const reduced = useReducedMotion();
-  const primaryWords = primary.split(/\s+/);
-  const secondaryWords = secondary ? secondary.split(/\s+/) : [];
-
-  if (reduced) {
-    return (
-      <h1 className={className}>
-        <span className="block bg-gradient-to-r from-primary via-amber-300 to-primary bg-clip-text text-transparent">
-          {primary}
-        </span>
-        {secondary && <span className="block mt-2 text-white">{secondary}</span>}
-      </h1>
-    );
-  }
-
   return (
-    <h1 className={className}>
-      <motion.span
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="block bg-gradient-to-r from-primary via-amber-300 to-primary bg-clip-text text-transparent leading-[1.05]"
-      >
-        {primaryWords.map((w, i) => (
-          <motion.span
-            key={`p-${i}`}
-            variants={word}
-            className="inline-block mr-[0.25em] last:mr-0"
-          >
-            {w}
-          </motion.span>
-        ))}
-      </motion.span>
-
+    <h1 className={className} style={{ textAlign: "center" }}>
+      <span className="block bg-gradient-to-r from-primary via-amber-300 to-primary bg-clip-text text-transparent leading-[1.05]">
+        {primary}
+      </span>
       {secondary && (
-        <motion.span
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="block mt-2 text-white leading-[1.1]"
-          style={{ animationDelay: "200ms" }}
-        >
-          {secondaryWords.map((w, i) => (
-            <motion.span
-              key={`s-${i}`}
-              variants={word}
-              className="inline-block mr-[0.25em] last:mr-0"
-            >
-              {w}
-            </motion.span>
-          ))}
-        </motion.span>
+        <span className="block mt-2 text-white leading-[1.1]">{secondary}</span>
       )}
     </h1>
   );
