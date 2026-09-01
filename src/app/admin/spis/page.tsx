@@ -1,8 +1,21 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "@/components/Toast";
 import { importExcelFile, adminLoadSampleData } from "@/lib/spis/dataApi";
+
+const SpisApp = dynamic<{ showExperimentalViews?: boolean }>(
+  () => import("@/components/spis/SpisApp"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[60vh] items-center justify-center text-muted-foreground">
+        Loading SPIS preview…
+      </div>
+    ),
+  },
+);
 
 export default function ManageSpisPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +101,18 @@ export default function ManageSpisPage() {
 
       {busy && <p className="text-sm text-muted-foreground">처리 중입니다…</p>}
       {lastResult && <p className="text-sm text-green-600">{lastResult}</p>}
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold">Admin Visualization Preview</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            관리자 전용으로 3D Globe와 평균전위 결과를 포함한 전체 시각화를 확인합니다.
+          </p>
+        </div>
+        <div className="rounded-xl border border-border overflow-hidden">
+          <SpisApp showExperimentalViews />
+        </div>
+      </section>
     </div>
   );
 }

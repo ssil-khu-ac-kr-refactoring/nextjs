@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { SimulationRow } from '@/lib/spis/types';
 import { getColorForValue } from '@/lib/spis/colorScale';
 import { localTimeAtLon } from '@/lib/spis/lt';
+import { isDaytime } from '@/lib/spis/solar';
 
 interface PolarMapProps {
   hemisphere: 'N' | 'S';
@@ -11,6 +12,7 @@ interface PolarMapProps {
   range: { min: number; max: number };
   now: Date;
   size?: number;
+  cellSpan?: { latDeg: number; lonDeg: number };
 }
 
 function formatValue(v: number) {
@@ -24,28 +26,28 @@ function formatValue(v: number) {
  *  - Radius: co-latitude. Center = pole (90°), outer rim = 30° latitude.
  *  - Grid rings at 60°, 70°, 80°.
  */
-export function PolarMap({ hemisphere, simData, range, now, size = 320 }: PolarMapProps) {
+export function PolarMap({ hemisphere, simData, range, now, size = 320, cellSpan }: PolarMapProps) {
   const cx = size / 2;
   const cy = size / 2;
   const R = size / 2 - 24;
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
 
-  // Aggregate cells in the hemisphere on a 30° lat × 30° lon (= 2h LT) grid.
-  // Lat bins for N: 30..60, 60..90 -> we render rings r ∈ [0..1] mapped from co-lat (0..60°).
+  const span = cellSpan ?? { latDeg: 30, lonDeg: 30 };
+
+  // Preserve the same native cell centers and values used by the 2D map.
+  // Only duplicate rows at an identical center are averaged.
   const cells = useMemo(() => {
-    const grid = new Map<string, { latBin: number; lonBin: number; vals: number[] }>();
+    const grid = new Map<string, { lat: number; lon: number; vals: number[] }>();
     simData.forEach((row) => {
       if (hemisphere === 'N' && row.lat < 30) return;
       if (hemisphere === 'S' && row.lat > -30) return;
-      const latBin = Math.floor(row.lat / 30) * 30;
-      const lonBin = Math.floor((row.lon + 180) / 30) * 30 - 180;
-      const key = `${latBin}_${lonBin}`;
-      if (!grid.has(key)) grid.set(key, { latBin, lonBin, vals: [] });
+      const key = `${row.lat}_${row.lon}`;
+      if (!grid.has(key)) grid.set(key, { lat: row.lat, lon: row.lon, vals: [] });
       grid.get(key)!.vals.push(row.avPot);
     });
     return Array.from(grid.values()).map((g) => ({
-      latBin: g.latBin,
-      lonBin: g.lonBin,
+      lat: g.lat,
+      lon: g.lon,
       avg: g.vals.reduce((a, b) => a + b, 0) / g.vals.length,
     }));
   }, [simData, hemisphere]);
@@ -59,21 +61,15 @@ export function PolarMap({ hemisphere, simData, range, now, size = 320 }: PolarM
     return { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
   };
 
-  // Build a wedge path for one cell (latBin, lonBin)
-  const wedgePath = (latBin: number, lonBin: number) => {
-    const absLatInner = hemisphere === 'N' ? latBin + 30 : Math.abs(latBin);
-    const absLatOuter = hemisphere === 'N' ? latBin : Math.abs(latBin + 30);
-    const rInner = latToR(absLatInner);
-    const rOuter = latToR(absLatOuter);
-    // Convert lonBin range to LT range (now): take both edges, pick smaller and bigger
-    const lt1 = localTimeAtLon(lonBin, now);
-    const lt2 = localTimeAtLon(lonBin + 30, now);
-    // Ensure angular sweep is 2h (handle wrap)
-    let dLT = lt2 - lt1;
-    if (dLT < 0) dLT += 24;
-    if (dLT > 12) dLT = 2; // safety; sweep is always ~2h
-    const startLT = lt1;
-    const endLT = lt1 + 2;
+  // Build a wedge centered on the exact 2D cell. Longitude becomes local-time angle only.
+  const wedgePath = (lat: number, lon: number) => {
+    const absLat = Math.abs(lat);
+    const rInner = latToR(Math.min(90, absLat + span.latDeg / 2));
+    const rOuter = latToR(Math.max(30, absLat - span.latDeg / 2));
+    const centerLT = localTimeAtLon(lon, now);
+    const halfHours = span.lonDeg / 30;
+    const startLT = centerLT - halfHours;
+    const endLT = centerLT + halfHours;
     const a1 = (startLT * 15 - 90) * (Math.PI / 180);
     const a2 = (endLT * 15 - 90) * (Math.PI / 180);
     const p1 = { x: cx + rOuter * Math.cos(a1), y: cy + rOuter * Math.sin(a1) };
@@ -114,15 +110,26 @@ export function PolarMap({ hemisphere, simData, range, now, size = 320 }: PolarM
           );
         })}
 
+        {/* Same solar calculation as the 2D map, below cells to preserve their colors. */}
+        {cells.filter((c) => !isDaytime(c.lat, c.lon, now)).map((c) => (
+          <path
+            key={`night-${c.lat}_${c.lon}`}
+            d={wedgePath(c.lat, c.lon)}
+            fill="black"
+            opacity={0.2}
+            pointerEvents="none"
+          />
+        ))}
+
         {/* Cells */}
         {cells.map((c) => {
-          const color = getColorForValue(Math.abs(c.avg), range.min, range.max);
+          const color = getColorForValue(c.avg, range.min, range.max);
           return (
             <path
-              key={`${c.latBin}_${c.lonBin}`}
-              d={wedgePath(c.latBin, c.lonBin)}
+              key={`${c.lat}_${c.lon}`}
+              d={wedgePath(c.lat, c.lon)}
               fill={color}
-              opacity={0.85}
+              opacity={0.86}
               stroke="hsl(var(--background) / 0.5)"
               strokeWidth={0.3}
               onMouseEnter={(e) => {
@@ -131,7 +138,7 @@ export function PolarMap({ hemisphere, simData, range, now, size = 320 }: PolarM
                 if (rect) setTooltip({
                   x: r.left - rect.left + r.width / 2,
                   y: r.top - rect.top,
-                  text: `LAT ${c.latBin}°~${c.latBin + 30}°\nLT ${localTimeAtLon(c.lonBin, now).toFixed(1)}h\nAvPot: ${formatValue(c.avg)} V`,
+                  text: `LAT ${(c.lat - span.latDeg / 2).toFixed(1)}°~${(c.lat + span.latDeg / 2).toFixed(1)}°\nLT ${localTimeAtLon(c.lon, now).toFixed(1)}h\nAvPot: ${formatValue(c.avg)} V`,
                 });
               }}
               onMouseLeave={() => setTooltip(null)}
