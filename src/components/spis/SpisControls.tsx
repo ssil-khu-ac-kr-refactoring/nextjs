@@ -28,6 +28,7 @@ interface SpisControlsProps {
   dataCount: number;
   isLoading: boolean;
   onLoadDemoLocal: () => void;
+  showExperimentalViews?: boolean;
 }
 
 const fmt = (v: number | null) =>
@@ -46,6 +47,7 @@ export function SpisControls({
   dataCount,
   isLoading,
   onLoadDemoLocal,
+  showExperimentalViews = false,
 }: SpisControlsProps) {
   const set = (partial: Partial<SpisFilter>) => onChange({ ...filter, ...partial });
 
@@ -81,7 +83,7 @@ export function SpisControls({
         <Separator />
 
         {/* 뷰 모드 */}
-        <div className="space-y-2">
+        {showExperimentalViews && <div className="space-y-2">
           <Label className="text-xs font-semibold">뷰 모드</Label>
           <Tabs value={filter.viewMode} onValueChange={(v) => set({ viewMode: v as ViewMode })}>
             <TabsList className="w-full">
@@ -93,9 +95,9 @@ export function SpisControls({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-        </div>
+        </div>}
 
-        <Separator />
+        {showExperimentalViews && <Separator />}
 
         {/* 태양 조건 (cond_Solar) — 데이터에 값이 있을 때만 표시 */}
         {options.condSolar.length > 0 && (
@@ -235,7 +237,7 @@ export function SpisControls({
         <Separator />
 
         {/* 결과: 낮/밤 평균 전위 */}
-        <div className="space-y-2">
+        {showExperimentalViews && <div className="space-y-2">
           <Label className="text-xs font-semibold">평균 전위 (AvPot)</Label>
           <div className="rounded-lg border border-border overflow-hidden text-sm">
             <div className="flex items-center justify-between px-3 py-2 bg-primary/10">
@@ -250,7 +252,7 @@ export function SpisControls({
           <p className="text-[10px] text-muted-foreground">
             지구본의 낮 반구는 DAY 값, 밤 반구는 NGT 값으로 색칠되며 경계는 현재 로컬 타임(태양 직하점) 기준입니다.
           </p>
-        </div>
+        </div>}
       </div>
     </div>
   );

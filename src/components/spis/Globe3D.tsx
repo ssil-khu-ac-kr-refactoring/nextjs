@@ -4,10 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
-import { Loader2, Sparkles, Sun, Moon, Globe2 } from 'lucide-react';
-import type { SimulationRow, FilterState, TimeMode } from '@/lib/spis/types';
+import { Loader2, Sparkles, Sun, Globe2 } from 'lucide-react';
+import type { SimulationRow, FilterState } from '@/lib/spis/types';
 import { getColorForValue } from '@/lib/spis/colorScale';
-import { isDaytime, subsolarPoint } from '@/lib/spis/solar';
+import { subsolarPoint } from '@/lib/spis/solar';
 import { fetchOvation, type OvationData } from '@/lib/spis/ovation';
 const worldTextureUrl = '/spis/world-map.jpg';
 
@@ -16,6 +16,7 @@ interface Globe3DProps {
   filters: FilterState;
   mapDataRange: { min: number; max: number };
   now: Date;
+  cellSpan?: { latDeg: number; lonDeg: number };
 }
 
 const RADIUS = 1;
@@ -29,14 +30,6 @@ function latLonToVec3(lat: number, lon: number, r = RADIUS): THREE.Vector3 {
     r * Math.cos(phi),
     r * Math.sin(phi) * Math.sin(theta),
   );
-}
-
-function hslStringToColor(hsl: string): THREE.Color {
-  const m = hsl.match(/hsl\(([-\d.]+),\s*([\d.]+)%?,\s*([\d.]+)%?\)/);
-  if (!m) return new THREE.Color('white');
-  const c = new THREE.Color();
-  c.setHSL(parseFloat(m[1]) / 360, parseFloat(m[2]) / 100, parseFloat(m[3]) / 100);
-  return c;
 }
 
 /* ---------------- Earth with day/night shader ---------------- */
@@ -79,8 +72,11 @@ function Earth({ texture, subsolarLat, subsolarLon }: EarthProps) {
             float cosAngle = dot(normal, normalize(sunDirection));
             // Smooth terminator
             float dayMix = smoothstep(-0.1, 0.15, cosAngle);
-            vec3 dayColor = texture2D(dayTexture, vUv).rgb;
-            vec3 nightColor = dayColor * 0.18 + vec3(0.02, 0.04, 0.10);
+            vec3 sampled = texture2D(dayTexture, vUv).rgb;
+            float luminance = dot(sampled, vec3(0.2126, 0.7152, 0.0722));
+            // Neutral, low-contrast basemap; potential cells remain the visual priority.
+            vec3 dayColor = vec3(0.72 + luminance * 0.22);
+            vec3 nightColor = dayColor * 0.80;
             vec3 color = mix(nightColor, dayColor, dayMix);
             gl_FragColor = vec4(color, 1.0);
           }
@@ -107,47 +103,42 @@ function Earth({ texture, subsolarLat, subsolarLon }: EarthProps) {
 interface HeatmapProps {
   simData: SimulationRow[];
   range: { min: number; max: number };
-  filters: FilterState;
-  now: Date;
+  cellSpan: { latDeg: number; lonDeg: number };
 }
 
-function Heatmap({ simData, range, filters, now }: HeatmapProps) {
-  // Aggregate to a 30°x30° grid (matches sample data resolution)
+function Heatmap({ simData, range, cellSpan }: HeatmapProps) {
+  // Preserve the native 2D cell centers and values; average only exact duplicates.
   const cells = useMemo(() => {
     const grid = new Map<string, { lat: number; lon: number; values: number[] }>();
     simData.forEach((row) => {
-      const latBin = Math.floor(row.lat / 30) * 30;
-      const lonBin = Math.floor((row.lon + 180) / 30) * 30 - 180;
-      const key = `${latBin}_${lonBin}`;
-      if (!grid.has(key)) grid.set(key, { lat: latBin, lon: lonBin, values: [] });
+      const key = `${row.lat}_${row.lon}`;
+      if (!grid.has(key)) grid.set(key, { lat: row.lat, lon: row.lon, values: [] });
       grid.get(key)!.values.push(row.avPot);
     });
     return Array.from(grid.values()).map((g) => ({
-      lat: g.lat + 15, // cell center
-      lon: g.lon + 15,
+      lat: g.lat,
+      lon: g.lon,
       avg: g.values.reduce((a, b) => a + b, 0) / g.values.length,
     }));
   }, [simData]);
+  const markerRadius = Math.max(0.008, Math.min(0.09, Math.min(cellSpan.latDeg, cellSpan.lonDeg) * Math.PI / 360));
 
   return (
     <group>
       {cells.map((cell) => {
         const pos = latLonToVec3(cell.lat, cell.lon, RADIUS * 1.005);
-        const color = getColorForValue(Math.abs(cell.avg), range.min, range.max);
-        const day = filters.timeMode === 'AUTO'
-          ? isDaytime(cell.lat, cell.lon, now)
-          : filters.timeMode === 'DAY';
+        const color = getColorForValue(cell.avg, range.min, range.max);
         return (
           <mesh
             key={`${cell.lat}_${cell.lon}`}
             position={pos}
             onUpdate={(m) => m.lookAt(0, 0, 0)}
           >
-            <circleGeometry args={[0.06, 24]} />
+            <circleGeometry args={[markerRadius, 16]} />
             <meshBasicMaterial
-              color={hslStringToColor(color)}
+              color={new THREE.Color(color)}
               transparent
-              opacity={day ? 0.75 : 0.55}
+              opacity={0.86}
               side={THREE.DoubleSide}
               depthWrite={false}
             />
@@ -225,7 +216,7 @@ function AutoRotate({ children }: { children: React.ReactNode }) {
   return <group ref={ref}>{children}</group>;
 }
 
-export function Globe3D({ simData, filters, mapDataRange, now }: Globe3DProps) {
+export function Globe3D({ simData, filters, mapDataRange, now, cellSpan }: Globe3DProps) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
   const [ovation, setOvation] = useState<OvationData | null>(null);
   const [ovationError, setOvationError] = useState<string | null>(null);
@@ -295,7 +286,11 @@ export function Globe3D({ simData, filters, mapDataRange, now }: Globe3DProps) {
           <>
             <Earth texture={texture} subsolarLat={sub.lat} subsolarLon={sub.lon} />
             {filters.showSatellite && (
-              <Heatmap simData={simData} range={mapDataRange} filters={filters} now={now} />
+              <Heatmap
+                simData={simData}
+                range={mapDataRange}
+                cellSpan={cellSpan ?? { latDeg: 30, lonDeg: 30 }}
+              />
             )}
             {filters.showAurora && <Aurora data={ovation} />}
             <SunMarker lat={sub.lat} lon={sub.lon} />

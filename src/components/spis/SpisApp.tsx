@@ -16,7 +16,11 @@ function uniq<T>(arr: T[]): T[] {
   return [...new Set(arr)];
 }
 
-export default function SpisApp() {
+export interface SpisAppProps {
+  showExperimentalViews?: boolean;
+}
+
+export default function SpisApp({ showExperimentalViews = false }: SpisAppProps) {
   const [data, setData] = useState<SpisPotentialRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const now = useNow(10000);
@@ -186,15 +190,9 @@ export default function SpisApp() {
     const vals = (gridCells.length
       ? gridCells.map((c) => c.avPot)
       : [dayValue, ngtValue].filter((v): v is number => v !== null)
-    ).map(Math.abs);
-    if (vals.length === 0) return { min: 0, max: 100 };
-    let min = Math.min(...vals);
-    let max = Math.max(...vals);
-    if (min === max) {
-      min -= 1;
-      max += 1;
-    }
-    return { min, max };
+    );
+    if (vals.length === 0) return { min: 0, max: 0 };
+    return { min: Math.min(...vals), max: Math.max(...vals) };
   }, [gridCells, dayValue, ngtValue]);
 
   // Minimal FilterState shim for the existing renderers (they read only a few fields).
@@ -283,9 +281,16 @@ export default function SpisApp() {
         dataCount={data.length}
         isLoading={isLoading}
         onLoadDemoLocal={handleLoadDemoLocal}
+        showExperimentalViews={showExperimentalViews}
       />
-      {filter.viewMode === "3D" ? (
-        <Globe3D simData={gridCells} filters={renderFilters} mapDataRange={mapDataRange} now={now} />
+      {showExperimentalViews && filter.viewMode === "3D" ? (
+        <Globe3D
+          simData={gridCells}
+          filters={renderFilters}
+          mapDataRange={mapDataRange}
+          now={now}
+          cellSpan={cellSpan}
+        />
       ) : (
         <WorldMap
           simData={gridCells}

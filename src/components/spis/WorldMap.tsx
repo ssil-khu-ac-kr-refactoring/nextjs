@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { SimulationRow, PotentialResult, FilterState } from '@/lib/spis/types';
-import { getColorForValue } from '@/lib/spis/colorScale';
+import { generateColorLegend, getColorForValue } from '@/lib/spis/colorScale';
 import { solarElevation } from '@/lib/spis/solar';
 import { localTimeAtLon } from '@/lib/spis/lt';
 import { PolarMap } from './PolarMap';
@@ -54,9 +54,9 @@ function useNightShadowDataUrl(now: Date) {
       for (let x = 0; x < W; x++) {
         const lon = -180 + (x + 0.5);
         const elev = solarElevation(lat, lon, now);
-        // Sharper terminator: narrow twilight band (~3°), much darker night.
+        // Keep the terminator calculation, but use a subtle 20% maximum shadow.
         const t = Math.max(0, Math.min(1, (elev + 3) / 6));
-        const alpha = Math.round((1 - t) * 220); // up to 0.86 alpha → strong shadow
+        const alpha = Math.round((1 - t) * 51);
         const i = (y * W + x) * 4;
         img.data[i] = 0;
         img.data[i + 1] = 0;
@@ -67,6 +67,49 @@ function useNightShadowDataUrl(now: Date) {
     ctx.putImageData(img, 0, 0);
     return canvas.toDataURL();
   }, [now]);
+}
+
+/** Convert the existing equirectangular texture into a light, neutral outline map. */
+function useNeutralLineMapDataUrl() {
+  const [url, setUrl] = useState('');
+  useEffect(() => {
+    let cancelled = false;
+    const source = new Image();
+    source.onload = () => {
+      const width = 720;
+      const height = 360;
+      const input = document.createElement('canvas');
+      input.width = width;
+      input.height = height;
+      const inputContext = input.getContext('2d', { willReadFrequently: true });
+      if (!inputContext) return;
+      inputContext.drawImage(source, 0, 0, width, height);
+      const pixels = inputContext.getImageData(0, 0, width, height);
+      const output = inputContext.createImageData(width, height);
+      const luminance = (x: number, y: number) => {
+        const index = (Math.max(0, Math.min(height - 1, y)) * width + Math.max(0, Math.min(width - 1, x))) * 4;
+        return pixels.data[index] * 0.2126 + pixels.data[index + 1] * 0.7152 + pixels.data[index + 2] * 0.0722;
+      };
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const gx = luminance(x + 1, y) - luminance(x - 1, y);
+          const gy = luminance(x, y + 1) - luminance(x, y - 1);
+          const edge = Math.min(1, Math.hypot(gx, gy) / 65);
+          const gray = Math.round(248 - edge * 100);
+          const index = (y * width + x) * 4;
+          output.data[index] = gray;
+          output.data[index + 1] = gray;
+          output.data[index + 2] = gray;
+          output.data[index + 3] = 255;
+        }
+      }
+      inputContext.putImageData(output, 0, 0);
+      if (!cancelled) setUrl(input.toDataURL('image/png'));
+    };
+    source.src = worldMapImage;
+    return () => { cancelled = true; };
+  }, []);
+  return url;
 }
 
 export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now, cellSpan }: WorldMapProps) {
@@ -81,6 +124,11 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
   const fineGrid = span.latDeg < 10;
 
   const nightShadowUrl = useNightShadowDataUrl(now);
+  const neutralMapUrl = useNeutralLineMapDataUrl();
+  const legend = useMemo(
+    () => generateColorLegend(mapDataRange.min, mapDataRange.max),
+    [mapDataRange.min, mapDataRange.max],
+  );
 
   // LT axis ticks at lon = -180..180 step 30
   const ltTicks = useMemo(() => {
@@ -145,9 +193,15 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
 
           {/* 위도 방향을 길게: 고정 높이 + object-fill 로 세로 확대 (오버레이는 %-배치라 그대로 정합) */}
           <div className="relative rounded-lg overflow-hidden border border-border h-[440px] lg:h-[540px]">
-            <img src={worldMapImage} alt="World Map" className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none" draggable={false} />
+            <img
+              src={neutralMapUrl || worldMapImage}
+              alt="World Map"
+              className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none bg-[#f8f8f8]"
+              style={neutralMapUrl ? undefined : { filter: 'grayscale(1)', opacity: 0.25 }}
+              draggable={false}
+            />
 
-            {/* Real-time night shadow overlay — under map labels but visible */}
+            {/* Subtle night shadow below potential cells, so their colors stay unchanged. */}
             {nightShadowUrl && (
               <img
                 src={nightShadowUrl}
@@ -161,22 +215,17 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               {[-60, -30, 0, 30, 60].map(lat => {
                 const y = ((90 - lat) / 180) * 100;
-                return <line key={`lat-${lat}`} x1="0" y1={y} x2="100" y2={y} stroke="rgba(255,255,255,0.3)" strokeWidth="0.15" strokeDasharray="1,1" />;
+                return <line key={`lat-${lat}`} x1="0" y1={y} x2="100" y2={y} stroke="rgba(100,100,100,0.22)" strokeWidth="0.15" strokeDasharray="1,1" />;
               })}
               {Array.from({ length: 12 }, (_, i) => i * 30 - 180).map(lon => {
                 const x = ((lon + 180) / 360) * 100;
-                return <line key={`lon-${lon}`} x1={x} y1="0" x2={x} y2="100" stroke="rgba(255,255,255,0.3)" strokeWidth="0.15" strokeDasharray="1,1" />;
+                return <line key={`lon-${lon}`} x1={x} y1="0" x2={x} y2="100" stroke="rgba(100,100,100,0.22)" strokeWidth="0.15" strokeDasharray="1,1" />;
               })}
             </svg>
 
             {/* 데이터 셀 — 중심(lat,lon) ± 스팬/2 로 native 해상도 렌더 (실데이터: 위도 2° × 경도 15°) */}
             {gridCells.map((cell) => {
-              const mag = Math.abs(cell.avg);
-              const color = getColorForValue(mag, mapDataRange.min, mapDataRange.max);
-              // 약한 대전은 거의 투명하게 → 지도가 안 덮이고 강한(오로라대) 영역만 도드라짐.
-              const t = mapDataRange.max > mapDataRange.min
-                ? (mag - mapDataRange.min) / (mapDataRange.max - mapDataRange.min) : 1;
-              const cellOpacity = 0.12 + 0.63 * Math.max(0, Math.min(1, t));
+              const color = getColorForValue(cell.avg, mapDataRange.min, mapDataRange.max);
               const left = ((((cell.lon - span.lonDeg / 2 + 180) % 360) + 360) % 360 / 360) * 100;
               const top = ((90 - (cell.lat + span.latDeg / 2)) / 180) * 100;
               const ltCenter = localTimeAtLon(cell.lon, now);
@@ -190,7 +239,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                     width: `${cellWidthPct}%`,
                     height: `${cellHeightPct}%`,
                     backgroundColor: color,
-                    opacity: cellOpacity,
+                    opacity: 0.86,
                   }}
                   onMouseEnter={(e) => {
                     const rect = e.currentTarget.parentElement?.getBoundingClientRect();
@@ -205,19 +254,6 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                 />
               );
             })}
-
-            {/* Second shadow layer ON TOP of data cells to keep night clearly dim */}
-            {nightShadowUrl && (
-              <img
-                src={nightShadowUrl}
-                alt=""
-                aria-hidden
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ opacity: 0.55 }}
-              />
-            )}
-
-
 
             {tooltip && (
               <div className="absolute z-50 pointer-events-none bg-popover border border-border rounded-lg shadow-xl p-2 text-xs whitespace-pre-line" style={{ left: tooltip.x, top: tooltip.y - 10, transform: 'translate(-50%, -100%)' }}>
@@ -242,21 +278,21 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             </div>
           </div>
 
-          {/* Map legend — 3 discrete buckets */}
-          <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-            <span className="font-medium text-foreground">|AvPot| [V]</span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-4 h-3 rounded-sm" style={{ background: 'hsl(130,65%,78%)' }} />
-              낮음 (&lt; {formatValue(mapDataRange.min + (mapDataRange.max - mapDataRange.min) / 3)})
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-4 h-3 rounded-sm" style={{ background: 'hsl(48,95%,80%)' }} />
-              중간
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-4 h-3 rounded-sm" style={{ background: 'hsl(0,80%,78%)' }} />
-              높음 (&gt; {formatValue(mapDataRange.min + 2 * (mapDataRange.max - mapDataRange.min) / 3)})
-            </span>
+          {/* Signed continuous potential legend. */}
+          <div className="mt-2 text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-foreground shrink-0">AvPot [V]</span>
+              <div className="flex h-3 flex-1 max-w-xl overflow-hidden rounded-sm border border-border">
+                {legend.map((entry, index) => (
+                  <span key={index} className="flex-1" style={{ backgroundColor: entry.color }} />
+                ))}
+              </div>
+            </div>
+            <div className="ml-[62px] flex max-w-xl justify-between mt-0.5">
+              <span>{formatValue(mapDataRange.min)}</span>
+              {mapDataRange.min < 0 && mapDataRange.max > 0 && <span>0</span>}
+              <span>{formatValue(mapDataRange.max)}</span>
+            </div>
           </div>
         </div>
 
@@ -267,8 +303,8 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             반구별 LT 극좌표 지도
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <PolarMap hemisphere="N" simData={simData} range={mapDataRange} now={now} />
-            <PolarMap hemisphere="S" simData={simData} range={mapDataRange} now={now} />
+            <PolarMap hemisphere="N" simData={simData} range={mapDataRange} now={now} cellSpan={span} />
+            <PolarMap hemisphere="S" simData={simData} range={mapDataRange} now={now} cellSpan={span} />
           </div>
         </div>
 
