@@ -9,6 +9,8 @@ import {
 
 export { PUBLICATION_CATEGORY_OPTIONS, type PublicationCategory } from '@/lib/publications';
 
+const MAX_PDF_SIZE = 10 * 1024 * 1024;
+
 export type PublicationFormValues = {
   title: string;
   authors: string;
@@ -41,6 +43,8 @@ export default function PublicationForm({
     pdfUrl: initialData?.pdfUrl ?? '',
     category: initialData?.category ?? 'SCI',
   });
+  const [selectedPdf, setSelectedPdf] = useState<File | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   function set<K extends keyof PublicationFormValues>(k: K, v: PublicationFormValues[K]) {
     setValues((s) => ({ ...s, [k]: v }));
@@ -61,6 +65,62 @@ export default function PublicationForm({
       pdfUrl: values.pdfUrl || null,
       month: values.month ?? null,
     });
+  }
+
+  function handlePdfSelection(file: File | null) {
+    if (!file) {
+      setSelectedPdf(null);
+      return true;
+    }
+
+    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
+      setSelectedPdf(null);
+      toast.error('Please select a PDF file.');
+      return false;
+    }
+
+    if (file.size > MAX_PDF_SIZE) {
+      setSelectedPdf(null);
+      toast.error('PDF files must be 10MB or smaller.');
+      return false;
+    }
+
+    setSelectedPdf(file);
+    return true;
+  }
+
+  async function uploadPdf() {
+    if (!selectedPdf || uploadingPdf) return;
+
+    setUploadingPdf(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedPdf);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          typeof result?.error === 'string'
+            ? result.error
+            : `PDF upload failed (${response.status}).`,
+        );
+      }
+      if (typeof result?.url !== 'string' || !result.url) {
+        throw new Error('The upload response did not include a PDF URL.');
+      }
+
+      set('pdfUrl', result.url);
+      toast.success('PDF uploaded. Save the publication to keep this URL.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'PDF upload failed.');
+    } finally {
+      setUploadingPdf(false);
+    }
   }
 
   const currentYear = new Date().getFullYear();
@@ -142,15 +202,62 @@ export default function PublicationForm({
         value={values.url ?? ''}
         onChange={(e) => set('url', e.target.value)}
       />
-      <input
-        className="p-2 rounded bg-background/20 md:col-span-2"
-        placeholder="PDF URL"
-        value={values.pdfUrl ?? ''}
-        onChange={(e) => set('pdfUrl', e.target.value)}
-      />
+      <div className="space-y-3 md:col-span-2">
+        <label className="block text-sm text-foreground/70">
+          PDF URL
+          <input
+            className="mt-1 w-full rounded bg-background/20 p-2"
+            placeholder="PDF URL"
+            value={values.pdfUrl ?? ''}
+            onChange={(e) => set('pdfUrl', e.target.value)}
+          />
+        </label>
+
+        {values.pdfUrl && (
+          <a
+            href={values.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex text-sm font-medium text-primary hover:underline"
+          >
+            Open current PDF
+          </a>
+        )}
+
+        <div className="rounded-lg border border-border bg-card/40 p-3">
+          <label className="block text-sm font-medium text-foreground">PDF File</label>
+          <p className="mt-1 text-xs text-muted-foreground">PDF only, maximum 10MB.</p>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              disabled={uploadingPdf}
+              onChange={(event) => {
+                if (!handlePdfSelection(event.target.files?.[0] ?? null)) {
+                  event.currentTarget.value = '';
+                }
+              }}
+              className="min-w-0 flex-1 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-2 file:text-sm file:font-medium file:text-secondary-foreground hover:file:bg-secondary/80 disabled:opacity-60"
+            />
+            <button
+              type="button"
+              onClick={uploadPdf}
+              disabled={!selectedPdf || uploadingPdf}
+              className="shrink-0 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {uploadingPdf ? 'Uploading...' : 'Upload PDF'}
+            </button>
+          </div>
+          {selectedPdf && (
+            <p className="mt-2 truncate text-xs text-muted-foreground">
+              Selected: {selectedPdf.name}
+            </p>
+          )}
+        </div>
+      </div>
 
       <button
-        disabled={isSubmitting}
+        disabled={isSubmitting || uploadingPdf}
         className="rounded bg-primary text-primary-foreground px-4 py-2 md:col-span-2 disabled:opacity-60"
       >
         {buttonText}
