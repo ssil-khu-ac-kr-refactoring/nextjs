@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import PageLayout from "@/components/PageLayout";
 import PublicationForm, { PublicationFormValues } from "@/components/PublicationForm";
@@ -45,6 +46,9 @@ function PublicationCategoryPage() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => setPortalReady(true), []);
 
   useEffect(() => {
     async function fetchData() {
@@ -124,9 +128,9 @@ function PublicationCategoryPage() {
           </div>
         )}
 
-        {showForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-card text-foreground p-6 rounded-2xl w-full max-w-2xl shadow-xl relative border border-border">
+        {showForm && portalReady && createPortal(
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+            <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card p-6 text-foreground shadow-xl">
               <button
                 onClick={() => {
                   setShowForm(false);
@@ -161,7 +165,8 @@ function PublicationCategoryPage() {
                 isSubmitting={false}
               />
             </div>
-          </div>
+          </div>,
+          document.body,
         )}
 
         <div className="flex flex-col gap-8 lg:flex-row">
