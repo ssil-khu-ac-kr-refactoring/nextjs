@@ -16,6 +16,20 @@ type ResearchNavItem = {
   cat: "Current" | "Completed";
 };
 
+type MenuItem = { label: string; href: string };
+
+const peopleNav: MenuItem[] = [
+  { label: "Professor", href: "/people?cat=Professor" },
+  { label: "Current", href: "/people?cat=Current" },
+  { label: "Alumni", href: "/people?cat=Alumni" },
+];
+
+const publicationNav: MenuItem[] = [
+  { label: "SCI(E) Papers", href: "/publications?cat=SCI" },
+  { label: "Other Publications", href: "/publications?cat=OTHER" },
+  { label: "Conference & Abstracts", href: "/publications?cat=CONFERENCE" },
+];
+
 const Navbar = () => {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
@@ -27,21 +41,21 @@ const Navbar = () => {
   const lastYRef = useRef(0);
   const tickingRef = useRef(false);
 
-  const [researchOpen, setResearchOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [researchNav, setResearchNav] = useState<ResearchNavItem[]>([]);
 
-  const openNow = () => {
+  const openNow = (label: string) => {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
       closeTimer.current = null;
     }
-    setResearchOpen(true);
+    setOpenMenu(label);
   };
 
   const closeSoon = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setResearchOpen(false), 500);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), 400);
   };
 
   useEffect(() => {
@@ -93,6 +107,12 @@ const Navbar = () => {
   const darkBg =
     "bg-background/100 supports-[backdrop-filter]:bg-background/60 backdrop-blur";
   const tone = mounted && resolvedTheme === "light" ? lightBg : darkBg;
+  const subItemsFor = (label: string): MenuItem[] => {
+    if (label === "Research") return researchNav;
+    if (label === "Publications") return publicationNav;
+    if (label === "People") return peopleNav;
+    return [];
+  };
 
   return (
     <nav
@@ -126,8 +146,9 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex flex items-center h-[72px] gap-8">
-            {navItems.map((item) =>
-              item.label !== "Research" ? (
+            {navItems.map((item) => {
+              const subItems = subItemsFor(item.label);
+              return subItems.length === 0 ? (
                 <Link
                   key={item.path}
                   href={item.path}
@@ -137,26 +158,30 @@ const Navbar = () => {
                 </Link>
               ) : (
                 <div
-                  key="Research"
+                  key={item.label}
                   className="relative flex items-center"
-                  onMouseEnter={openNow}
+                  onMouseEnter={() => openNow(item.label)}
                   onMouseLeave={closeSoon}
+                  onFocus={() => openNow(item.label)}
+                  onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) closeSoon();
+                  }}
                 >
                   <Link
-                    href="/research"
-                    className={`flex items-center text-lg font-medium transition-colors hover:text-primary ${isActive("/research") && "text-primary"}`}
+                    href={item.path}
+                    className={`flex items-center text-lg font-medium transition-colors hover:text-primary ${isActive(item.path) && "text-primary"}`}
                   >
-                    Research
+                    {item.label}
                   </Link>
 
-                  {researchOpen && researchNav.length > 0 && (
+                  {openMenu === item.label && (
                     <div
-                      className="absolute left-0 top-full mt-2 bg-white dark:bg-neutral-900 border rounded-md shadow-lg z-[9999]"
-                      onMouseEnter={openNow}
+                      className="absolute left-0 top-full pt-3 z-[9999]"
+                      onMouseEnter={() => openNow(item.label)}
                       onMouseLeave={closeSoon}
                     >
-                      <ul className="min-w-[220px] p-2">
-                        {researchNav.map((r) => (
+                      <ul className="min-w-[220px] rounded-xl border bg-white p-2 shadow-lg dark:bg-neutral-900">
+                        {subItems.map((r) => (
                           <li key={r.href}>
                             <Link
                               href={r.href}
@@ -170,8 +195,8 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
         </div>
 
@@ -186,8 +211,9 @@ const Navbar = () => {
             </SheetTrigger>
             <SheetContent side="right" className={`w-[260px] ${tone} flex flex-col`}>
               <div className="flex-1 flex flex-col gap-1 mt-8 overflow-y-auto">
-                {navItems.map((item) =>
-                  item.label !== "Research" ? (
+                {navItems.map((item) => {
+                  const subItems = subItemsFor(item.label);
+                  return subItems.length === 0 ? (
                     <Link
                       key={item.path}
                       href={item.path}
@@ -202,22 +228,22 @@ const Navbar = () => {
                       {item.label}
                     </Link>
                   ) : (
-                    <div key="Research-mobile" className="flex flex-col">
+                    <div key={`${item.label}-mobile`} className="flex flex-col">
                       <Link
-                        href="/research"
+                        href={item.path}
                         onClick={() => setOpen(false)}
                         className={`text-sm font-medium transition-colors px-3 py-2 rounded-xl
               hover:bg-foreground/10
-              ${isActive("/research")
+              ${isActive(item.path)
                             ? "bg-primary/10 text-primary"
                             : "text-foreground/80"
                           }`}
                       >
-                        Research
+                        {item.label}
                       </Link>
-                      {researchNav.length > 0 && (
+                      {subItems.length > 0 && (
                         <ul className="ml-3 mt-1 mb-1 flex flex-col border-l border-border pl-2">
-                          {researchNav.map((r) => (
+                          {subItems.map((r) => (
                             <li key={r.href}>
                               <Link
                                 href={r.href}
@@ -231,8 +257,8 @@ const Navbar = () => {
                         </ul>
                       )}
                     </div>
-                  )
-                )}
+                  );
+                })}
               </div>
 
               {status === "authenticated" && (

@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import PageLayout from "@/components/PageLayout";
 import PublicationForm, { PublicationFormValues } from "@/components/PublicationForm";
 import { toast } from "@/components/Toast";
 import { PUBLICATION_CATEGORY_OPTIONS } from "@/lib/publications";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,16 @@ const CATEGORY_ORDER = PUBLICATION_CATEGORY_OPTIONS.map(({ value, label }) => ({
 }));
 
 export default function PublicationPage() {
+  return (
+    <Suspense fallback={<PageLayout><p className="py-20 text-center text-muted-foreground">Loading...</p></PageLayout>}>
+      <PublicationCategoryPage />
+    </Suspense>
+  );
+}
+
+function PublicationCategoryPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const isAdmin = !!session;
 
@@ -82,14 +93,13 @@ export default function PublicationPage() {
       </PageLayout>
     );
 
-  const byCategory = CATEGORY_ORDER.map((c) => ({
-    ...c,
-    years: groupByYear(
-      pubs
-        .filter((p) => (p.category ?? "SCI") === c.key)
-        .sort((a, b) => b.year - a.year || (b.month ?? 0) - (a.month ?? 0)),
-    ),
-  })).filter((c) => c.years.length > 0);
+  const requestedCategory = searchParams.get("cat");
+  const selectedCategory = CATEGORY_ORDER.find((category) => category.key === requestedCategory) ?? CATEGORY_ORDER[0];
+  const selectedYears = groupByYear(
+    pubs
+      .filter((publication) => (publication.category ?? "SCI") === selectedCategory.key)
+      .sort((a, b) => b.year - a.year || (b.month ?? 0) - (a.month ?? 0)),
+  );
 
   return (
     <PageLayout>
@@ -154,19 +164,35 @@ export default function PublicationPage() {
           </div>
         )}
 
-        {byCategory.length === 0 ? (
+        <div className="flex flex-col gap-8 lg:flex-row">
+          <nav aria-label="Publication categories" className="flex w-full gap-2 overflow-x-auto pb-2 lg:w-64 lg:shrink-0 lg:flex-col lg:overflow-visible">
+            {CATEGORY_ORDER.map((category) => {
+              const active = category.key === selectedCategory.key;
+              return (
+                <button
+                  key={category.key}
+                  type="button"
+                  onClick={() => router.push(`/publications?cat=${category.key}`, { scroll: false })}
+                  aria-current={active ? "page" : undefined}
+                  className={`shrink-0 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${active ? "bg-primary text-primary-foreground shadow" : "border border-border bg-card text-foreground/70 hover:bg-primary/10 hover:text-foreground"}`}
+                >
+                  {category.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="min-w-0 flex-1">
+            <h2 className="mb-8 text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
+              {selectedCategory.label}
+            </h2>
+        {selectedYears.length === 0 ? (
           <div className="text-center py-20 border border-dashed border-border rounded-2xl">
-            <p className="text-foreground/60">No publications available yet.</p>
+            <p className="text-foreground/60">No publications in this category yet.</p>
           </div>
         ) : (
-          <div className="space-y-20">
-            {byCategory.map((cat) => (
-              <div key={cat.key}>
-                <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-8 tracking-tight">
-                  {cat.label}
-                </h2>
                 <div className="space-y-12">
-                  {cat.years.map(([year, list]) => (
+                  {selectedYears.map(([year, list]) => (
                     <section key={year}>
                       <h3 className="text-xl font-bold text-primary mb-6 border-b border-border pb-2">
                         {year}
@@ -258,10 +284,9 @@ export default function PublicationPage() {
                     </section>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
         )}
+          </div>
+        </div>
       </div>
     </PageLayout>
   );

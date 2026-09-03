@@ -24,14 +24,20 @@ export default async function HomePage() {
   let allResearch: any[] = [];
   let homeContent: any = null;
   let sliderImages: any[] = [];
+  let latestNews: any[] = [];
 
   try {
-    [allResearch, homeContent, sliderImages] = await Promise.all([
+    [allResearch, homeContent, sliderImages, latestNews] = await Promise.all([
       prisma.research.findMany({
         orderBy: [{ order: "asc" }, { startDate: "desc" }, { createdAt: "desc" }],
       }),
       prisma.homePageContent.findUnique({ where: { id: 1 } }),
       prisma.sliderImage.findMany({ orderBy: { order: "asc" } }),
+      prisma.news.findMany({
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: 3,
+        select: { id: true, title: true, description: true, imageUrl: true, publishedAt: true },
+      }),
     ]);
   } catch (e) {
     console.warn("[HomePage] data fetch 실패 (빌드 시 DB 미연결 또는 DB 다운) — 기본값으로 렌더", e);
@@ -54,6 +60,10 @@ export default async function HomePage() {
       <CTASection
         homeContent={homeContent}
         sliderImages={sliderImages}
+        latestNews={latestNews.map((item) => ({
+          ...item,
+          publishedAt: item.publishedAt.toISOString(),
+        }))}
       />
 
       {currentResearchCards.length > 0 && (
