@@ -70,19 +70,19 @@ export default function LatestNewsSlider({ items }: { items: LatestNewsItem[] })
             href={`/news/${item.id}`}
             aria-hidden={index !== current}
             tabIndex={index === current ? 0 : -1}
-            className={`col-start-1 row-start-1 grid grid-cols-[7.5rem_1fr] transition-opacity duration-500 motion-reduce:transition-none ${index === current ? "z-10 opacity-100" : "pointer-events-none opacity-0"}`}
+            className={`col-start-1 row-start-1 grid min-h-60 grid-cols-[8.5rem_1fr] transition-opacity duration-500 motion-reduce:transition-none sm:grid-cols-[10rem_1fr] ${index === current ? "z-10 opacity-100" : "pointer-events-none opacity-0"}`}
           >
-            <div className="relative min-h-36 bg-white/10">
+            <div className="relative min-h-60 bg-white/10">
               {item.imageUrl ? (
                 <Image src={item.imageUrl} alt="" fill sizes="120px" className="object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs uppercase tracking-widest text-white/45">SSIL</div>
               )}
             </div>
-            <div className="min-w-0 p-4">
-              <h2 className="line-clamp-2 text-base font-semibold leading-snug">{item.title}</h2>
-              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">{item.description}</p>
-              <time className="mt-3 block text-xs text-white/50" dateTime={item.publishedAt}>
+            <div className="flex min-w-0 flex-col p-5">
+              <h2 className="line-clamp-3 text-base font-semibold leading-snug">{item.title}</h2>
+              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/70">{item.description}</p>
+              <time className="mt-auto block pt-4 text-xs text-white/50" dateTime={item.publishedAt}>
                 {dateFormatter.format(new Date(item.publishedAt))}
               </time>
             </div>

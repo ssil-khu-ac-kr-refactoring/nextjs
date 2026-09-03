@@ -45,7 +45,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 py-12">
+      <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 xl:px-10">
         {/* Header */}
         <FadeIn className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
@@ -99,7 +99,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
               <FadeIn key={profile.id} delay={i * 0.08}>
                 <article className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center p-8 md:p-12 rounded-3xl border border-border bg-card shadow-sm hover:shadow-lg transition-shadow">
                   <div className="md:col-span-2">
-                    <div className="relative aspect-square w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-muted">
+                    <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-2xl bg-muted">
                       <Image
                         src={profile.image || "/images/main2.jpg"}
                         alt={profile.name}
