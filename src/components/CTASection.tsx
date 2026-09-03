@@ -6,6 +6,20 @@ import { Moon, Pencil, Radio, Telescope } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { AnimatedHeadline } from "@/components/anim/AnimatedHeadline";
 import { FadeIn } from "@/components/anim/FadeIn";
+import LatestNewsSlider, { LatestNewsItem } from "@/components/LatestNewsSlider";
+
+function toPlainText(value: string) {
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 function toUiContent(c: any) {
   const x = c || {};
@@ -32,7 +46,7 @@ function toApiPayload(ui: Partial<ReturnType<typeof toUiContent>>) {
   return p;
 }
 
-const CTASection = ({ homeContent, sliderImages }) => {
+const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: any; sliderImages: any[]; latestNews: LatestNewsItem[] }) => {
   const { data: session } = useSession();
   const isAdmin = !!session;
 
@@ -127,7 +141,7 @@ const CTASection = ({ homeContent, sliderImages }) => {
     <>
      <div style={{ fontFamily: `${home.fontFamily || "MaruBuri"}, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif` }}>
     
-      <section className="relative h-screen w-full flex items-start text-foreground overflow-hidden pt-[200px]">
+      <section className="relative flex min-h-screen w-full flex-col items-center overflow-hidden pb-8 pt-[200px] text-foreground lg:h-screen lg:pb-0">
         {images.length > 0 ? (
           <Image
             key={current}
@@ -246,6 +260,7 @@ const CTASection = ({ homeContent, sliderImages }) => {
             </div>
           )}
         </div>
+        <LatestNewsSlider items={(latestNews || []).map((item) => ({ ...item, description: toPlainText(item.description) }))} />
       </section>
 
       <AboutSection

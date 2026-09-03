@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Person } from "@/generated/prisma";
 import PageLayout from "@/components/PageLayout";
@@ -22,9 +23,20 @@ interface PeopleClientPageProps {
   };
 }
 
-export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) {
+export default function PeopleClientPage(props: PeopleClientPageProps) {
+  return (
+    <Suspense fallback={<PageLayout><p className="py-20 text-center text-muted-foreground">Loading...</p></PageLayout>}>
+      <PeopleCategoryPage {...props} />
+    </Suspense>
+  );
+}
+
+function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const tabs = ["Professor", "Current", "Alumni"] as const;
-  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>(tabs[0]);
+  const requestedTab = searchParams.get("cat");
+  const selectedTab = tabs.find((tab) => tab === requestedTab) ?? "Professor";
   const profiles = peopleData[selectedTab] || [];
   const F = (v?: string | null) => (v && v.trim() ? v.trim() : "--");
 
@@ -44,20 +56,22 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
           </p>
         </FadeIn>
 
-        {/* Tab pills */}
-        <FadeIn delay={0.1} className="flex justify-center mb-12">
-          <div className="inline-flex rounded-full border border-border bg-card p-1 shadow-sm">
+        <div className="flex flex-col gap-8 lg:flex-row">
+        {/* Mobile tabs / desktop sidebar */}
+        <FadeIn delay={0.1} className="w-full lg:w-60 lg:shrink-0">
+          <nav aria-label="People categories" className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
             {tabs.map((t) => {
               const count = peopleData[t]?.length || 0;
               const active = selectedTab === t;
               return (
                 <button
                   key={t}
-                  onClick={() => setSelectedTab(t)}
-                  className={`relative px-5 md:px-7 py-2 rounded-full text-sm font-medium transition-all
+                  onClick={() => router.push(`/people?cat=${t}`, { scroll: false })}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative shrink-0 rounded-xl px-4 py-2.5 text-left text-sm font-medium transition-all lg:w-full
                     ${active
                       ? "bg-primary text-primary-foreground shadow"
-                      : "text-foreground/70 hover:text-foreground"
+                      : "border border-border bg-card text-foreground/70 hover:bg-primary/10 hover:text-foreground"
                     }`}
                 >
                   <span>{t}</span>
@@ -69,10 +83,11 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
                 </button>
               );
             })}
-          </div>
+          </nav>
         </FadeIn>
 
         {/* Profiles */}
+        <div className="min-w-0 flex-1">
         {profiles.length === 0 ? (
           <FadeIn className="text-center py-20 border border-dashed border-border rounded-2xl">
             <p className="text-foreground/60">No members in this category yet.</p>
@@ -182,6 +197,8 @@ export default function PeopleClientPage({ peopleData }: PeopleClientPageProps) 
             ))}
           </div>
         )}
+        </div>
+        </div>
       </div>
     </PageLayout>
   );
