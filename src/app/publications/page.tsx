@@ -103,7 +103,7 @@ function PublicationCategoryPage() {
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-16">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
         <header className="text-center mb-16">
           <h1 className="text-4xl lg:text-5xl font-bold mb-3 tracking-tight text-foreground">
             Publications

@@ -84,7 +84,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
         <header className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
             Research
