@@ -74,7 +74,7 @@ export default function AboutPage() {
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
 
-        <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28">
+        <div className="mx-auto max-w-[1600px] px-4 py-20 sm:px-6 md:py-28 lg:px-8 xl:px-10">
           <FadeIn>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
               About
@@ -84,7 +84,7 @@ export default function AboutPage() {
       </section>
 
       {/* Editable rich-text content */}
-      <main className="max-w-4xl mx-auto px-6 md:px-10 py-16 md:py-24">
+      <main className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 md:py-24 lg:px-8 xl:px-10">
         <FadeIn>
           {/* Admin controls */}
           <div className="flex justify-end mb-6">
@@ -111,7 +111,7 @@ export default function AboutPage() {
 
           {!editing ? (
             <div
-              className="prose prose-lg dark:prose-invert max-w-none
+              className="prose prose-lg max-w-6xl dark:prose-invert
                 prose-headings:tracking-tight prose-headings:font-bold
                 prose-p:leading-relaxed prose-p:text-foreground/85
                 prose-a:text-primary prose-a:no-underline hover:prose-a:underline
