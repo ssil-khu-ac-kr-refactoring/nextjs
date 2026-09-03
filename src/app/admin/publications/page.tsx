@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 import PublicationBulkImport from '@/components/PublicationBulkImport';
 import PublicationBulkUpdate from '@/components/PublicationBulkUpdate';
+import PublicationBulkPdfAttach from '@/components/PublicationBulkPdfAttach';
 import {
   PUBLICATION_CATEGORY_LABELS,
   type PublicationCategory,
@@ -111,6 +112,11 @@ export default function ManagePublicationPage() {
       />
 
       <PublicationBulkUpdate
+        existingPublications={pubs}
+        onUpdated={fetchPublications}
+      />
+
+      <PublicationBulkPdfAttach
         existingPublications={pubs}
         onUpdated={fetchPublications}
       />
