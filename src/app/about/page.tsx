@@ -74,9 +74,9 @@ export default function AboutPage() {
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
 
-        <div className="mx-auto max-w-[1600px] px-4 py-20 sm:px-6 md:py-28 lg:px-8 xl:px-10">
+        <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 md:py-10 lg:px-8 xl:px-10">
           <FadeIn>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
               About
             </h1>
           </FadeIn>
@@ -84,52 +84,54 @@ export default function AboutPage() {
       </section>
 
       {/* Editable rich-text content */}
-      <main className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 md:py-24 lg:px-8 xl:px-10">
-        <FadeIn>
-          {/* Admin controls */}
-          <div className="flex justify-end mb-6">
-            {isAdmin && !editing && (
-              <Button variant="outline" onClick={() => setEditing(true)} className="rounded-full">
-                ✏️ Edit
-              </Button>
-            )}
-            {isAdmin && editing && (
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setEditing(false)} disabled={saving} className="rounded-full">
-                  Cancel
+      <main className="mx-auto max-w-[1600px] px-4 pt-8 pb-16 sm:px-6 md:pt-10 md:pb-20 lg:px-8 xl:px-10">
+        <div className="mx-auto w-full max-w-6xl">
+          <FadeIn>
+            {/* Admin controls */}
+            <div className="flex justify-end mb-6">
+              {isAdmin && !editing && (
+                <Button variant="outline" onClick={() => setEditing(true)} className="rounded-full">
+                  ✏️ Edit
                 </Button>
-                <Button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full"
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? "Saving..." : "Save"}
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {!editing ? (
-            <div
-              className="prose prose-lg max-w-6xl dark:prose-invert
-                prose-headings:tracking-tight prose-headings:font-bold
-                prose-p:leading-relaxed prose-p:text-foreground/85
-                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                prose-img:rounded-2xl"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
-            />
-          ) : (
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
-              <div className="[&_.ql-container]:bg-white [&_.ql-editor]:text-black [&_.ql-container]:rounded-xl">
-                <RichEditor value={content} onChange={setContent} />
-              </div>
+              )}
+              {isAdmin && editing && (
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setEditing(false)} disabled={saving} className="rounded-full">
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
 
-          {error && (
-            <div className="text-red-500 text-center mt-4">{error}</div>
-          )}
-        </FadeIn>
+            {!editing ? (
+              <div
+                className="prose prose-lg mx-auto w-full max-w-6xl dark:prose-invert
+                  prose-headings:tracking-tight prose-headings:font-bold
+                  prose-p:leading-relaxed prose-p:text-foreground/85
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  prose-img:rounded-2xl"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+              />
+            ) : (
+              <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+                <div className="[&_.ql-container]:bg-white [&_.ql-editor]:text-black [&_.ql-container]:rounded-xl">
+                  <RichEditor value={content} onChange={setContent} />
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="text-red-500 text-center mt-4">{error}</div>
+            )}
+          </FadeIn>
+        </div>
       </main>
     </PageLayout>
   );
