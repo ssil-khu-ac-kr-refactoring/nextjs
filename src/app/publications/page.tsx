@@ -218,7 +218,7 @@ function PublicationCategoryPage() {
                                   href={link}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="hover:text-primary transition-colors"
+                                  className="cursor-pointer underline-offset-4 transition-colors hover:text-primary hover:underline"
                                 >
                                   {p.title}
                                 </a>
