@@ -145,7 +145,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
           </div>
         ) : (
           // Current / Alumni — 그리드 카드
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3 min-[1400px]:grid-cols-4">
             {profiles.map((profile, i) => (
               <FadeIn key={profile.id} delay={(i % 6) * 0.05}>
                 <article className="group relative rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
