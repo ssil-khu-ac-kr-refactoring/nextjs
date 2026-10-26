@@ -200,11 +200,10 @@ const Navbar = () => {
           </div>
         </div>
 
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="xl:hidden rounded-xl">
+              <Button variant="ghost" size="icon" className="h-11 w-11 xl:hidden rounded-xl">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
@@ -248,7 +247,7 @@ const Navbar = () => {
                               <Link
                                 href={r.href}
                                 onClick={() => setOpen(false)}
-                                className="block min-h-10 px-3 py-2.5 text-xs rounded-lg text-foreground/70 hover:bg-primary/10 hover:text-primary transition"
+                                className="block min-h-11 px-3 py-3 text-xs rounded-lg text-foreground/70 hover:bg-primary/10 hover:text-primary transition"
                               >
                                 {r.label}
                               </Link>
@@ -266,7 +265,7 @@ const Navbar = () => {
                   <Link
                     href="/admin"
                     onClick={() => setOpen(false)}
-                    className="w-full flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20 py-2 rounded-xl transition-colors"
+                    className="min-h-11 w-full flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20 py-2 rounded-xl transition-colors"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     <span>to admin panel</span>
@@ -275,7 +274,7 @@ const Navbar = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="w-full rounded-xl flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20"
+                    className="min-h-11 w-full rounded-xl flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
@@ -283,7 +282,6 @@ const Navbar = () => {
                 </div>
               )}
             </SheetContent>
-
           </Sheet>
 
           {status === "authenticated" && (
@@ -305,7 +303,7 @@ const Navbar = () => {
               onClick={() =>
                 setTheme(resolvedTheme === "dark" ? "light" : "dark")
               }
-              className="rounded-full relative overflow-hidden"
+              className="h-11 w-11 rounded-full relative overflow-hidden"
               aria-label="Toggle theme"
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] dark:-rotate-180 dark:scale-0" />
