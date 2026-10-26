@@ -80,11 +80,11 @@ export function PolarMap({ hemisphere, simData, range, now, size = 320, cellSpan
   };
 
   return (
-    <div className="relative bg-card border border-border rounded-lg p-3">
+    <div className="relative min-w-0 bg-card border border-border rounded-lg p-2 sm:p-3">
       <div className="text-xs font-semibold text-foreground mb-2">
         {hemisphere === 'N' ? '북반구' : '남반구'} LT 기반 극좌표 지도
       </div>
-      <svg width={size} height={size} className="block mx-auto">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block w-full max-w-[320px] h-auto mx-auto" role="img" aria-label={`${hemisphere === "N" ? "북반구" : "남반구"} LT 기반 극좌표 지도`}>
         {/* Background disk */}
         <circle cx={cx} cy={cy} r={R} fill="hsl(var(--muted) / 0.3)" stroke="hsl(var(--border))" />
 
