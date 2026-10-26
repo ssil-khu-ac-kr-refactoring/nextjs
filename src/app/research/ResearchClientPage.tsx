@@ -84,21 +84,21 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
 
   return (
     <PageLayout>
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
+      <div className="mx-auto max-w-[1600px] px-3 sm:px-6 lg:px-8 xl:px-10">
+        <header className="mb-8 text-center sm:mb-12">
+          <h1 className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
             Research
           </h1>
         </header>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex min-w-0 flex-col gap-5 sm:gap-8 lg:flex-row">
           {/* 좌측 네비게이션 — 고정 폭 240px */}
-          <nav className="w-full lg:w-60 lg:shrink-0 space-y-6">
+          <nav className="w-full min-w-0 space-y-4 lg:w-60 lg:shrink-0 lg:space-y-6">
             {categories.map((cat) => (
               <div key={cat}>
                 <button
                   onClick={() => handleCategoryClick(cat)}
-                  className={`block w-full text-left py-2 px-4 rounded-xl transition ${selectedCategory === cat
+                  className={`block min-h-11 w-full text-left py-3 px-4 rounded-xl transition ${selectedCategory === cat
                     ? "bg-primary/20 text-primary font-semibold"
                     : "bg-background/10 text-foreground/70 hover:bg-background/20"
                     }`}
@@ -106,12 +106,12 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
                   {cat}
                 </button>
 
-                <ul className="mt-2 ml-4 space-y-1">
+                <ul className="mt-2 ml-2 grid grid-cols-1 gap-1 sm:ml-4 sm:space-y-1">
                   {researchData[cat].map((p, idx) => (
                     <li key={p.id}>
                       <button
                         onClick={() => handleProjectClick(cat, idx)}
-                        className={`block w-full text-left py-1 px-4 rounded-lg text-sm transition ${cat === selectedCategory && idx === selectedProjectIdx
+                        className={`block min-h-10 w-full text-left py-2 px-3 sm:px-4 rounded-lg text-sm transition ${cat === selectedCategory && idx === selectedProjectIdx
                           ? "bg-primary/20 text-primary font-medium"
                           : "text-foreground/70 hover:bg-primary/10"
                           }`}
@@ -186,7 +186,7 @@ export default function ResearchClientPage({ researchData }: ResearchClientPageP
 
                 {/* 내용 */}
                 {project.contentHtml && (
-                  <div className="p-6 rounded-2xl prose dark:prose-invert max-w-none mt-4 bg-card/50 border border-border">
+                  <div className="mt-4 rounded-2xl border border-border bg-card/50 p-4 prose dark:prose-invert max-w-none sm:p-6">
                     <div
                       dangerouslySetInnerHTML={{
                         __html: sanitizeHtml(project.contentHtml),
