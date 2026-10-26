@@ -47,9 +47,9 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
 
   return (
     <PageLayout>
-      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold text-foreground">Tools &amp; Data</h1>
+      <div className="mx-auto max-w-[1700px] px-3 sm:px-6 lg:px-8">
+        <header className="mb-6 text-center sm:mb-8">
+          <h1 className="text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">Tools &amp; Data</h1>
         </header>
 
         <div className="flex flex-col lg:flex-row gap-5">
@@ -59,7 +59,7 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
               <button
                 key={o.id}
                 onClick={() => handleClick(idx)}
-                className={`block w-full text-left py-2 px-3 rounded-lg border text-sm transition ${
+                className={`block min-h-11 w-full text-left px-3 py-3 rounded-lg border text-sm transition ${
                   idx === selectedIdx
                     ? "bg-primary/15 border-primary/40 text-primary font-semibold"
                     : "bg-card/40 border-border text-foreground/80 hover:bg-primary/10 hover:border-primary/30"
@@ -108,7 +108,7 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
                       <p className="text-muted-foreground mb-4">{item.description}</p>
                     )}
                     {item.contentHtml && (
-                      <div className="p-6 rounded-2xl prose dark:prose-invert max-w-none mt-4 bg-card/50 border border-border">
+                      <div className="mt-4 rounded-2xl border border-border bg-card/50 p-4 prose dark:prose-invert max-w-none sm:p-6">
                         <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.contentHtml) }} />
                       </div>
                     )}
