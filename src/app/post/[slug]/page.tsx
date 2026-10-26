@@ -47,21 +47,21 @@ export default async function BoardCategoryPage({
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary-rgb/20">
-        <main className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header className="text-center mb-16">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">
+        <main className="py-10 sm:py-16">
+          <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+            <header className="mb-8 text-center sm:mb-12 lg:mb-16">
+              <h1 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
                 {tab.name.toUpperCase()}
               </h1>
               {tab.description && (
-                <p className="text-xl text-foreground/80">{tab.description}</p>
+                <p className="mx-auto max-w-2xl text-base leading-relaxed text-foreground/80 sm:text-xl">{tab.description}</p>
               )}
             </header>
 
             {posts.length === 0 ? (
               <p className="text-center text-gray-500">게시글이 없습니다.</p>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
                 {posts.map((item) => (
                   <Card
                     key={item.id}
