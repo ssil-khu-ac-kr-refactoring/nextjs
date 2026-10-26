@@ -35,14 +35,14 @@ export default async function Footer() {
   const contact = await getContact();
 
   return (
-    <footer className="bg-[#0f0f0f] text-white py-14 px-4">
+    <footer className="bg-[#0f0f0f] px-4 py-10 text-white sm:px-6 sm:py-14">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-orange-400 mb-8">Contact</h2>
+        <h2 className="mb-6 text-2xl font-bold text-orange-400 sm:mb-8 sm:text-3xl">Contact</h2>
 
         {/* Lab Name */}
         <div className="mb-6">
           <h3 className="text-orange-400 font-semibold">Laboratory Name</h3>
-          <p className="text-lg">
+          <p className="break-words text-base leading-relaxed sm:text-lg">
             {contact.labNameKo} ({contact.labNameEn})
           </p>
         </div>
@@ -51,11 +51,11 @@ export default async function Footer() {
         <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-orange-400 font-semibold mb-1">Address (KOR)</h3>
-            <p className="whitespace-pre-line text-white/90">{contact.addressKo}</p>
+            <p className="break-words whitespace-pre-line text-sm leading-relaxed text-white/90 sm:text-base">{contact.addressKo}</p>
           </div>
           <div>
             <h3 className="text-orange-400 font-semibold mb-1">Address (ENG)</h3>
-            <p className="whitespace-pre-line text-white/90">{contact.addressEn}</p>
+            <p className="break-words whitespace-pre-line text-sm leading-relaxed text-white/90 sm:text-base">{contact.addressEn}</p>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export default async function Footer() {
               height="320"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              className="w-full"
+              className="h-[260px] w-full sm:h-[320px]"
             />
           </div>
         ) : null}
