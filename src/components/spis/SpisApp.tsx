@@ -22,7 +22,8 @@ export interface SpisAppProps {
 
 export default function SpisApp({ showExperimentalViews = false }: SpisAppProps) {
   const [data, setData] = useState<SpisPotentialRow[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const now = useNow(10000);
   const [filter, setFilter] = useState<SpisFilter>({
     node0Mat: "",
@@ -250,6 +251,7 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
   // (요구사항: 아무것도 없으면 데모, 있으면 DB 데이터).
   const refresh = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const rows = await fetchSpisPotentials();
       if (rows.length === 0) {
@@ -258,8 +260,10 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
       } else {
         setData(rows);
       }
-    } catch (e: any) {
-      toast.error(`데이터 로드 실패: ${e.message ?? e}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      setLoadError(message);
+      toast.error(`데이터 로드 실패: ${message}`);
     } finally {
       setIsLoading(false);
     }
@@ -269,7 +273,7 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
   }, [refresh]);
 
   return (
-    <div className="flex w-full h-[calc(100vh-100px)] bg-background overflow-hidden">
+    <div className="flex flex-col lg:flex-row w-full min-w-0 bg-background lg:h-[calc(100vh-100px)] lg:overflow-hidden">
       <Toaster richColors position="top-right" />
       <SpisControls
         filter={filter}
@@ -300,6 +304,9 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
           potentialRange={mapDataRange}
           now={now}
           cellSpan={cellSpan}
+          isLoading={isLoading}
+          loadError={loadError}
+          onRetry={refresh}
         />
       )}
     </div>
