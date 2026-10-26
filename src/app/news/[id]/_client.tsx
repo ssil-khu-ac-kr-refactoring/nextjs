@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -87,8 +87,7 @@ export default function NewsDetailClient({
 
   return (
     <article>
-      {/* Hero — 풀폭 이미지 + 그라데이션 오버레이 + 큰 타이포 */}
-      <header className="relative flex min-h-[52vh] w-full items-end overflow-hidden sm:min-h-[60vh]">
+      <header className="relative flex min-h-[46vh] w-full items-end overflow-hidden sm:min-h-[60vh]">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -105,11 +104,10 @@ export default function NewsDetailClient({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
 
-        {/* Back link & admin actions */}
         <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2 sm:left-6 sm:right-6 sm:top-6">
           <Link
             href="/news"
-            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur-sm transition-colors hover:text-white sm:text-sm"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur-sm transition-colors hover:text-white sm:text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to News
@@ -119,14 +117,14 @@ export default function NewsDetailClient({
             <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
               <button
                 onClick={() => setEditing(true)}
-                className="inline-flex min-h-10 items-center gap-1 rounded-full bg-white/10 px-2.5 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-white/20 sm:px-3"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full bg-white/10 px-3 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-white/20"
               >
                 <Pencil className="w-3 h-3" />
                 Edit
               </button>
               <button
                 onClick={onDelete}
-                className="inline-flex min-h-10 items-center gap-1 rounded-full bg-red-500/80 px-2.5 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-red-500 sm:px-3"
+                className="inline-flex min-h-11 items-center gap-1 rounded-full bg-red-500/80 px-3 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-red-500"
               >
                 <Trash2 className="w-3 h-3" />
                 Delete
@@ -135,15 +133,15 @@ export default function NewsDetailClient({
           )}
         </div>
 
-        <FadeIn y={32} duration={0.9} className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-10 sm:px-6 sm:pb-16 md:pb-24">
-          <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">
+        <FadeIn y={32} duration={0.9} className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-8 sm:px-6 sm:pb-16 md:pb-24">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-primary sm:mb-4 sm:text-sm sm:tracking-[0.3em]">
             {dateStr}
           </p>
-          <h1 className="text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-4xl md:text-6xl lg:text-7xl">
+          <h1 className="break-words text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-4xl md:text-6xl lg:text-7xl">
             {item.title}
           </h1>
           {item.description && !editing && (
-            <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl leading-relaxed">
+            <p className="mt-4 max-w-3xl break-words text-base leading-relaxed text-white/80 sm:mt-6 sm:text-lg md:text-xl">
               {item.description.replace(/<[^>]*>/g, "").slice(0, 180)}
               {item.description.replace(/<[^>]*>/g, "").length > 180 ? "…" : ""}
             </p>
@@ -151,17 +149,16 @@ export default function NewsDetailClient({
         </FadeIn>
       </header>
 
-      {/* Body — 좁은 컬럼 + 큰 본문 + drop cap */}
       <FadeIn y={24} delay={0.1} className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16 md:py-24">
         {!editing ? (
           <div
-            className="prose prose-base sm:prose-lg dark:prose-invert max-w-none
+            className="prose prose-base max-w-none break-words dark:prose-invert sm:prose-lg
               prose-headings:tracking-tight prose-headings:font-bold
               prose-p:leading-relaxed prose-p:text-foreground/85
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline
               prose-img:rounded-2xl
-              first-letter:text-6xl first-letter:font-bold first-letter:text-primary
-              first-letter:mr-2 first-letter:float-left first-letter:leading-[0.9]"
+              sm:first-letter:text-6xl sm:first-letter:font-bold sm:first-letter:text-primary
+              sm:first-letter:mr-2 sm:first-letter:float-left sm:first-letter:leading-[0.9]"
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(item.contentHtml || item.description || ""),
             }}
@@ -187,12 +184,11 @@ export default function NewsDetailClient({
         )}
       </FadeIn>
 
-      {/* Footer — 더 많은 뉴스 보기 */}
       <FadeIn className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-24">
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 sm:pt-8">
           <Link
             href="/news"
-            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             All News
