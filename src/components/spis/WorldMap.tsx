@@ -270,7 +270,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                     if (rect) setTooltip({
                       x: r.left - rect.left + r.width / 2,
                       y: r.top - rect.top,
-                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\\nAvPot: ${formatValue(cell.avg)} [V]`,
+                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell.avg)} [V]`,
                     });
                   }}
                   onClick={(e) => {
@@ -279,7 +279,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                     if (rect) setTooltip({
                       x: r.left - rect.left + r.width / 2,
                       y: r.top - rect.top,
-                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\\nAvPot: ${formatValue(cell.avg)} [V]`,
+                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell.avg)} [V]`,
                     });
                   }}
                   onMouseLeave={() => setTooltip(null)}
