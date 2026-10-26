@@ -41,7 +41,7 @@ export default function LatestNewsSlider({ items }: { items: LatestNewsItem[] })
   return (
     <aside
       aria-label="Latest news"
-      className="relative z-30 mx-4 mt-8 w-[calc(100%-2rem)] max-w-[28rem] shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-black/55 text-white shadow-2xl backdrop-blur-md sm:mx-6 sm:w-[calc(100%-3rem)] lg:absolute lg:bottom-10 lg:right-12 lg:mx-0 lg:mt-0 lg:w-[26rem] lg:max-w-none"
+      className="relative z-30 mx-auto mt-8 w-[calc(100%-2rem)] max-w-[28rem] shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-black/55 text-white shadow-2xl backdrop-blur-md sm:mx-auto sm:w-[calc(100%-3rem)] lg:absolute lg:bottom-10 lg:right-12 lg:mx-0 lg:mt-0 lg:w-[26rem] lg:max-w-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
