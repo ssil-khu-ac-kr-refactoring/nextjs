@@ -62,7 +62,7 @@ export function SpisControls({
         <p className="text-sm text-muted-foreground mt-1">Satellite Potential Visualization</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="max-h-[42vh] overflow-y-auto p-4 space-y-4 lg:max-h-none lg:flex-1">
         {/* 데이터 소스 */}
         <div className="space-y-2">
           <Label className="text-xs font-semibold">데이터 소스</Label>
