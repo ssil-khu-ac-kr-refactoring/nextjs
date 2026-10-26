@@ -31,8 +31,8 @@ export default async function BoardPostDetail({
   return (
     <>
       <Header />
-      <article className="max-w-4xl mx-auto py-16 px-6">
-        <h1 className="text-3xl lg:text-4xl font-bold mb-4">{post.title}</h1>
+      <article className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
+        <h1 className="mb-4 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">{post.title}</h1>
 
         <p className="text-sm text-gray-500 mb-6">
           {post.publishedAt
@@ -56,7 +56,7 @@ export default async function BoardPostDetail({
         )}
 
         <div
-          className="prose dark:prose-invert max-w-none"
+          className="prose prose-base max-w-none dark:prose-invert sm:prose-lg"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.description) }}
         />
       </article>
