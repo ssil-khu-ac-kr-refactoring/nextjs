@@ -14,7 +14,7 @@ export default function PageLayout({ children, className = "" }: PageLayoutProps
 
   // research는 그대로, 나머지는 아래로
   const mainOffset =
-    pathname.startsWith("/research") ? "translate-y-0" : "translate-y-[100px]";
+    pathname.startsWith("/research") ? "translate-y-0" : "translate-y-0 xl:translate-y-[100px]";
 
   return (
     <div
@@ -22,7 +22,7 @@ export default function PageLayout({ children, className = "" }: PageLayoutProps
     >
       <Header />
       <main
-        className={`pt-[150px] pb-20 transform transition-transform duration-300 ease-in-out ${mainOffset}`}
+        className={`pt-[92px] sm:pt-[104px] xl:pt-[150px] pb-12 sm:pb-16 xl:pb-20 transform transition-transform duration-300 ease-in-out ${mainOffset}`}
       >
         {children}
       </main>
