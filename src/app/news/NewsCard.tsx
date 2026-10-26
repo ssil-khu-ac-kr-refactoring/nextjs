@@ -27,13 +27,13 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
       {isAdmin && (
         <Link
           href={`/news/${item.id}?edit=1`}
-          className="absolute right-3 top-3 z-20 inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full bg-black/70 text-white hover:bg-black/90 shadow"
+          className="absolute right-3 top-3 z-20 inline-flex min-h-11 items-center gap-1 px-3 py-2 text-xs rounded-full bg-black/70 text-white hover:bg-black/90 shadow"
         >
           Edit
         </Link>
       )}
 
-      <div className="relative w-full h-52 overflow-hidden">
+      <div className="relative h-44 w-full overflow-hidden sm:h-52">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -51,17 +51,17 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
         )}
       </div>
 
-      <div className="p-5 flex flex-col flex-grow space-y-3">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
+      <div className="p-4 sm:p-5 flex flex-col flex-grow space-y-3">
+        <h3 className="break-words text-lg font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
           {item.title}
         </h3>
         <p
-          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3"
+          className="break-words text-sm text-gray-600 dark:text-gray-300 line-clamp-3"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
         />
       </div>
 
-      <div className="px-5 pb-5 pt-0 mt-auto flex justify-between items-center text-sm">
+      <div className="px-4 pb-4 pt-0 sm:px-5 sm:pb-5 mt-auto flex justify-between items-center gap-3 text-sm">
         <span className="text-gray-400 dark:text-gray-500">
           {newsDateFormatter
             ? newsDateFormatter.format(new Date(item.publishedAt))
@@ -69,7 +69,7 @@ export default function NewsCard({ item, isAdmin }: NewsCardProps) {
         </span>
         <Link
           href={`/news/${item.id}`}
-          className="font-medium text-primary hover:text-primary/80"
+          className="inline-flex min-h-11 shrink-0 items-center px-1 font-medium text-primary hover:text-primary/80"
         >
           READ MORE →
         </Link>
