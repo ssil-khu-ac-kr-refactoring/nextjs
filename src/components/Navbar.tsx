@@ -117,11 +117,11 @@ const Navbar = () => {
   return (
     <nav
       className={[
-        "fixed top-0 z-50 w-full h-[100px] border-b transition-transform duration-300 will-change-transform",
+        "fixed top-0 z-50 w-full h-[76px] sm:h-[88px] xl:h-[100px] border-b transition-transform duration-300 will-change-transform",
         hidden ? "-translate-y-full" : "translate-y-0",
         tone,
       ].join(" ")}
-    ><div className="container flex h-full items-center justify-between px-6">
+    ><div className="container flex h-full items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-10">
           <Link
             href="/"
@@ -140,12 +140,12 @@ const Navbar = () => {
                 width={160}
                 height={70}
                 priority
-                className="w-[120px] sm:w-[160px] h-auto"
+                className="w-[104px] sm:w-[140px] xl:w-[160px] h-auto"
               />
             )}
           </Link>
 
-          <div className="hidden md:flex flex items-center h-[72px] gap-8">
+          <div className="hidden xl:flex items-center h-[72px] gap-4 2xl:gap-8">
             {navItems.map((item) => {
               const subItems = subItemsFor(item.label);
               return subItems.length === 0 ? (
@@ -200,16 +200,15 @@ const Navbar = () => {
           </div>
         </div>
 
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-xl">
+              <Button variant="ghost" size="icon" className="h-11 w-11 xl:hidden rounded-xl">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className={`w-[260px] ${tone} flex flex-col`}>
+            <SheetContent side="right" className={`w-[min(88vw,360px)] max-h-[100dvh] overflow-y-auto ${tone} flex flex-col`}>
               <div className="flex-1 flex flex-col gap-1 mt-8 overflow-y-auto">
                 {navItems.map((item) => {
                   const subItems = subItemsFor(item.label);
@@ -218,7 +217,7 @@ const Navbar = () => {
                       key={item.path}
                       href={item.path}
                       onClick={() => setOpen(false)}
-                      className={`text-sm font-medium transition-colors px-3 py-2 rounded-xl
+                      className={`text-sm font-medium transition-colors px-3 py-3 min-h-11 rounded-xl
             hover:bg-foreground/10
             ${isActive(item.path)
                           ? "bg-primary/10 text-primary"
@@ -232,7 +231,7 @@ const Navbar = () => {
                       <Link
                         href={item.path}
                         onClick={() => setOpen(false)}
-                        className={`text-sm font-medium transition-colors px-3 py-2 rounded-xl
+                        className={`text-sm font-medium transition-colors px-3 py-3 min-h-11 rounded-xl
               hover:bg-foreground/10
               ${isActive(item.path)
                             ? "bg-primary/10 text-primary"
@@ -248,7 +247,7 @@ const Navbar = () => {
                               <Link
                                 href={r.href}
                                 onClick={() => setOpen(false)}
-                                className="block px-3 py-1.5 text-xs rounded-lg text-foreground/70 hover:bg-primary/10 hover:text-primary transition"
+                                className="block min-h-11 px-3 py-3 text-xs rounded-lg text-foreground/70 hover:bg-primary/10 hover:text-primary transition"
                               >
                                 {r.label}
                               </Link>
@@ -266,7 +265,7 @@ const Navbar = () => {
                   <Link
                     href="/admin"
                     onClick={() => setOpen(false)}
-                    className="w-full flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20 py-2 rounded-xl transition-colors"
+                    className="min-h-11 w-full flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20 py-2 rounded-xl transition-colors"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     <span>to admin panel</span>
@@ -275,7 +274,7 @@ const Navbar = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="w-full rounded-xl flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20"
+                    className="min-h-11 w-full rounded-xl flex items-center justify-center gap-2 text-gray-800 dark:text-gray-200 hover:bg-white/20"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
@@ -283,7 +282,6 @@ const Navbar = () => {
                 </div>
               )}
             </SheetContent>
-
           </Sheet>
 
           {status === "authenticated" && (
@@ -291,7 +289,7 @@ const Navbar = () => {
               variant="ghost"
               size="sm"
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="hidden md:flex rounded"
+              className="hidden xl:flex rounded"
             >
               <LogOut className="h-4 w-4" />
               <span className="ml-2">Logout</span>
@@ -305,7 +303,7 @@ const Navbar = () => {
               onClick={() =>
                 setTheme(resolvedTheme === "dark" ? "light" : "dark")
               }
-              className="rounded-full relative overflow-hidden"
+              className="h-11 w-11 rounded-full relative overflow-hidden"
               aria-label="Toggle theme"
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] dark:-rotate-180 dark:scale-0" />

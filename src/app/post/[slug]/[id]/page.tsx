@@ -21,7 +21,7 @@ export default async function BoardPostDetail({
     return (
       <>
         <Header />
-        <main className="min-h-screen flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center pt-[76px] sm:pt-[88px] xl:pt-[100px]">
           <p className="text-gray-500 text-lg">게시글을 찾을 수 없습니다.</p>
         </main>
       </>
@@ -31,8 +31,8 @@ export default async function BoardPostDetail({
   return (
     <>
       <Header />
-      <article className="max-w-4xl mx-auto py-16 px-6">
-        <h1 className="text-3xl lg:text-4xl font-bold mb-4">{post.title}</h1>
+      <article className="mx-auto max-w-4xl px-4 pb-10 pt-[104px] sm:px-6 sm:pb-16 sm:pt-[120px] xl:pt-[132px]">
+        <h1 className="mb-4 break-words text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">{post.title}</h1>
 
         <p className="text-sm text-gray-500 mb-6">
           {post.publishedAt
@@ -56,7 +56,7 @@ export default async function BoardPostDetail({
         )}
 
         <div
-          className="prose dark:prose-invert max-w-none"
+          className="prose prose-base max-w-none break-words dark:prose-invert sm:prose-lg"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.description) }}
         />
       </article>

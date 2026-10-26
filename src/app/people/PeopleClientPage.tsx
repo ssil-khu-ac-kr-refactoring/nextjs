@@ -45,10 +45,10 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
 
   return (
     <PageLayout>
-      <div className="mx-auto max-w-[1600px] px-4 py-12 sm:px-6 lg:px-8 xl:px-10">
+      <div className="mx-auto max-w-[1600px] px-3 py-8 sm:px-6 sm:py-12 lg:px-8 xl:px-10">
         {/* Header */}
         <FadeIn className="text-center mb-12">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
             People
           </h1>
           <p className="mt-4 text-foreground/60">
@@ -56,10 +56,10 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
           </p>
         </FadeIn>
 
-        <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="flex min-w-0 flex-col gap-5 sm:gap-8 lg:flex-row">
         {/* Mobile tabs / desktop sidebar */}
         <FadeIn delay={0.1} className="w-full lg:w-60 lg:shrink-0">
-          <nav aria-label="People categories" className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
+          <nav aria-label="People categories" className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 lg:mx-0 lg:flex-col lg:overflow-visible">
             {tabs.map((t) => {
               const count = peopleData[t]?.length || 0;
               const active = selectedTab === t;
@@ -97,9 +97,9 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
           <div className="space-y-12">
             {profiles.map((profile, i) => (
               <FadeIn key={profile.id} delay={i * 0.08}>
-                <article className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center p-8 md:p-12 rounded-3xl border border-border bg-card shadow-sm hover:shadow-lg transition-shadow">
+                <article className="grid grid-cols-1 items-center gap-5 rounded-3xl p-4 sm:gap-8 sm:p-8 md:grid-cols-5 md:gap-12 md:p-12 border border-border bg-card shadow-sm hover:shadow-lg transition-shadow">
                   <div className="md:col-span-2">
-                    <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-2xl bg-muted">
+                    <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-2xl bg-muted sm:max-w-xl">
                       <Image
                         src={profile.image || "/images/main2.jpg"}
                         alt={profile.name}
@@ -114,7 +114,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
                       <p className="text-sm uppercase tracking-[0.25em] text-primary mb-2">
                         {profile.position}
                       </p>
-                      <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
+                      <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-5xl">
                         {profile.name}
                       </h2>
                     </div>
@@ -132,7 +132,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
                     </div>
                     {profile.description && (
                       <div
-                        className="prose max-w-none leading-relaxed text-foreground/85 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-justify [&_.ql-align-right]:text-right"
+                        className="prose max-w-none leading-relaxed text-foreground/85 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-left md:[&_.ql-align-justify]:text-justify [&_.ql-align-right]:text-right"
                         dangerouslySetInnerHTML={{
                           __html: getPersonDescriptionHtml(profile.description),
                         }}
@@ -185,7 +185,7 @@ function PeopleCategoryPage({ peopleData }: PeopleClientPageProps) {
                     )}
                     {profile.description && (
                       <div
-                        className="prose prose-sm line-clamp-3 max-h-20 max-w-none overflow-hidden border-t border-border/60 pt-2 text-foreground/60 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-justify [&_.ql-align-right]:text-right [&_h1]:text-base [&_h2]:text-base [&_h3]:text-sm [&_ol]:my-0 [&_p]:my-0 [&_ul]:my-0"
+                        className="prose prose-sm line-clamp-3 max-h-20 max-w-none overflow-hidden border-t border-border/60 pt-2 text-foreground/60 dark:prose-invert [&_.ql-align-center]:text-center [&_.ql-align-justify]:text-left [&_.ql-align-right]:text-right [&_h1]:text-base [&_h2]:text-base [&_h3]:text-sm [&_ol]:my-0 [&_p]:my-0 [&_ul]:my-0"
                         dangerouslySetInnerHTML={{
                           __html: getPersonDescriptionHtml(profile.description),
                         }}

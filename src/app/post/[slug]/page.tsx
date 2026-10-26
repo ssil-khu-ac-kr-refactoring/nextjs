@@ -34,7 +34,7 @@ export default async function BoardCategoryPage({
     return (
       <>
         <Header />
-        <main className="min-h-screen flex items-center justify-center">
+        <main className="min-h-screen flex items-center justify-center pt-[76px] sm:pt-[88px] xl:pt-[100px]">
           <p className="text-gray-500 text-lg">존재하지 않는 카테고리입니다.</p>
         </main>
       </>
@@ -46,34 +46,34 @@ export default async function BoardCategoryPage({
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary-rgb/20">
-        <main className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header className="text-center mb-16">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary-rgb/20 pt-[76px] sm:pt-[88px] xl:pt-[100px]">
+        <main className="py-10 sm:py-16">
+          <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+            <header className="mb-8 text-center sm:mb-12 lg:mb-16">
+              <h1 className="mb-4 break-words text-3xl font-bold sm:text-4xl lg:text-5xl">
                 {tab.name.toUpperCase()}
               </h1>
               {tab.description && (
-                <p className="text-xl text-foreground/80">{tab.description}</p>
+                <p className="mx-auto max-w-2xl break-words text-base leading-relaxed text-foreground/80 sm:text-xl">{tab.description}</p>
               )}
             </header>
 
             {posts.length === 0 ? (
               <p className="text-center text-gray-500">게시글이 없습니다.</p>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
                 {posts.map((item) => (
                   <Card
                     key={item.id}
                     className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 bg-card/20 border border-border/10"
                   >
-                    <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
+                    <div className="relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
                           alt={item.title}
                           fill
-                          sizes="(min-width: 1024px) 33vw, 100vw"
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover"
                         />
                       ) : (
@@ -84,10 +84,10 @@ export default async function BoardCategoryPage({
                     </div>
 
                     <CardContent className="p-4 flex-grow space-y-2">
-                      <h3 className="text-lg font-bold text-foreground">
+                      <h3 className="break-words text-lg font-bold text-foreground">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-foreground/70 line-clamp-3">
+                      <p className="break-words text-sm text-foreground/70 line-clamp-3">
                         {createPreview(item.description || "")}
                       </p>
                     </CardContent>
@@ -101,7 +101,7 @@ export default async function BoardCategoryPage({
                         </div>
                         <Link
                           href={`/post/${tab.slug}/${item.id}`}
-                          className="text-primary font-semibold text-sm hover:text-primary/80 hover:underline"
+                          className="inline-flex min-h-11 items-center text-primary font-semibold text-sm hover:text-primary/80 hover:underline"
                         >
                           READ MORE »
                         </Link>

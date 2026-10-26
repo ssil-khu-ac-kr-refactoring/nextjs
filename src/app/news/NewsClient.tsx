@@ -35,9 +35,9 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
   return (
     <div>
       {/* Header */}
-      <header className="text-center mb-16">
-        <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-foreground">NEWS</h1>
-        <p className="text-lg text-muted-foreground">
+      <header className="mb-8 text-center sm:mb-12 lg:mb-16">
+        <h1 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">NEWS</h1>
+        <p className="mx-auto max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Stay up to date with the latest news and announcements from SSIL.
         </p>
       </header>
@@ -60,7 +60,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
           <p className="text-foreground/60">아직 등록된 뉴스가 없습니다.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-10">
           {news.map((item) => (
             <NewsCard key={item.id} item={item} isAdmin={isAdmin} />
           ))}
@@ -81,7 +81,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
             className="absolute inset-0 bg-black/60"
           />
           {/* Dialog */}
-          <div className="relative bg-card text-foreground w-full max-w-2xl rounded-2xl shadow-xl mx-4 border border-border">
+          <div className="relative mx-3 max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card text-foreground shadow-xl sm:mx-4">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
               <h2 className="text-lg font-semibold">Add News</h2>
               <button
@@ -92,7 +92,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
               </button>
             </div>
 
-            <div className="p-5">
+            <div className="p-3 sm:p-5">
               <NewsForm
                 mode="create"
                 onSuccess={async () => {

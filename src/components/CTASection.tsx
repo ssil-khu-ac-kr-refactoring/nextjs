@@ -141,7 +141,7 @@ const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: an
     <>
      <div style={{ fontFamily: `${home.fontFamily || "MaruBuri"}, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif` }}>
     
-      <section className="relative flex min-h-screen w-full flex-col items-center overflow-hidden pb-8 pt-[200px] text-foreground lg:h-screen lg:pb-0">
+      <section className="relative flex min-h-screen w-full flex-col items-center overflow-hidden pb-8 pt-28 sm:pt-36 lg:h-screen lg:pt-[200px] lg:pb-0 text-foreground">
         {images.length > 0 ? (
           <Image
             key={current}
@@ -218,7 +218,7 @@ const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: an
           </div>
         )}
 
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-8 md:px-16 lg:px-24 text-center space-y-6">
+        <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16 lg:px-24 text-center space-y-5 sm:space-y-6">
           {!editingHero ? (
             <div
               style={{
@@ -230,11 +230,11 @@ const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: an
               <AnimatedHeadline
                 primary={home.heroTitle}
                 secondary={home.heroSubtitle}
-                className="text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
+                className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tight leading-tight sm:leading-[1.05] drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]"
               />
               {home.heroParagraph && (
                 <FadeIn delay={0.6} y={16} className="mt-8 max-w-2xl mx-auto">
-                  <p className="text-base md:text-lg text-white/80 leading-relaxed">
+                  <p className="text-sm sm:text-base md:text-lg text-white/80 leading-relaxed">
                     {home.heroParagraph}
                   </p>
                 </FadeIn>
@@ -331,7 +331,7 @@ const AboutSection = ({
   return (
     <section
       id="about"
-      className="relative overflow-hidden bg-background px-6 py-20 text-foreground sm:py-24"
+      className="relative overflow-hidden bg-background px-4 py-14 text-foreground sm:px-6 sm:py-20 md:py-24"
     >
       {isAdmin && (
         <div className="absolute right-4 top-4 text-sm text-muted-foreground">
@@ -381,7 +381,7 @@ const AboutSection = ({
               </h2>
             </FadeIn>
             <FadeIn y={20} delay={0.12} duration={0.8}>
-              <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                 {about.aboutBody}
               </p>
             </FadeIn>
@@ -404,7 +404,7 @@ const AboutSection = ({
           </div>
         )}
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-5 md:grid-cols-3">
           {missionAreas.map(({ title, description, icon: Icon }, index) => (
             <FadeIn key={title} y={24} delay={0.1 * index} className="h-full">
               <article className="h-full rounded-2xl border border-border bg-card/60 p-6">

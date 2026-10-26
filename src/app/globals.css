@@ -276,7 +276,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   text-align: justify;
 }
 
-/* Quill 정렬 버튼(가운데/오른쪽/전체정렬)이 그대로 반영되도록 */
+/* Quill 정렬 버튼(왼쪽/가운데/오른쪽/전체정렬)이 그대로 반영되도록 */
+.prose .ql-align-left { text-align: left; }
 .prose .ql-align-center { text-align: center; }
 .prose .ql-align-right { text-align: right; }
 .prose .ql-align-justify { text-align: justify; }
@@ -290,3 +291,44 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   margin-right: auto;
 }
 .prose .ql-align-right img { margin-left: auto; margin-right: 0; }
+
+
+/* Mobile reading comfort: use left-aligned paragraphs while preserving explicit center/right alignment. */
+@media (max-width: 767px) {
+  .prose p:not(.ql-align-center):not(.ql-align-right):not(.ql-align-left):not(.ql-align-justify) {
+    text-align: left;
+  }
+
+  .prose .ql-align-justify {
+    text-align: left;
+  }
+
+  .prose {
+    overflow-wrap: anywhere;
+  }
+
+  .prose img,
+  .prose video,
+  .prose iframe,
+  .prose svg {
+    max-width: 100%;
+  }
+
+  .prose img,
+  .prose video {
+    height: auto;
+  }
+
+  .prose table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prose pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

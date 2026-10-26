@@ -74,9 +74,9 @@ export default function AboutPage() {
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
 
-        <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 md:py-10 lg:px-8 xl:px-10">
+        <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 md:py-10 lg:px-8 xl:px-10">
           <FadeIn>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
               About
             </h1>
           </FadeIn>
@@ -84,7 +84,7 @@ export default function AboutPage() {
       </section>
 
       {/* Editable rich-text content */}
-      <main className="mx-auto max-w-[1600px] px-4 pt-8 pb-16 sm:px-6 md:pt-10 md:pb-20 lg:px-8 xl:px-10">
+      <main className="mx-auto max-w-[1600px] px-4 pt-6 pb-12 sm:px-6 sm:pt-8 md:pt-10 md:pb-20 lg:px-8 xl:px-10">
         <div className="mx-auto w-full max-w-6xl">
           <FadeIn>
             {/* Admin controls */}
@@ -112,7 +112,7 @@ export default function AboutPage() {
 
             {!editing ? (
               <div
-                className="prose prose-lg mx-auto w-full max-w-6xl dark:prose-invert
+                className="prose prose-base sm:prose-lg mx-auto w-full max-w-6xl dark:prose-invert
                   prose-headings:tracking-tight prose-headings:font-bold
                   prose-p:leading-relaxed prose-p:text-foreground/85
                   prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -120,7 +120,7 @@ export default function AboutPage() {
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
               />
             ) : (
-              <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+              <div className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-6">
                 <div className="[&_.ql-container]:bg-white [&_.ql-editor]:text-black [&_.ql-container]:rounded-xl">
                   <RichEditor value={content} onChange={setContent} />
                 </div>
