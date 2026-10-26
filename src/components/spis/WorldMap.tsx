@@ -117,6 +117,7 @@ function useNeutralLineMapDataUrl() {
 
 export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now, cellSpan, isLoading = false, loadError = null, onRetry }: WorldMapProps) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [mapImageError, setMapImageError] = useState(false);
 
   const gridCells = useMemo(() => buildHeatmapGrid(simData), [simData]);
 
@@ -211,10 +212,17 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             <img
               src={neutralMapUrl || worldMapImage}
               alt="World Map"
+              onError={() => setMapImageError(true)}
               className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none bg-[#f8f8f8]"
               style={neutralMapUrl ? undefined : { filter: 'grayscale(1)', opacity: 0.25 }}
               draggable={false}
             />
+
+            {mapImageError && (
+              <div role="status" className="absolute inset-x-2 top-2 z-30 rounded-md bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow">
+                배경 세계지도를 불러오지 못했습니다. 전위 데이터와 격자 표시는 계속 사용할 수 있습니다.
+              </div>
+            )}
 
             {/* Subtle night shadow below potential cells, so their colors stay unchanged. */}
             {nightShadowUrl && (
