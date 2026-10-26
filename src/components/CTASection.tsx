@@ -381,7 +381,7 @@ const AboutSection = ({
               </h2>
             </FadeIn>
             <FadeIn y={20} delay={0.12} duration={0.8}>
-              <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
                 {about.aboutBody}
               </p>
             </FadeIn>
@@ -404,7 +404,7 @@ const AboutSection = ({
           </div>
         )}
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-5 md:grid-cols-3">
           {missionAreas.map(({ title, description, icon: Icon }, index) => (
             <FadeIn key={title} y={24} delay={0.1 * index} className="h-full">
               <article className="h-full rounded-2xl border border-border bg-card/60 p-6">
