@@ -85,7 +85,7 @@ export default function OutcomeClientPage({ outcomes }: OutcomeClientPageProps) 
 
                 {isSurfaceCharging ? (
                   // 현재 SPIS 화면(위성 표면 대전 시각화)을 그대로 렌더
-                  <div className="rounded-2xl overflow-hidden border border-border">
+                  <div className="w-full min-w-0 rounded-2xl overflow-hidden border border-border">
                     <SpisApp />
                   </div>
                 ) : (

@@ -17,6 +17,9 @@ interface WorldMapProps {
   now: Date;
   /** Cell size in degrees. Data-native (real data: 2°×15°); legacy synthesis: 30°×30°. */
   cellSpan?: { latDeg: number; lonDeg: number };
+  isLoading?: boolean;
+  loadError?: string | null;
+  onRetry?: () => void;
 }
 
 // Cells arrive already positioned at their CENTERS at native resolution —
@@ -112,8 +115,9 @@ function useNeutralLineMapDataUrl() {
   return url;
 }
 
-export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now, cellSpan }: WorldMapProps) {
+export function WorldMap({ simData, potentials, filters, mapDataRange, potentialRange, now, cellSpan, isLoading = false, loadError = null, onRetry }: WorldMapProps) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [mapImageError, setMapImageError] = useState(false);
 
   const gridCells = useMemo(() => buildHeatmapGrid(simData), [simData]);
 
@@ -139,13 +143,25 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
   }, [now]);
 
   return (
-    <div className="flex-1 bg-muted/30 overflow-auto">
-      <div className="p-6 space-y-6">
+    <div className="w-full min-w-0 lg:flex-1 bg-muted/30 overflow-visible lg:overflow-auto">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-4 lg:space-y-6">
+        {isLoading && simData.length === 0 && (
+          <div role="status" aria-live="polite" className="rounded-lg border border-border bg-card/70 p-4 text-sm text-muted-foreground">
+            데이터를 불러오는 중입니다. 잠시만 기다려 주세요.
+          </div>
+        )}
+        {loadError && simData.length === 0 && (
+          <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
+            <p className="font-semibold text-foreground">데이터를 불러오지 못했습니다.</p>
+            <p className="mt-1 break-words text-muted-foreground">{loadError}</p>
+            {onRetry && <button type="button" onClick={onRetry} className="mt-3 inline-flex min-h-11 items-center rounded-md border border-border px-4 font-medium text-foreground hover:bg-muted">다시 시도</button>}
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-foreground">
+          <h2 className="text-lg sm:text-xl font-bold text-foreground">
             위성 전위 분석
-            <span className="ml-3 text-sm font-normal text-muted-foreground">
+            <span className="block mt-1 text-xs font-normal text-muted-foreground sm:inline sm:mt-0 sm:ml-3 sm:text-sm">
               FORM: {filters.form} · UTC {now.toISOString().slice(11, 16)}
             </span>
           </h2>
@@ -157,11 +173,11 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             세계지도 · LT 기반 x축 (실시간 그림자)
           </h3>
 
-          <div className="flex">
+          <div className="flex w-full min-w-0">
             {/* 위도(Y) 축 — LT 축처럼 항상 일정한 간격의 눈금 (30° 마다) */}
             <div className="w-10 shrink-0 flex flex-col">
               <div className="h-5" />
-              <div className="relative h-[440px] lg:h-[540px]">
+              <div className="relative h-[320px] sm:h-[380px] lg:h-[540px]">
                 {[90, 60, 30, 0, -30, -60, -90].map((lat) => (
                   <div
                     key={lat}
@@ -183,7 +199,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             {ltTicks.map((t) => (
               <div
                 key={`top-${t.lon}`}
-                className="absolute text-[10px] text-muted-foreground -translate-x-1/2"
+                className={`absolute text-[10px] text-muted-foreground ${t.lon === -180 ? "translate-x-0" : t.lon === 180 ? "-translate-x-full" : "-translate-x-1/2"} ${t.lon % 60 !== 0 ? "hidden sm:block" : ""}`}
                 style={{ left: `${t.x}%`, top: 0 }}
               >
                 {t.lt.toFixed(0)}h
@@ -192,14 +208,21 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
           </div>
 
           {/* 위도 방향을 길게: 고정 높이 + object-fill 로 세로 확대 (오버레이는 %-배치라 그대로 정합) */}
-          <div className="relative rounded-lg overflow-hidden border border-border h-[440px] lg:h-[540px]">
+          <div className="relative touch-pan-y rounded-lg overflow-hidden border border-border h-[320px] sm:h-[380px] lg:h-[540px]">
             <img
               src={neutralMapUrl || worldMapImage}
               alt="World Map"
+              onError={() => setMapImageError(true)}
               className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none bg-[#f8f8f8]"
               style={neutralMapUrl ? undefined : { filter: 'grayscale(1)', opacity: 0.25 }}
               draggable={false}
             />
+
+            {mapImageError && (
+              <div role="status" className="absolute inset-x-2 top-2 z-30 rounded-md bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow">
+                배경 세계지도를 불러오지 못했습니다. 전위 데이터와 격자 표시는 계속 사용할 수 있습니다.
+              </div>
+            )}
 
             {/* Subtle night shadow below potential cells, so their colors stay unchanged. */}
             {nightShadowUrl && (
@@ -250,6 +273,15 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                       text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell.avg)} [V]`,
                     });
                   }}
+                  onClick={(e) => {
+                    const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+                    const r = e.currentTarget.getBoundingClientRect();
+                    if (rect) setTooltip({
+                      x: r.left - rect.left + r.width / 2,
+                      y: r.top - rect.top,
+                      text: `LAT ${cell.lat - span.latDeg / 2}°~${cell.lat + span.latDeg / 2}° / LT ${ltCenter.toFixed(1)}h\nAvPot: ${formatValue(cell.avg)} [V]`,
+                    });
+                  }}
                   onMouseLeave={() => setTooltip(null)}
                 />
               );
@@ -267,7 +299,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
             {ltTicks.map((t) => (
               <div
                 key={`bot-${t.lon}`}
-                className="absolute text-[10px] text-muted-foreground -translate-x-1/2"
+                className={`absolute text-[10px] text-muted-foreground ${t.lon === -180 ? "translate-x-0" : t.lon === 180 ? "-translate-x-full" : "-translate-x-1/2"} ${t.lon % 60 !== 0 ? "hidden sm:block" : ""}`}
                 style={{ left: `${t.x}%`, top: 0 }}
               >
                 {t.lt.toFixed(0)}
@@ -288,7 +320,7 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
                 ))}
               </div>
             </div>
-            <div className="ml-[62px] flex max-w-xl justify-between mt-0.5">
+            <div className="ml-[58px] sm:ml-[62px] flex max-w-xl justify-between mt-0.5">
               <span>{formatValue(mapDataRange.min)}</span>
               {mapDataRange.min < 0 && mapDataRange.max > 0 && <span>0</span>}
               <span>{formatValue(mapDataRange.max)}</span>
@@ -309,11 +341,11 @@ export function WorldMap({ simData, potentials, filters, mapDataRange, potential
         </div>
 
         {/* No data */}
-        {simData.length === 0 && potentials.length === 0 && (
-          <div className="flex items-center justify-center py-20">
+        {simData.length === 0 && potentials.length === 0 && !isLoading && !loadError && (
+          <div className="flex items-center justify-center py-12">
             <div className="text-center text-muted-foreground">
-              <p className="text-lg font-medium">데이터가 없습니다</p>
-              <p className="text-sm mt-1">좌측에서 샘플 데이터를 로드해주세요</p>
+              <p className="text-lg font-medium">선택한 조건에 해당하는 데이터가 없습니다.</p>
+              <p className="text-sm mt-1">조건을 변경하거나 데이터 소스를 확인해 주세요.</p>
             </div>
           </div>
         )}

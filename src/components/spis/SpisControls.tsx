@@ -52,7 +52,7 @@ export function SpisControls({
   const set = (partial: Partial<SpisFilter>) => onChange({ ...filter, ...partial });
 
   return (
-    <div className="w-80 bg-card border-r border-border flex flex-col h-full overflow-hidden">
+    <div className="w-full min-w-0 lg:w-80 lg:shrink-0 bg-card border-b lg:border-b-0 lg:border-r border-border flex flex-col h-auto lg:h-full overflow-visible lg:overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-border bg-primary/5 shrink-0">
         <div className="flex items-center gap-2">
@@ -62,13 +62,13 @@ export function SpisControls({
         <p className="text-sm text-muted-foreground mt-1">Satellite Potential Visualization</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="max-h-[42vh] overflow-y-auto p-4 space-y-4 lg:max-h-none lg:flex-1">
         {/* 데이터 소스 */}
         <div className="space-y-2">
           <Label className="text-xs font-semibold">데이터 소스</Label>
           <Button
             variant="secondary"
-            className="w-full justify-start gap-2"
+            className="w-full min-h-11 justify-start gap-2"
             onClick={onLoadDemoLocal}
             disabled={isLoading}
           >
@@ -104,7 +104,7 @@ export function SpisControls({
           <div className="space-y-2">
             <Label className="text-xs font-semibold">태양 조건 (Solar)</Label>
             <Select value={filter.condSolar} onValueChange={(v) => set({ condSolar: v })}>
-              <SelectTrigger><SelectValue placeholder="태양 조건 선택" /></SelectTrigger>
+              <SelectTrigger className="min-h-11"><SelectValue placeholder="태양 조건 선택" /></SelectTrigger>
               <SelectContent>
                 {options.condSolar.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -119,7 +119,7 @@ export function SpisControls({
           <div className="space-y-2">
             <Label className="text-xs font-semibold">지자기 활동 (Kp)</Label>
             <Select value={filter.kp} onValueChange={(v) => set({ kp: v })}>
-              <SelectTrigger><SelectValue placeholder="Kp 선택" /></SelectTrigger>
+              <SelectTrigger className="min-h-11"><SelectValue placeholder="Kp 선택" /></SelectTrigger>
               <SelectContent>
                 {options.kp.map((k) => (
                   <SelectItem key={k} value={k}>{k}</SelectItem>
@@ -139,7 +139,7 @@ export function SpisControls({
                 set({ extraSel: { ...filter.extraSel, [key]: v === EXTRA_ALL ? "" : v } })
               }
             >
-              <SelectTrigger><SelectValue placeholder="전체" /></SelectTrigger>
+              <SelectTrigger className="min-h-11"><SelectValue placeholder="전체" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={EXTRA_ALL}>전체</SelectItem>
                 {vals.map((v) => (
@@ -154,7 +154,7 @@ export function SpisControls({
         <div className="space-y-2">
           <Label className="text-xs font-semibold">Node0 재질</Label>
           <Select value={filter.node0Mat} onValueChange={(v) => set({ node0Mat: v })}>
-            <SelectTrigger><SelectValue placeholder="재질 선택" /></SelectTrigger>
+            <SelectTrigger className="min-h-11"><SelectValue placeholder="재질 선택" /></SelectTrigger>
             <SelectContent>
               {options.node0.map((m) => (
                 <SelectItem key={m} value={m}>{m}</SelectItem>
@@ -168,7 +168,7 @@ export function SpisControls({
           <div className="space-y-2">
             <Label className="text-xs font-semibold">Node1 (Boom) 재질</Label>
             <Select value={filter.node1Mat} onValueChange={(v) => set({ node1Mat: v })}>
-              <SelectTrigger><SelectValue placeholder="재질 선택" /></SelectTrigger>
+              <SelectTrigger className="min-h-11"><SelectValue placeholder="재질 선택" /></SelectTrigger>
               <SelectContent>
                 {options.node1.map((m) => (
                   <SelectItem key={m} value={m}>{m}</SelectItem>
@@ -185,10 +185,10 @@ export function SpisControls({
             <RadioGroup
               value={filter.res}
               onValueChange={(v) => set({ res: v })}
-              className="flex gap-4"
+              className="flex flex-wrap gap-x-4 gap-y-2"
             >
               {options.res.map((r) => (
-                <div key={r} className="flex items-center gap-2">
+                <div key={r} className="flex items-center gap-2 min-h-11">
                   <RadioGroupItem value={r} id={`res-${r}`} />
                   <Label htmlFor={`res-${r}`} className="text-sm font-normal cursor-pointer">{r}</Label>
                 </div>
@@ -204,10 +204,10 @@ export function SpisControls({
             <RadioGroup
               value={String(filter.node)}
               onValueChange={(v) => set({ node: Number(v) })}
-              className="flex gap-4"
+              className="flex flex-wrap gap-x-4 gap-y-2"
             >
               {options.node.map((n) => (
-                <div key={n} className="flex items-center gap-2">
+                <div key={n} className="flex items-center gap-2 min-h-11">
                   <RadioGroupItem value={String(n)} id={`node-${n}`} />
                   <Label htmlFor={`node-${n}`} className="text-sm font-normal cursor-pointer">Node {n}</Label>
                 </div>
@@ -220,13 +220,13 @@ export function SpisControls({
 
         {/* 오버레이 토글 */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-11">
             <Label className="text-sm font-normal flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />오로라 표시
             </Label>
             <Switch checked={filter.showAurora} onCheckedChange={(v) => set({ showAurora: v })} />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-11">
             <Label className="text-sm font-normal flex items-center gap-2">
               <Satellite className="h-4 w-4 text-primary" />전위 표시
             </Label>
