@@ -41,7 +41,7 @@ export default function LatestNewsSlider({ items }: { items: LatestNewsItem[] })
   return (
     <aside
       aria-label="Latest news"
-      className="relative z-30 mx-6 mt-10 w-[calc(100%-3rem)] max-w-[28rem] shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-black/55 text-white shadow-2xl backdrop-blur-md lg:absolute lg:bottom-10 lg:right-12 lg:mx-0 lg:mt-0 lg:w-[26rem] lg:max-w-none"
+      className="relative z-30 mx-4 mt-8 w-[calc(100%-2rem)] max-w-[28rem] shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-black/55 text-white shadow-2xl backdrop-blur-md sm:mx-6 sm:w-[calc(100%-3rem)] lg:absolute lg:bottom-10 lg:right-12 lg:mx-0 lg:mt-0 lg:w-[26rem] lg:max-w-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -70,18 +70,18 @@ export default function LatestNewsSlider({ items }: { items: LatestNewsItem[] })
             href={`/news/${item.id}`}
             aria-hidden={index !== current}
             tabIndex={index === current ? 0 : -1}
-            className={`col-start-1 row-start-1 grid min-h-60 grid-cols-[8.5rem_1fr] transition-opacity duration-500 motion-reduce:transition-none sm:grid-cols-[10rem_1fr] ${index === current ? "z-10 opacity-100" : "pointer-events-none opacity-0"}`}
+            className={`col-start-1 row-start-1 grid min-h-52 grid-cols-[7rem_minmax(0,1fr)] transition-opacity duration-500 motion-reduce:transition-none sm:min-h-60 sm:grid-cols-[10rem_minmax(0,1fr)] ${index === current ? "z-10 opacity-100" : "pointer-events-none opacity-0"}`}
           >
-            <div className="relative min-h-60 bg-white/10">
+            <div className="relative min-h-52 bg-white/10 sm:min-h-60">
               {item.imageUrl ? (
                 <Image src={item.imageUrl} alt="" fill sizes="120px" className="object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs uppercase tracking-widest text-white/45">SSIL</div>
               )}
             </div>
-            <div className="flex min-w-0 flex-col p-5">
-              <h2 className="line-clamp-3 text-base font-semibold leading-snug">{item.title}</h2>
-              <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/70">{item.description}</p>
+            <div className="flex min-w-0 flex-col p-3 sm:p-5">
+              <h2 className="line-clamp-3 text-sm font-semibold leading-snug sm:text-base">{item.title}</h2>
+              <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-white/70 sm:mt-3 sm:text-sm">{item.description}</p>
               <time className="mt-auto block pt-4 text-xs text-white/50" dateTime={item.publishedAt}>
                 {dateFormatter.format(new Date(item.publishedAt))}
               </time>
