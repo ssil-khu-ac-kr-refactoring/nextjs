@@ -88,7 +88,7 @@ export default function NewsDetailClient({
   return (
     <article>
       {/* Hero — 풀폭 이미지 + 그라데이션 오버레이 + 큰 타이포 */}
-      <header className="relative w-full min-h-[60vh] flex items-end overflow-hidden">
+      <header className="relative flex min-h-[52vh] w-full items-end overflow-hidden sm:min-h-[60vh]">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -106,27 +106,27 @@ export default function NewsDetailClient({
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
 
         {/* Back link & admin actions */}
-        <div className="absolute top-6 left-6 right-6 z-10 flex items-center justify-between">
+        <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-2 sm:left-6 sm:right-6 sm:top-6">
           <Link
             href="/news"
-            className="inline-flex items-center gap-2 text-sm font-medium text-white/85 hover:text-white transition-colors backdrop-blur-sm bg-white/10 px-3 py-1.5 rounded-full"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur-sm transition-colors hover:text-white sm:text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to News
           </Link>
 
           {isAdmin && !editing && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
               <button
                 onClick={() => setEditing(true)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition"
+                className="inline-flex min-h-10 items-center gap-1 rounded-full bg-white/10 px-2.5 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-white/20 sm:px-3"
               >
                 <Pencil className="w-3 h-3" />
                 Edit
               </button>
               <button
                 onClick={onDelete}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full bg-red-500/80 backdrop-blur-sm text-white hover:bg-red-500 transition"
+                className="inline-flex min-h-10 items-center gap-1 rounded-full bg-red-500/80 px-2.5 py-2 text-xs text-white backdrop-blur-sm transition hover:bg-red-500 sm:px-3"
               >
                 <Trash2 className="w-3 h-3" />
                 Delete
@@ -135,11 +135,11 @@ export default function NewsDetailClient({
           )}
         </div>
 
-        <FadeIn y={32} duration={0.9} className="relative z-10 w-full max-w-5xl mx-auto px-6 pb-16 md:pb-24">
+        <FadeIn y={32} duration={0.9} className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-10 sm:px-6 sm:pb-16 md:pb-24">
           <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">
             {dateStr}
           </p>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] sm:text-4xl md:text-6xl lg:text-7xl">
             {item.title}
           </h1>
           {item.description && !editing && (
@@ -152,10 +152,10 @@ export default function NewsDetailClient({
       </header>
 
       {/* Body — 좁은 컬럼 + 큰 본문 + drop cap */}
-      <FadeIn y={24} delay={0.1} className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+      <FadeIn y={24} delay={0.1} className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16 md:py-24">
         {!editing ? (
           <div
-            className="prose prose-lg dark:prose-invert max-w-none
+            className="prose prose-base sm:prose-lg dark:prose-invert max-w-none
               prose-headings:tracking-tight prose-headings:font-bold
               prose-p:leading-relaxed prose-p:text-foreground/85
               prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -167,7 +167,7 @@ export default function NewsDetailClient({
             }}
           />
         ) : (
-          <div className="bg-card border border-border rounded-2xl p-6">
+          <div className="rounded-2xl border border-border bg-card p-3 sm:p-6">
             <NewsForm
               mode="edit"
               newsId={item.id}
@@ -188,8 +188,8 @@ export default function NewsDetailClient({
       </FadeIn>
 
       {/* Footer — 더 많은 뉴스 보기 */}
-      <FadeIn className="max-w-3xl mx-auto px-6 pb-24">
-        <div className="border-t border-border pt-8 flex items-center justify-between">
+      <FadeIn className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 sm:pb-24">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 sm:pt-8">
           <Link
             href="/news"
             className="inline-flex items-center gap-2 text-sm font-medium text-foreground/70 hover:text-primary transition-colors"
