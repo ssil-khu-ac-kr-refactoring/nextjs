@@ -107,12 +107,12 @@ function PublicationCategoryPage() {
 
   return (
     <PageLayout>
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-10">
-        <header className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-3 tracking-tight text-foreground">
+      <div className="mx-auto max-w-[1600px] px-3 sm:px-6 lg:px-8 xl:px-10">
+        <header className="mb-8 text-center sm:mb-12 lg:mb-16">
+          <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             Publications
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="mx-auto max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             Peer-reviewed papers, conference proceedings, and preprints.
           </p>
         </header>
@@ -169,7 +169,7 @@ function PublicationCategoryPage() {
           document.body,
         )}
 
-        <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="flex min-w-0 flex-col gap-5 sm:gap-8 lg:flex-row">
           <nav aria-label="Publication categories" className="flex w-full gap-2 overflow-x-auto pb-2 lg:w-64 lg:shrink-0 lg:flex-col lg:overflow-visible">
             {CATEGORY_ORDER.map((category) => {
               const active = category.key === selectedCategory.key;
@@ -179,7 +179,7 @@ function PublicationCategoryPage() {
                   type="button"
                   onClick={() => router.push(`/publications?cat=${category.key}`, { scroll: false })}
                   aria-current={active ? "page" : undefined}
-                  className={`shrink-0 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${active ? "bg-primary text-primary-foreground shadow" : "border border-border bg-card text-foreground/70 hover:bg-primary/10 hover:text-foreground"}`}
+                  className={`min-h-11 shrink-0 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${active ? "bg-primary text-primary-foreground shadow" : "border border-border bg-card text-foreground/70 hover:bg-primary/10 hover:text-foreground"}`}
                 >
                   {category.label}
                 </button>
@@ -208,7 +208,7 @@ function PublicationCategoryPage() {
                     return (
                       <li
                         key={p.id}
-                        className="rounded-2xl border border-border bg-card hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 p-6 shadow-sm"
+                        className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-300 hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md sm:p-6"
                       >
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                           <div className="flex-1">
@@ -239,13 +239,13 @@ function PublicationCategoryPage() {
                             )}
                           </div>
 
-                          <div className="flex gap-2 shrink-0">
+                          <div className="flex flex-wrap gap-2 sm:shrink-0">
                             {p.pdfUrl && (
                               <a
                                 href={p.pdfUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="rounded border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-primary/10 transition"
+                                className="inline-flex min-h-10 items-center rounded border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 transition"
                               >
                                 PDF
                               </a>
@@ -255,7 +255,7 @@ function PublicationCategoryPage() {
                                 href={p.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="rounded border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-primary/10 transition"
+                                className="inline-flex min-h-10 items-center rounded border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/10 transition"
                               >
                                 Link
                               </a>
