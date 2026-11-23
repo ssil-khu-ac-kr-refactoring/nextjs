@@ -3,7 +3,7 @@ generator client {
   // 커스텀 출력 경로. pnpm은 client를 .pnpm 가상스토어 안에 생성하므로
   // 최상위 node_modules/.prisma 가 없다. 소스 트리에 고정 출력해야
   // Next standalone 파일 트레이싱이 client + 쿼리엔진(.so.node)을 확실히 번들한다.
-  output = "../src/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -65,7 +65,7 @@ model Person {
 }
 
 model HomePageContent {
-  id             Int    @id @default(1)
+  id             Int     @id @default(1)
   heroTitle      String
   heroSubtitle   String
   heroParagraph  String
@@ -73,7 +73,7 @@ model HomePageContent {
   aboutParagraph String
   newsTitle      String
   newsSubtitle   String
-  fontFamily   String?  
+  fontFamily     String?
 }
 
 model SliderImage {
@@ -109,9 +109,9 @@ model Contact {
 }
 
 model AboutContent {
-  page       String   @id
-  data       Json
-  updatedAt  DateTime @updatedAt
+  page      String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
 }
 
 model Publication {
@@ -161,29 +161,58 @@ model BoardPost {
 // Long format: one row per (env, resistance, day/night, node0 material,
 // node1/boom material, node) -> average potential value.
 model SpisPotential {
-  id       Int    @id @default(autoincrement())
-  env      String                      // e.g. "AUR"
-  res      String                      // "R0" | "R1"
-  dn       String                      // "DAY" | "NGT"
-  node0Mat String @map("node0_mat")
-  node1Mat String @map("node1_mat")
-  node     Int                         // 0 | 1
-  avPot    Float  @map("av_pot")
-  lt       Float?                       // local time 0..24 (geographic); converted to longitude at render time
-  lat      Float?                       // latitude -90..90 (optional)
+  id        Int         @id @default(autoincrement())
+  datasetId String      @default("DMSP_ONLY") @map("dataset_id")
+  dataset   SpisDataset @relation(fields: [datasetId], references: [id], onDelete: Restrict)
+  envId     String?     @map("env_id")
+  env       String // e.g. "AUR"
+  res       String // "R0" | "R1"
+  dn        String // "DAY" | "NGT"
+  node0Mat  String      @map("node0_mat")
+  node1Mat  String      @map("node1_mat")
+  node      Int // 0 | 1
+  avPot     Float       @map("av_pot")
+  lt        Float? // local time 0..24 (geographic); converted to longitude at render time
+  lat       Float? // latitude -90..90 (optional)
   // Environment parameters (client's real data format — all optional)
-  condSolar String? @map("cond_solar")  // e.g. "SOLARmin" | "SOLARmax"
-  kp        String?                     // e.g. "2lt4"
-  eN        Float?  @map("e_n")         // electron density
-  eT        Float?  @map("e_t")         // electron temperature
-  iN        Float?  @map("i_n")         // ion density
-  iT        Float?  @map("i_t")         // ion temperature
-  form      String?                     // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
+  condSolar String?     @map("cond_solar") // e.g. "SOLARmin" | "SOLARmax"
+  kp        String? // e.g. "2lt4"
+  eN        Float?      @map("e_n") // electron density
+  eT        Float?      @map("e_t") // electron temperature
+  iN        Float?      @map("i_n") // ion density
+  iT        Float?      @map("i_t") // ion temperature
+  dmspEN    Float?      @map("dmsp_e_n")
+  dmspET    Float?      @map("dmsp_e_t")
+  dmspIN    Float?      @map("dmsp_i_n")
+  dmspIT    Float?      @map("dmsp_i_t")
+  iriEN     Float?      @map("iri_e_n")
+  iriET     Float?      @map("iri_e_t")
+  iriIN     Float?      @map("iri_i_n")
+  iriIT     Float?      @map("iri_i_t")
+  form      String? // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
   // 인식되지 않은(미지의) 엑셀 컬럼 전부 — { 원본헤더: 값 } JSON. 새 인자 자동 수용용.
-  extras    Json?   @map("extras")
+  extras    Json?       @map("extras")
 
+  @@index([datasetId])
+  @@index([datasetId, envId])
   @@index([node0Mat, node1Mat, res, node, dn])
   @@map("spis_potentials")
+}
+
+model SpisDataset {
+  id               String          @id
+  displayName      String          @map("display_name")
+  description      String?
+  rowCount         Int             @default(0) @map("row_count")
+  environmentCount Int             @default(0) @map("environment_count")
+  materialCount    Int             @default(0) @map("material_count")
+  potentialMin     Float?          @map("potential_min")
+  potentialMax     Float?          @map("potential_max")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  potentials       SpisPotential[]
+
+  @@map("spis_datasets")
 }
 
 enum ResearchStatus {

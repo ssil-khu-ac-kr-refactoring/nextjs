@@ -13,8 +13,8 @@ function interpolateColor(from: readonly number[], to: readonly number[], amount
 /** Signed blue-neutral-red scale using the actual data domain and zero as the neutral reference. */
 export function getColorForValue(value: number, min: number, max: number): string {
   if (min === max) {
-    if (value < 0) return interpolateColor(NEGATIVE, NEUTRAL, 0.5);
-    if (value > 0) return interpolateColor(NEUTRAL, POSITIVE, 0.5);
+    if (value < 0) return interpolateColor(NEGATIVE, NEUTRAL, 0);
+    if (value > 0) return interpolateColor(NEUTRAL, POSITIVE, 1);
     return interpolateColor(NEUTRAL, NEUTRAL, 0);
   }
 
@@ -23,8 +23,8 @@ export function getColorForValue(value: number, min: number, max: number): strin
       ? interpolateColor(NEGATIVE, NEUTRAL, (value - min) / (0 - min))
       : interpolateColor(NEUTRAL, POSITIVE, value / max);
   }
-  if (max <= 0) return interpolateColor(NEGATIVE, NEUTRAL, (value - min) / (max - min));
-  return interpolateColor(NEUTRAL, POSITIVE, (value - min) / (max - min));
+  if (max <= 0) return interpolateColor(NEGATIVE, NEUTRAL, (value - min) / (0 - min));
+  return interpolateColor(NEUTRAL, POSITIVE, value / max);
 }
 
 export function generateColorLegend(

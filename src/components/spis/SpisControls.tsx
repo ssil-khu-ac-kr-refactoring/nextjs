@@ -9,8 +9,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { SpisFilter, ViewMode } from "@/lib/spis/types";
+import { SPIS_DATASETS, type SpisDatasetId } from "@/lib/spis/datasets";
 
 interface SpisControlsProps {
+  datasetId: SpisDatasetId;
+  onDatasetChange: (datasetId: SpisDatasetId) => void;
   filter: SpisFilter;
   onChange: (f: SpisFilter) => void;
   options: {
@@ -38,6 +41,8 @@ const fmt = (v: number | null) =>
 const EXTRA_ALL = "__all__";
 
 export function SpisControls({
+  datasetId,
+  onDatasetChange,
   filter,
   onChange,
   options,
@@ -63,20 +68,50 @@ export function SpisControls({
       </div>
 
       <div className="max-h-[42vh] overflow-y-auto p-4 space-y-4 lg:max-h-none lg:flex-1">
+        <div className="space-y-3">
+          <Label className="text-xs font-semibold">Plasma Environment</Label>
+          <RadioGroup
+            value={datasetId}
+            onValueChange={(value) => onDatasetChange(value as SpisDatasetId)}
+            className="space-y-2"
+          >
+            {SPIS_DATASETS.map((dataset) => (
+              <label
+                key={dataset.id}
+                htmlFor={`dataset-${dataset.id}`}
+                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-border p-3 hover:bg-muted/50"
+              >
+                <RadioGroupItem id={`dataset-${dataset.id}`} value={dataset.id} className="mt-0.5" />
+                <span>
+                  <span className="block text-sm font-semibold">{dataset.label}</span>
+                  <span className="mt-1 block text-xs text-muted-foreground">{dataset.description}</span>
+                </span>
+              </label>
+            ))}
+          </RadioGroup>
+          <p className="text-[11px] text-muted-foreground">
+            Each environment is a separate SPIS input dataset. The signed color range is calculated independently for the selected dataset around 0 V.
+          </p>
+        </div>
+
+        <Separator />
+
         {/* 데이터 소스 */}
         <div className="space-y-2">
           <Label className="text-xs font-semibold">데이터 소스</Label>
-          <Button
-            variant="secondary"
-            className="w-full min-h-11 justify-start gap-2"
-            onClick={onLoadDemoLocal}
-            disabled={isLoading}
-          >
-            <Sparkles className="h-4 w-4" />
-            데모 데이터 미리보기
-          </Button>
+          {showExperimentalViews && (
+            <Button
+              variant="secondary"
+              className="w-full min-h-11 justify-start gap-2"
+              onClick={onLoadDemoLocal}
+              disabled={isLoading}
+            >
+              <Sparkles className="h-4 w-4" />
+              로컬 데모 미리보기 (DB 저장 안 함)
+            </Button>
+          )}
           <p className="text-xs text-muted-foreground">
-            {dataCount > 0 ? `${dataCount}개 데이터 로드됨` : "데이터가 비어있습니다 (데모로 미리보기 가능)"}
+            {dataCount > 0 ? `${dataCount}개 데이터 로드됨` : "선택한 데이터셋에 표시할 데이터가 없습니다"}
           </p>
         </div>
 

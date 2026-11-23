@@ -218,6 +218,8 @@ export function getPotentialKey(filters: FilterState): string {
 // =====================================================================
 
 export interface SpisPotentialRow {
+  datasetId: import('@/lib/spis/datasets').SpisDatasetId;
+  envId?: string | null;
   env: string;            // e.g. "AUR"
   res: string;            // "R0" | "R1"
   dn: TimeMode;           // "DAY" | "NGT"
@@ -238,6 +240,14 @@ export interface SpisPotentialRow {
   eT?: number | null;        // electron temperature
   iN?: number | null;        // ion density
   iT?: number | null;        // ion temperature
+  dmspEN?: number | null;
+  dmspET?: number | null;
+  dmspIN?: number | null;
+  dmspIT?: number | null;
+  iriEN?: number | null;
+  iriET?: number | null;
+  iriIN?: number | null;
+  iriIT?: number | null;
   form?: string | null;      // satellite form (CSV "type"), e.g. "3U" | "3U+Boom"
   // Any UNRECOGNIZED Excel columns, keyed by the original header name.
   // New parameters flow through here automatically (no code change needed).

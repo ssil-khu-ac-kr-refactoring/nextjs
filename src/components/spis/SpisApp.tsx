@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Toaster, toast } from "sonner";
 import { SpisControls } from "@/components/spis/SpisControls";
 import { WorldMap } from "@/components/spis/WorldMap";
@@ -8,6 +8,7 @@ import { Globe3D } from "@/components/spis/Globe3D";
 import type { SpisFilter, SpisPotentialRow, SimulationRow, FilterState } from "@/lib/spis/types";
 import { LAT_BINS, LON_BINS } from "@/lib/spis/types";
 import { fetchSpisPotentials } from "@/lib/spis/dataApi";
+import { DEFAULT_SPIS_DATASET, type SpisDatasetId } from "@/lib/spis/datasets";
 import { isDaytime } from "@/lib/spis/solar";
 import { lonForLT } from "@/lib/spis/lt";
 import { useNow } from "@/hooks/useNow";
@@ -20,23 +21,27 @@ export interface SpisAppProps {
   showExperimentalViews?: boolean;
 }
 
+const INITIAL_FILTER: SpisFilter = {
+  node0Mat: "",
+  node1Mat: "",
+  res: "",
+  node: 0,
+  condSolar: "",
+  kp: "",
+  extraSel: {},
+  viewMode: "2D",
+  showAurora: true,
+  showSatellite: true,
+};
+
 export default function SpisApp({ showExperimentalViews = false }: SpisAppProps) {
   const [data, setData] = useState<SpisPotentialRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [datasetId, setDatasetId] = useState<SpisDatasetId>(DEFAULT_SPIS_DATASET);
+  const requestGeneration = useRef(0);
   const now = useNow(10000);
-  const [filter, setFilter] = useState<SpisFilter>({
-    node0Mat: "",
-    node1Mat: "",
-    res: "",
-    node: 0,
-    condSolar: "",
-    kp: "",
-    extraSel: {},
-    viewMode: "2D",
-    showAurora: true,
-    showSatellite: true,
-  });
+  const [filter, setFilter] = useState<SpisFilter>(INITIAL_FILTER);
 
   // Distinct selector options derived from the data itself.
   // Environment params (condSolar, kp) appear automatically when the data carries them.
@@ -235,6 +240,7 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
             else if (night) v = -(30 + Math.random() * 120);
             v *= MAT_F[node0Mat];
             out.push({
+              datasetId,
               env: "AUR", res: "infinite", dn: lt >= 6 && lt < 18 ? "DAY" : "NGT",
               node0Mat, node1Mat: "", node: 0, form: "3U",
               condSolar: "SOLARmin", kp,
@@ -245,29 +251,36 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
       }
     setData(out);
     toast.success(`데모 데이터 로드: ${out.length.toLocaleString()}행 (위도 2°×LT 1h, 실데이터 형식)`);
+  }, [datasetId]);
+
+  const handleDatasetChange = useCallback((nextDataset: SpisDatasetId) => {
+    requestGeneration.current += 1;
+    setDatasetId(nextDataset);
+    setData([]);
+    setLoadError(null);
+    setFilter({ ...INITIAL_FILTER, extraSel: {} });
   }, []);
 
-  // Load from DB; when the DB is empty, fall back to the demo automatically
-  // (요구사항: 아무것도 없으면 데모, 있으면 DB 데이터).
+  // Load only the selected dataset. Empty/error states intentionally remain
+  // empty so another environment is never shown as a silent fallback.
   const refresh = useCallback(async () => {
+    const generation = ++requestGeneration.current;
     setIsLoading(true);
     setLoadError(null);
     try {
-      const rows = await fetchSpisPotentials();
-      if (rows.length === 0) {
-        handleLoadDemoLocal();
-        toast.info("DB가 비어 있어 데모 데이터를 표시합니다");
-      } else {
-        setData(rows);
-      }
+      const rows = await fetchSpisPotentials(datasetId);
+      if (generation !== requestGeneration.current) return;
+      setData(rows);
     } catch (e: unknown) {
+      if (generation !== requestGeneration.current) return;
+      setData([]);
       const message = e instanceof Error ? e.message : String(e);
       setLoadError(message);
       toast.error(`데이터 로드 실패: ${message}`);
     } finally {
-      setIsLoading(false);
+      if (generation === requestGeneration.current) setIsLoading(false);
     }
-  }, [handleLoadDemoLocal]);
+  }, [datasetId]);
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -276,6 +289,8 @@ export default function SpisApp({ showExperimentalViews = false }: SpisAppProps)
     <div className="flex flex-col lg:flex-row w-full min-w-0 bg-background lg:h-[calc(100vh-100px)] lg:overflow-hidden">
       <Toaster richColors position="top-right" />
       <SpisControls
+        datasetId={datasetId}
+        onDatasetChange={handleDatasetChange}
         filter={filter}
         onChange={setFilter}
         options={options}
