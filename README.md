@@ -89,8 +89,8 @@ docker login ghcr.io -u <github-username>   # read:packages 권한 PAT 입력
 `Dockerfile` (멀티스테이지):
 - `deps` → `builder`(여기서 `prisma generate` + `next build`) → `migrator`(prisma CLI) → `runner`
 - runner 는 **Next standalone 출력 + prisma 스키마 + prisma CLI** 만 포함(경량)
-- 컨테이너 시작 CMD: `prisma migrate deploy || (경고 출력); node server.js`
-  - **마이그레이션이 실패해도 서버는 뜬다**(전체 다운 방지). 스키마가 이미 맞으면 그대로 동작.
+- 컨테이너 시작 CMD: `prisma migrate deploy || exit 1; node server.js`
+  - 검토된 migration이 실패하면 서버 시작을 중단하며, 자동 `db push` 폴백은 사용하지 않는다.
 
 > ⚠️ ngrok 무료 터널 URL 은 재시작 시 바뀐다. 배포가 반영 안 되면 webhook URL/토큰부터 확인. (main.yml 에 하드코딩되어 있으며 Secrets 로 옮기는 것을 권장)
 
@@ -103,7 +103,7 @@ docker login ghcr.io -u <github-username>   # read:packages 권한 PAT 입력
 - 스키마 반영:
   - 배포 컨테이너: 시작 시 `prisma migrate deploy` 자동 실행
   - 마이그레이션 파일은 `prisma/migrations/` 에 두면 배포 때 자동 적용
-- ⚠️ 현재 운영 DB 가 과거 `prisma db push` 로 관리된 이력이 있어 마이그레이션 히스토리와 어긋날 수 있음. 이 경우 `migrate deploy` 가 "이미 존재"로 실패할 수 있는데, CMD 가 non-fatal 이라 서버는 정상 기동된다. 정합성 정리가 필요하면 `prisma migrate resolve` 로 상태를 맞춘다.
+- ⚠️ 현재 운영 DB 가 과거 `prisma db push` 로 관리된 이력이 있어 마이그레이션 히스토리와 어긋날 수 있다. 배포 전 백업과 `prisma migrate status` 확인 후, 필요하면 검토된 migration에 한해 `prisma migrate resolve`로 정합성을 맞춘다. 실패 시 자동 `db push`는 실행되지 않는다.
 
 ---
 

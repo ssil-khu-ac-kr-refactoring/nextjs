@@ -9,7 +9,7 @@
 
 ## 1. 한눈에 보기
 
-- **입력 데이터**: 한셀(HCell)에서 내보낸 `All_node` 엑셀 → 관리자 업로드 → DB 저장.
+- **입력 데이터**: CSV 또는 한셀(HCell) `All_node` XLSX → 관리자 검증 → 데이터셋별 DB 저장.
   - 데이터의 위치는 **경도가 아니라 LT(지방시, Local Time)** 로 들어옵니다. 지도에 올릴 때 경도로 변환합니다.
 - **DAY/NGT**: 데이터는 낮(DAY)·밤(NGT) 값을 가지며, 지도에서는 **실시간 주야 경계선(터미네이터)** 으로 낮/밤을 나눠 칠합니다.
 - **3D 오로라**: NOAA SWPC의 **OVATION Prime** 모델을 실시간(5분 주기)으로 가져와 지구본에 점군으로 표시합니다.
@@ -26,32 +26,32 @@
 | | `src/lib/spis/solar.ts` | `subsolarPoint`, `solarElevation`, `isDaytime` |
 | **데이터 모델/타입** | `src/lib/spis/types.ts` | `SpisPotentialRow`, `SpisFilter`, `SimulationRow` |
 | **파서** | `src/lib/spis/parseWorkbook.ts` | `parseWorkbookSheet` (한셀 xlsx 호환) |
-| **데이터 로드** | `src/lib/spis/dataApi.ts` | `fetchSpisPotentials`, `importExcelFile` |
+| **데이터 로드** | `src/lib/spis/dataApi.ts` | `fetchSpisPotentials`, `validateSpisImport`, `replaceSpisDataset` |
 | **오로라 소스** | `src/lib/spis/ovation.ts` | `fetchOvation` (NOAA OVATION) |
 | **색상** | `src/lib/spis/colorScale.ts` | `getColorForValue` |
 | **UI 컨테이너** | `src/components/spis/SpisApp.tsx` | `SpisApp` (상태·격자 합성) |
 | **좌측 패널** | `src/components/spis/SpisControls.tsx` | `SpisControls` |
 | **2D 지도** | `src/components/spis/WorldMap.tsx` | `WorldMap`, `PolarMap` |
 | **3D 지구본** | `src/components/spis/Globe3D.tsx` | `Globe3D`, `Aurora`, `Heatmap` |
-| **API** | `src/app/api/spis/import/route.ts` | 엑셀 업로드(관리자) |
-| | `src/app/api/spis/simulations/route.ts` | 전위 데이터 공개 조회 |
-| | `src/app/api/spis/sample/route.ts` | 샘플 데이터 생성(관리자) |
+| **API** | `src/app/api/spis/import/route.ts` | CSV/XLSX 검증 및 데이터셋별 원자적 교체(관리자) |
+| | `src/app/api/spis/simulations/route.ts` | 데이터셋별 전위 데이터 공개 조회 |
+| | `src/app/api/spis/sample/route.ts` | 영구 샘플 저장 차단(관리자 로컬 데모 사용) |
 
 ---
 
 ## 3. 데이터 흐름
 
 ```
-한셀 All_node .xlsx
+CSV 또는 한셀 All_node .xlsx + 대상 dataset ID
       │  (관리자 업로드)
       ▼
-POST /api/spis/import ── parseWorkbookSheet (x: 접두사 벗기고 헤더 정규화)
+POST /api/spis/import ── validate → 명시적 replace (대상 데이터셋만 transaction 교체)
       │                   env·res·dn·node0Mat·node1Mat·node·avPot (+ lt·lat)
       ▼
 Prisma · spis_potentials 테이블
       │
       ▼
-GET /api/spis/simulations ── fetchSpisPotentials()
+GET /api/spis/simulations?dataset=DMSP_ONLY ── fetchSpisPotentials(datasetId)
       │
       ▼
 SpisApp ── 선택(재질/저항/노드)에 맞는 값 → 30° 격자로 합성
@@ -116,6 +116,7 @@ DN(주야) 컬럼이 없으면 **LT로 주야를 자동 도출**(06~18시=낮)�
 - 배포 이미지는 Next **standalone** 출력을 사용하며, `outputFileTracingIncludes` 로
   Prisma 런타임+쿼리엔진을 standalone 에 포함합니다 (`next.config.mjs`).
 - 컨테이너 시작 시 `prisma migrate deploy` 가 자동 실행되어 스키마가 반영됩니다 (`Dockerfile`).
+- `migrate deploy` 실패 시 서버 시작을 중단하며 자동 `db push`는 실행하지 않습니다.
 
 ---
 
@@ -124,7 +125,7 @@ DN(주야) 컬럼이 없으면 **LT로 주야를 자동 도출**(06~18시=낮)�
 | 하고 싶은 것 | 파일 |
 |---|---|
 | LT→경도 배치 로직 | `SpisApp.tsx` (격자 합성부) + `lt.ts` |
-| 업로드 컬럼 매핑 추가 | `api/spis/import/route.ts` (`find(...)`, `norm`) |
+| 업로드 컬럼 매핑 추가 | `lib/spis/importData.ts` (`find(...)`, `norm`) |
 | 색상 스케일 | `lib/spis/colorScale.ts` |
 | 2D 지도 격자/축/그림자 | `WorldMap.tsx` |
 | 3D 지구본/오로라 렌더 | `Globe3D.tsx` |

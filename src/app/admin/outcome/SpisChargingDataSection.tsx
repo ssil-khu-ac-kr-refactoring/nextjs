@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from '@/components/Toast';
-import { fetchSpisPotentials, importExcelFile } from '@/lib/spis/dataApi';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import SpisDatasetImport from '@/components/spis/SpisDatasetImport';
+import { fetchSpisPotentials } from '@/lib/spis/dataApi';
 import type { SpisPotentialRow } from '@/lib/spis/types';
 
 interface NumericRange {
@@ -62,15 +62,9 @@ function ChipList({ label, values }: { label: string; values: string[] }) {
 }
 
 export default function SpisChargingDataSection() {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<SpisPotentialRow[] | null>(null);
   const [isLoadingRows, setIsLoadingRows] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const loadRows = useCallback(async () => {
     setIsLoadingRows(true);
@@ -108,28 +102,6 @@ export default function SpisChargingDataSection() {
     };
   }, [rows]);
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-    setIsUploading(true);
-    setUploadResult(null);
-    setUploadError(null);
-    try {
-      const r = await importExcelFile(selectedFile);
-      const msg = `총 ${r.totalRows}행 중 ${r.inserted}행 저장됨`;
-      setUploadResult(msg);
-      toast.success(`업로드 완료: ${msg}`);
-      setSelectedFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      await loadRows();
-    } catch (err: any) {
-      const msg = err?.message ?? '업로드에 실패했습니다.';
-      setUploadError(msg);
-      toast.error(`업로드 실패: ${msg}`);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   return (
     <div className="mt-8 space-y-6">
       <h2 className="text-xl font-bold">위성 대전 데이터 (Surface Charging)</h2>
@@ -137,7 +109,7 @@ export default function SpisChargingDataSection() {
       {/* DB 현황 카드 */}
       <section className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">DB 현황</h3>
+          <h3 className="text-lg font-semibold">DB 현황 (DMSP-only)</h3>
           <button
             type="button"
             onClick={loadRows}
@@ -161,7 +133,7 @@ export default function SpisChargingDataSection() {
 
             {summary.total === 0 ? (
               <p className="text-sm p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
-                DB 비어있음 — 화면에는 데모 데이터가 표시됩니다
+                DMSP-only 데이터셋이 비어있습니다
               </p>
             ) : (
               <>
@@ -211,39 +183,7 @@ export default function SpisChargingDataSection() {
         )}
       </section>
 
-      {/* 엑셀/CSV 업로드 */}
-      <section className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
-        <h3 className="text-lg font-semibold">엑셀/CSV 업로드</h3>
-        <p className="text-sm p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
-          ⚠️ 업로드 시 기존 데이터가 <strong>전체 교체</strong>됩니다.
-        </p>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv,.xlsx"
-            disabled={isUploading}
-            onChange={(e) => {
-              setSelectedFile(e.target.files?.[0] ?? null);
-              setUploadResult(null);
-              setUploadError(null);
-            }}
-            className="block w-full text-sm text-foreground/60 file:mr-4 file:py-2 file:px-4 file:rounded-full
-                       file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary
-                       hover:file:bg-primary/20 disabled:opacity-50"
-          />
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={!selectedFile || isUploading}
-            className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl disabled:opacity-50"
-          >
-            {isUploading ? '업로드 중...' : '업로드'}
-          </button>
-        </div>
-        {uploadResult && <p className="text-sm text-green-600">{uploadResult}</p>}
-        {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
-      </section>
+      <SpisDatasetImport onUpdated={loadRows} />
     </div>
   );
 }

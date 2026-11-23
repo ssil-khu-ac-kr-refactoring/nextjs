@@ -28,7 +28,7 @@ NAS 반영은 아래 **재배포 작업**을 실행하면 됩니다.
 - **사용자: root** 필수 (docker 권한).
 - **스케줄 활성화는 꺼둘 것** — 켜두면 매일 자정 재배포되어 잠깐 끊깁니다. 실행 버튼으로만.
 - 실행 후 **2~3분** 걸립니다 (pull + 부팅). 502 가 잠깐 보이는 건 정상.
-- 부팅 시 자동 수행: DB 스키마 동기화(migrate → 실패 시 db push 폴백) + 기본 시드(prisma/bootstrap.sql).
+- 부팅 시 자동 수행: 검토된 migration 적용 + 기본 시드(prisma/bootstrap.sql). migration 실패 시 컨테이너 시작을 중단하며 `db push` 폴백은 없다.
 
 ### 볼륨/env 설명
 | 항목 | 이유 |
@@ -62,7 +62,7 @@ free -m
 | `ssil-compose` 가 시작 실패 | **정상** — 옛 컨테이너. 포트를 ssil-app 이 쓰는 중. 켜지 말 것 |
 | 컨테이너가 계속 죽음 + 로그에 build | 누군가 옛 빌드 방식으로 되돌림 → 1번 재배포 절차로 복구 |
 | 이미지(지도/사진) 깨짐 | `-v /volume1/docker/public:/app/public` 마운트 누락 → 1번 스크립트 그대로 재실행 |
-| 데이터 API 500 | DB 컬럼 누락 → 재배포 한 번(부팅 시 db push 폴백이 자동 수리) |
+| 데이터 API 500 | `prisma migrate status`와 컨테이너 migration 로그 확인. 운영 DB 백업 없이 `db push`를 실행하지 말 것 |
 
 ---
 

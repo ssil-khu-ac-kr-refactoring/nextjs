@@ -53,6 +53,6 @@ COPY --from=migrator --chown=node:node /m/node_modules ./migrate/node_modules
 
 USER node
 EXPOSE 3000
-# 컨테이너 시작 시 DB 마이그레이션 적용(idempotent) 후 서버 기동.
-# migrate deploy 실패 시 컨테이너가 죽으므로 DB가 먼저 떠 있어야 함.
-CMD ["sh", "-c", "node ./migrate/node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma || node ./migrate/node_modules/prisma/build/index.js db push --schema=./prisma/schema.prisma --skip-generate || echo migrate-and-push-failed; node ./migrate/node_modules/prisma/build/index.js db execute --file ./prisma/bootstrap.sql --schema=./prisma/schema.prisma || echo seed-skip; node server.js"]
+# 컨테이너 시작 시 검토된 migration만 적용한다. migrate 실패 시 시작을
+# 중단하며, 운영 DB를 암묵적으로 변경할 수 있는 db push 폴백은 사용하지 않는다.
+CMD ["sh", "-c", "node ./migrate/node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma || exit 1; node ./migrate/node_modules/prisma/build/index.js db execute --file ./prisma/bootstrap.sql --schema=./prisma/schema.prisma || echo seed-skip; node server.js"]

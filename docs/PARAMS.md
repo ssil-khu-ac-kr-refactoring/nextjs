@@ -112,5 +112,5 @@ export interface SpisFilter {
 ## 배포 시 자동 반영
 
 마이그레이션 파일만 커밋하면 된다. 컨테이너 시작 시
-`prisma migrate deploy` 가 자동 실행되고(부팅 시 `db push` 폴백 포함),
-멱등 SQL(`IF NOT EXISTS`)이라 재실행에도 안전하다. 별도 수동 DB 작업 불필요.
+`prisma migrate deploy`가 자동 실행된다. 실패 시 서버 시작이 중단되며 `db push` 폴백은 없다.
+운영 적용 전 백업과 migration 상태 검증이 필요하다.

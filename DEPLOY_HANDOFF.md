@@ -35,7 +35,7 @@ Docker **standalone** 이미지로 배포. 컨테이너 시작 시 `prisma migra
 - 신규 마이그레이션: `prisma/migrations/20260815000000_add_publication_category/migration.sql`
   - 내용: `Publication`에 `category TEXT NOT NULL DEFAULT 'SCI'` 추가 + 인덱스. **idempotent(IF NOT EXISTS)** 라 재적용 안전. 기존 행은 전부 `SCI`가 됨.
 - **자동 적용**: Dockerfile의 CMD가 컨테이너 시작 시 `prisma migrate deploy`를 돌린다 → **수동 마이그레이션 불필요**. 단, **DB가 먼저 떠 있어야** 함.
-- ⚠️ 이 운영 DB는 과거 `prisma db push` 이력이 섞여 마이그레이션 히스토리가 어긋날 수 있음. `migrate deploy`가 "이미 존재"로 실패해도 CMD가 non-fatal(`|| db push || echo`)이라 서버는 뜬다. 컬럼만 잘 들어가면 OK. 정합성 정리 필요하면 `prisma migrate resolve`.
+- ⚠️ 이 운영 DB는 과거 `prisma db push` 이력이 섞여 마이그레이션 히스토리가 어긋날 수 있다. 현재 CMD는 `migrate deploy` 실패 시 시작을 중단하고 자동 `db push`를 실행하지 않는다. 운영 백업과 `prisma migrate status` 확인 후 필요한 경우에만 `prisma migrate resolve`를 사용한다.
 - 새 DB(빈 서버)로 시작하는 경우: `migrate deploy`가 전체 마이그레이션을 처음부터 적용 → 그냥 뜬다.
 
 ---
