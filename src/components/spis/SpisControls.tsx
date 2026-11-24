@@ -40,6 +40,40 @@ const fmt = (v: number | null) =>
 // Radix Select 는 빈 문자열 value 를 허용하지 않으므로 '전체'는 센티널 값으로 표현한다.
 const EXTRA_ALL = "__all__";
 
+const SOLAR_LABELS: Record<string, string> = {
+  SOLARmin: "min",
+  min: "min",
+  SOLARmax: "max",
+  max: "max",
+};
+
+const KP_LABELS: Record<string, string> = {
+  "2lt4": "2 ~ 4",
+  "2 ~ 4": "2 ~ 4",
+  ge4: ">= 4",
+  ">= 4": ">= 4",
+};
+
+const SOLAR_ORDER = ["min", "max"];
+const KP_ORDER = ["2 ~ 4", ">= 4"];
+const NODE0_ORDER = ["Al", "Al2O3", "ALOX", "CERS", "Epoxy", "Gold", "KAPT"];
+
+function sortByDisplayOrder(
+  values: string[],
+  labels: Record<string, string>,
+  order: string[],
+): string[] {
+  return [...values].sort((a, b) => {
+    const aLabel = labels[a] ?? a;
+    const bLabel = labels[b] ?? b;
+    const aIndex = order.indexOf(aLabel);
+    const bIndex = order.indexOf(bLabel);
+    const aRank = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+    const bRank = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+    return aRank - bRank || aLabel.localeCompare(bLabel);
+  });
+}
+
 export function SpisControls({
   datasetId,
   onDatasetChange,
@@ -55,6 +89,9 @@ export function SpisControls({
   showExperimentalViews = false,
 }: SpisControlsProps) {
   const set = (partial: Partial<SpisFilter>) => onChange({ ...filter, ...partial });
+  const solarOptions = sortByDisplayOrder(options.condSolar, SOLAR_LABELS, SOLAR_ORDER);
+  const kpOptions = sortByDisplayOrder(options.kp, KP_LABELS, KP_ORDER);
+  const node0Options = sortByDisplayOrder(options.node0, {}, NODE0_ORDER);
 
   return (
     <div className="w-full min-w-0 lg:w-80 lg:shrink-0 bg-card border-b lg:border-b-0 lg:border-r border-border flex flex-col h-auto lg:h-full overflow-visible lg:overflow-hidden">
@@ -141,8 +178,8 @@ export function SpisControls({
             <Select value={filter.condSolar} onValueChange={(v) => set({ condSolar: v })}>
               <SelectTrigger className="min-h-11"><SelectValue placeholder="태양 조건 선택" /></SelectTrigger>
               <SelectContent>
-                {options.condSolar.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                {solarOptions.map((c) => (
+                  <SelectItem key={c} value={c}>{SOLAR_LABELS[c] ?? c}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -156,8 +193,8 @@ export function SpisControls({
             <Select value={filter.kp} onValueChange={(v) => set({ kp: v })}>
               <SelectTrigger className="min-h-11"><SelectValue placeholder="Kp 선택" /></SelectTrigger>
               <SelectContent>
-                {options.kp.map((k) => (
-                  <SelectItem key={k} value={k}>{k}</SelectItem>
+                {kpOptions.map((k) => (
+                  <SelectItem key={k} value={k}>{KP_LABELS[k] ?? k}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -191,7 +228,7 @@ export function SpisControls({
           <Select value={filter.node0Mat} onValueChange={(v) => set({ node0Mat: v })}>
             <SelectTrigger className="min-h-11"><SelectValue placeholder="재질 선택" /></SelectTrigger>
             <SelectContent>
-              {options.node0.map((m) => (
+              {node0Options.map((m) => (
                 <SelectItem key={m} value={m}>{m}</SelectItem>
               ))}
             </SelectContent>
