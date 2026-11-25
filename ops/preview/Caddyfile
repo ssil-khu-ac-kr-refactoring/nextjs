@@ -1,0 +1,35 @@
+{
+	auto_https off
+	admin off
+}
+
+:8080 {
+	route {
+		header {
+			Cache-Control "private, no-store"
+			X-Robots-Tag "noindex, nofollow"
+			defer
+		}
+		basic_auth {
+			{$SSIL_PREVIEW_USER} {$SSIL_PREVIEW_PASSWORD_HASH}
+		}
+
+		@writes not method GET HEAD
+		respond @writes "Read-only preview" 405
+
+		@admin path /admin /admin/* /api/admin /api/admin/* /login
+		respond @admin 404
+
+		handle /__ssil_preview {
+			header Content-Type "text/html; charset=utf-8"
+			respond "<!doctype html><html lang='ko'><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>SSIL 미리보기</title><main><h1>SSIL 미리보기 · PR #{$SSIL_PREVIEW_PR}</h1><p>커밋 <code>{$SSIL_PREVIEW_SHA}</code></p><p>검토용 콘텐츠가 표시됩니다.</p><p><a href='/'>미리보기 홈페이지 열기</a></p></main></html>" 200
+		}
+
+		handle {
+			reverse_proxy preview-app:3000 {
+				header_up -Authorization
+				header_up -Cookie
+			}
+		}
+	}
+}

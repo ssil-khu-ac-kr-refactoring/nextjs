@@ -11,6 +11,7 @@ const adminPages = [
   { name: 'Outcome', path: '/admin/outcome' },
   { name: 'Tab Management', path: '/admin/board/tabs' },
   { name: 'Post Management', path: '/admin/board/posts' },
+  { name: '미리보기', path: '/admin/preview' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
