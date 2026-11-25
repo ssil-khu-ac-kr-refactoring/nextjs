@@ -55,7 +55,8 @@ services:
       - "127.0.0.1:${SSIL_PREVIEW_PORT:-8091}:8080"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-    networks: [web]
+    networks:
+      web: {}
 
 networks:
   web:

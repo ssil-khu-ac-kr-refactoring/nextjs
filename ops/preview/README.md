@@ -32,3 +32,24 @@
 ## 운영 경계
 
 미리보기의 Compose 설정, 인증 게이트웨이, 예시 SQL, 동기화 스크립트는 검토된 `master` 파일을 사용한다. PR 이미지는 전용 Docker 네트워크에서 실행된다. 운영 데이터베이스, 운영 네트워크, 운영 업로드 볼륨, NAS 배포 토큰은 미리보기에 연결하지 않는다. 운영이 사용하는 `:latest` 태그와 webhook은 기존 배포 흐름에서 관리한다.
+
+## Windows Docker Desktop과 컨테이너형 Caddy
+
+운영 HTTPS를 Caddy 컨테이너가 처리하면 Caddy와 미리보기 게이트웨이만 공유하는 내부 네트워크를 사용한다. Caddy 컨테이너의 루프백은 Windows 호스트의 루프백과 별개다.
+
+1. 운영 담당자가 미리보기용 DNS와 HTTPS 호스트를 준비한다. Windows에서 Linux 컨테이너를 실행하는 Docker 컨텍스트와 미리보기 GHCR 패키지 읽기 권한을 확인한다.
+2. 승인된 미리보기 설치 시 전용 내부 네트워크를 한 번 만든다.
+
+   ```powershell
+   docker network create --internal ssil-preview-ingress
+   ```
+
+3. Windows 작업 스케줄러는 Docker Desktop과 GHCR 읽기 권한을 가진 계정으로 `powershell.exe -NoProfile -File <설치경로>\sync.ps1`을 실행한다. 이 스크립트는 `compose.yml`과 `compose.caddy.yml`을 함께 사용한다. Windows의 `127.0.0.1:8091`로 먼저 로그인과 미리보기 화면을 검증할 수 있다.
+4. 운영 Compose에서 **Caddy 서비스에 한해** 기존 네트워크를 유지하면서 외부 `ssil-preview-ingress` 네트워크를 추가한다. 최상위 `networks`에 이름이 `ssil-preview-ingress`인 외부 네트워크를 선언한다. 앱과 운영 PostgreSQL에는 이 네트워크를 붙이지 않는다.
+5. 운영 Caddy 설정에 미리보기 호스트 블록을 추가한다. 이 예시의 호스트는 실제로 DNS에 등록된 이름으로 바꾼다. 운영 담당자가 Caddy 설정을 검증한 뒤 반영한다.
+
+   ```caddy
+   preview.ssil.khu.ac.kr {
+       reverse_proxy ssil-preview-gateway:8080
+   }
+   ```
