@@ -51,6 +51,7 @@ export default async function HomePage() {
   const currentResearchCards = researchData.Current.map((research, idx) => ({
     research,
     idx,
+    anchorId: `research-project-${research.id}`,
   }));
 
   return (
@@ -64,21 +65,33 @@ export default async function HomePage() {
           ...item,
           publishedAt: item.publishedAt.toISOString(),
         }))}
+        currentResearchLinks={currentResearchCards.map(({ research, anchorId }) => ({
+          title: research.title,
+          href: `#${anchorId}`,
+        }))}
       />
 
       {currentResearchCards.length > 0 && (
-        <section className="border-t border-border bg-card/30 py-16 sm:py-20">
+        <section
+          aria-labelledby="current-research"
+          className="border-t border-border bg-card/30 py-16 sm:py-20"
+        >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="mb-8 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2
+              id="current-research"
+              tabIndex={-1}
+              className="mb-8 scroll-mt-28 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            >
               Current Research
             </h2>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {currentResearchCards.map(({ research, idx }) => (
+              {currentResearchCards.map(({ research, idx, anchorId }) => (
                 <Link
                   key={research.id}
+                  id={anchorId}
                   href={`/research?cat=Current&idx=${idx}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/40"
+                  className="group flex h-full scroll-mt-28 flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary target:border-primary target:ring-2 target:ring-primary/30"
                 >
                   <div className="relative aspect-video w-full overflow-hidden bg-secondary/30">
                     {research.imageUrl ? (
