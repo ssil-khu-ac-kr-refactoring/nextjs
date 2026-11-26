@@ -1,0 +1,64 @@
+services:
+  preview-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ssil_preview
+      POSTGRES_USER: ssil_preview
+      POSTGRES_PASSWORD: ${SSIL_PREVIEW_DB_PASSWORD:?Set a separate preview DB password}
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks: [data]
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, ssil_preview, -d, ssil_preview]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  preview-app:
+    image: ${SSIL_PREVIEW_IMAGE:?Set a PR preview image tag}
+    depends_on:
+      preview-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://ssil_preview:${SSIL_PREVIEW_DB_PASSWORD:?Set a separate preview DB password}@preview-db:5432/ssil_preview?schema=public
+      NEXTAUTH_URL: ${SSIL_PREVIEW_URL:?Set the preview HTTPS origin}
+      NEXTAUTH_SECRET: ${SSIL_PREVIEW_NEXTAUTH_SECRET:?Set an independent preview session secret}
+      HOSTNAME: 0.0.0.0
+    volumes:
+      - ./seed.sql:/app/preview-seed.sql:ro
+    command:
+      - sh
+      - -ec
+      - |
+        node ./migrate/node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma
+        node ./migrate/node_modules/prisma/build/index.js db execute --file ./preview-seed.sql --schema=./prisma/schema.prisma
+        exec node server.js
+    networks: [data, web]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 4s
+      start_period: 20s
+      retries: 20
+
+  preview-gateway:
+    image: caddy:2-alpine
+    depends_on:
+      preview-app:
+        condition: service_healthy
+    environment:
+      SSIL_PREVIEW_USER: ${SSIL_PREVIEW_USER:?Set the preview login username}
+      SSIL_PREVIEW_PASSWORD_HASH: ${SSIL_PREVIEW_PASSWORD_HASH:?Set the Caddy password hash}
+      SSIL_PREVIEW_PR: ${SSIL_PREVIEW_PR:?Set the PR number}
+      SSIL_PREVIEW_SHA: ${SSIL_PREVIEW_SHA:?Set the PR head SHA}
+    ports:
+      - "127.0.0.1:${SSIL_PREVIEW_PORT:-8091}:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      web: {}
+
+networks:
+  web:
+  data:
+    internal: true

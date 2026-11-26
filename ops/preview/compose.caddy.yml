@@ -1,0 +1,12 @@
+# Use when the public HTTPS Caddy runs in another Docker project.
+services:
+  preview-gateway:
+    networks:
+      web: {}
+      ingress:
+        aliases: [ssil-preview-gateway]
+
+networks:
+  ingress:
+    name: ssil-preview-ingress
+    external: true
