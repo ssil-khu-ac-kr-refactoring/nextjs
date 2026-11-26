@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Moon, Pencil, Radio, Telescope } from "lucide-react";
+import { ArrowDown, Moon, Pencil, Radio, Telescope } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { AnimatedHeadline } from "@/components/anim/AnimatedHeadline";
 import { FadeIn } from "@/components/anim/FadeIn";
@@ -46,7 +46,17 @@ function toApiPayload(ui: Partial<ReturnType<typeof toUiContent>>) {
   return p;
 }
 
-const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: any; sliderImages: any[]; latestNews: LatestNewsItem[] }) => {
+interface CurrentResearchLink {
+  title: string;
+  href: string;
+}
+
+const CTASection = ({ homeContent, sliderImages, latestNews, currentResearchLinks }: {
+  homeContent: any;
+  sliderImages: any[];
+  latestNews: LatestNewsItem[];
+  currentResearchLinks: CurrentResearchLink[];
+}) => {
   const { data: session } = useSession();
   const isAdmin = !!session;
 
@@ -266,6 +276,7 @@ const CTASection = ({ homeContent, sliderImages, latestNews }: { homeContent: an
       <AboutSection
         isAdmin={isAdmin}
         about={home}
+        currentResearchLinks={currentResearchLinks}
         editingAbout={editingAbout}
         setEditingAbout={setEditingAbout}
         aboutDraft={aboutDraft}
@@ -305,33 +316,47 @@ const missionAreas = [
     title: "Space Science Instrumentation",
     description: "Detectors, electronics, and data acquisition systems for space missions.",
     icon: Telescope,
+    projectTitles: ["neutron detector"],
   },
   {
     title: "Space Environment & Plasma",
     description: "Energetic particles, radiation, spacecraft charging, and plasma environments.",
     icon: Radio,
+    projectTitles: ["satellite surface charging", "radiation shielding evaluation"],
   },
   {
     title: "Lunar & Planetary Exploration",
     description: "Lunar environment observations and instrumentation for planetary exploration.",
     icon: Moon,
+    projectTitles: ["lusem"],
   },
 ];
 
 const AboutSection = ({
   isAdmin,
   about,
+  currentResearchLinks,
   editingAbout,
   setEditingAbout,
   aboutDraft,
   setAboutDraft,
   saving,
   onSaveAbout,
+}: {
+  isAdmin: boolean;
+  about: ReturnType<typeof toUiContent>;
+  currentResearchLinks: CurrentResearchLink[];
+  editingAbout: boolean;
+  setEditingAbout: React.Dispatch<React.SetStateAction<boolean>>;
+  aboutDraft: { aboutTitle: string; aboutBody: string };
+  setAboutDraft: React.Dispatch<React.SetStateAction<{ aboutTitle: string; aboutBody: string }>>;
+  saving: boolean;
+  onSaveAbout: () => Promise<void>;
 }) => {
   return (
     <section
       id="about"
-      className="relative overflow-hidden bg-background px-4 py-14 text-foreground sm:px-6 sm:py-20 md:py-24"
+      className="relative overflow-hidden bg-background px-4 py-14 text-foreground sm:px-6 sm:py-20 md:py-24 lg:px-8"
     >
       {isAdmin && (
         <div className="absolute right-4 top-4 text-sm text-muted-foreground">
@@ -405,20 +430,51 @@ const AboutSection = ({
         )}
 
         <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-5 md:grid-cols-3">
-          {missionAreas.map(({ title, description, icon: Icon }, index) => (
-            <FadeIn key={title} y={24} delay={0.1 * index} className="h-full">
-              <article className="h-full rounded-2xl border border-border bg-card/60 p-6">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {description}
-                </p>
-              </article>
-            </FadeIn>
-          ))}
+          {missionAreas.map(({ title, description, icon: Icon, projectTitles }, index) => {
+            const relatedProjects = currentResearchLinks.filter(({ title: projectTitle }) =>
+              projectTitles.includes(projectTitle.trim().replace(/\s+/g, " ").toLowerCase()),
+            );
+
+            return (
+              <FadeIn key={title} y={24} delay={0.1 * index} className="h-full">
+                <article className="flex h-full flex-col rounded-2xl border border-border bg-card/60 p-6">
+                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
+                  {relatedProjects.length > 0 && (
+                    <ul aria-label={`Current projects in ${title}`} className="mt-auto pt-4">
+                      {relatedProjects.map(({ title: projectTitle, href }) => (
+                        <li key={href}>
+                          <a
+                            href={href}
+                            className="inline-flex min-h-11 items-center gap-2 rounded-sm text-sm font-medium text-foreground underline decoration-primary underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                          >
+                            <ArrowDown className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                            {projectTitle}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              </FadeIn>
+            );
+          })}
         </div>
+
+        {currentResearchLinks.length > 0 && (
+          <a
+            href="#current-research"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-sm text-sm font-semibold text-foreground underline decoration-primary underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Explore current research
+            <ArrowDown className="h-4 w-4 text-primary" aria-hidden="true" />
+          </a>
+        )}
       </div>
     </section>
   );
