@@ -6,7 +6,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$docker = (Get-Command docker -CommandType Application -ErrorAction Stop).Source
+$docker = (Get-Command docker.exe -CommandType Application -ErrorAction Stop | Select-Object -First 1).Path
 $repository = 'ssil-khu-ac-kr-refactoring/nextjs'
 $previewRegistry = "ghcr.io/$repository-preview"
 $projectName = 'ssil-pr-preview'

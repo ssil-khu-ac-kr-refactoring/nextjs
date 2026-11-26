@@ -10,7 +10,7 @@ Windows 서버에서 이미 띄운 로컬 미리보기를 반복해서 쓰려면
 2. GitHub Actions에서 해당 PR 이미지가 게시되면, 미리보기 파일을 설치한 폴더에서 PowerShell 스크립트를 실행한다. 기존 로컬 `.env.preview`와 미리보기 로그인 정보를 그대로 사용할 수 있다.
 
    ```powershell
-   powershell.exe -NoProfile -File .\sync.ps1 -LocalOnly -BaseBranch codex/preview-base
+   powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\sync.ps1 -LocalOnly -BaseBranch codex/preview-base
    ```
 
 3. 서버컴 브라우저에서 `http://127.0.0.1:8091/__ssil_preview`를 열어 PR 번호와 커밋을 확인하고 시연한다. 자동 갱신이 필요하면 같은 명령을 Docker Desktop을 실행하는 Windows 계정의 작업 스케줄러에 등록한다.
