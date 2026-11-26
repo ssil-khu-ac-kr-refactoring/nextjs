@@ -2,7 +2,7 @@ name: Build PR preview
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, codex/preview-base]
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -21,6 +21,7 @@ jobs:
       SSIL_PREVIEW_IMAGE: ghcr.io/${{ github.repository }}-preview:pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
       SSIL_PREVIEW_PR: ${{ github.event.pull_request.number }}
       SSIL_PREVIEW_SHA: ${{ github.event.pull_request.head.sha }}
+      SSIL_PREVIEW_BASE: ${{ github.event.pull_request.base.ref }}
     steps:
       - uses: actions/checkout@v4
         with:

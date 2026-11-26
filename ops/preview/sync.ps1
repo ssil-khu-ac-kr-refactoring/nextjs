@@ -1,4 +1,10 @@
-# Windows Docker Desktop host with a separate Caddy container for HTTPS.
+# Windows Docker Desktop, with either loopback-only access or a HTTPS proxy.
+param(
+    [switch]$LocalOnly,
+    [ValidateSet('master', 'codex/preview-base')]
+    [string]$BaseBranch = 'master'
+)
+
 $ErrorActionPreference = 'Stop'
 $docker = (Get-Command docker -CommandType Application -ErrorAction Stop).Source
 $repository = 'ssil-khu-ac-kr-refactoring/nextjs'
@@ -6,8 +12,9 @@ $previewRegistry = "ghcr.io/$repository-preview"
 $projectName = 'ssil-pr-preview'
 $composeArguments = @(
     'compose', '--env-file', '.env.preview', '-p', $projectName,
-    '-f', 'compose.yml', '-f', 'compose.caddy.yml'
+    '-f', 'compose.yml'
 )
+if (-not $LocalOnly) { $composeArguments += @('-f', 'compose.caddy.yml') }
 
 function Invoke-Docker {
     & $docker @args
@@ -60,7 +67,8 @@ try {
     }
     Push-Location -LiteralPath $PSScriptRoot
     try {
-        $pullUrl = "https://api.github.com/repos/$repository/pulls?state=open&base=master&sort=created&direction=desc&per_page=100"
+        $baseQuery = [Uri]::EscapeDataString($BaseBranch)
+        $pullUrl = "https://api.github.com/repos/$repository/pulls?state=open&base=$baseQuery&sort=created&direction=desc&per_page=100"
         $pulls = Invoke-RestMethod -Uri $pullUrl -TimeoutSec 20 -Headers @{
             Accept = 'application/vnd.github+json'
         } -UserAgent 'SSIL-PR-Preview'
@@ -86,8 +94,10 @@ try {
             }
             if (-not (Test-PreviewImage -Image $env:SSIL_PREVIEW_IMAGE)) { continue }
 
-            if ((Invoke-Docker network inspect ssil-preview-ingress --format '{{.Internal}}') -ne 'true') {
-                throw 'The internal ssil-preview-ingress network is required.'
+            if (-not $LocalOnly) {
+                if ((Invoke-Docker network inspect ssil-preview-ingress --format '{{.Internal}}') -ne 'true') {
+                    throw 'The internal ssil-preview-ingress network is required.'
+                }
             }
             Invoke-PreviewCompose config -q
             Invoke-PreviewCompose pull

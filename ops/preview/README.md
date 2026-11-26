@@ -2,9 +2,23 @@
 
 운영 `/admin/preview`에서 미리보기 환경을 열면 현재 떠 있는 PR 번호와 커밋을 확인할 수 있다. 미리보기 홈에서 검토하고, GitHub에서 변경사항을 승인·병합한다.
 
+## 서버컴에서 시연하기
+
+Windows 서버에서 이미 띄운 로컬 미리보기를 반복해서 쓰려면 공개 DNS와 운영 Caddy 설정 없이 `codex/preview-base`를 사용한다.
+
+1. 변경 브랜치는 `master`의 내용을 바탕으로 만들고, 시연할 때는 PR의 base를 `codex/preview-base`로 설정한다. 이 브랜치는 미리보기 빌드 설정을 보관한다.
+2. GitHub Actions에서 해당 PR 이미지가 게시되면, 미리보기 파일을 설치한 폴더에서 PowerShell 스크립트를 실행한다. 기존 로컬 `.env.preview`와 미리보기 로그인 정보를 그대로 사용할 수 있다.
+
+   ```powershell
+   powershell.exe -NoProfile -File .\sync.ps1 -LocalOnly -BaseBranch codex/preview-base
+   ```
+
+3. 서버컴 브라우저에서 `http://127.0.0.1:8091/__ssil_preview`를 열어 PR 번호와 커밋을 확인하고 시연한다. 자동 갱신이 필요하면 같은 명령을 Docker Desktop을 실행하는 Windows 계정의 작업 스케줄러에 등록한다.
+4. 운영 반영이 승인되면 변경 PR의 base를 `master`로 바꾸고 diff를 다시 검토한다. 운영 변경을 새 미리보기의 기준으로 반영할 때는 별도로 최신 `master`를 `codex/preview-base`에 합친다.
+
 ## 빌드와 실행
 
-- `master`를 대상으로 하는 이 저장소의 PR이 열리거나 갱신되면 `Build PR preview`가 PR의 병합 후보를 빌드한다. fork의 PR은 제외한다.
+- `master` 또는 `codex/preview-base`를 대상으로 하는 이 저장소의 PR이 열리거나 갱신되면 `Build PR preview`가 PR의 병합 후보를 빌드한다. fork의 PR은 제외한다.
 - Actions에서 별도 PostgreSQL에 migration과 예시 데이터를 적용하고, 인증·읽기 전용 응답·Home·Research를 검사한다. 검사가 통과한 이미지를 `ghcr.io/ssil-khu-ac-kr-refactoring/nextjs-preview:pr-<번호>-<head SHA>`에 게시한다.
 - 미리보기 서버에서는 `sync.sh`가 가장 최근에 열린 PR부터 **현재 head SHA**의 이미지가 있는지 확인하고, 준비된 것 중 한 개를 실행한다. 기존 PR이 열려 있는 동안 새 이미지가 빌드 중이면 마지막으로 배포된 화면을 볼 수 있다. 안내 화면에는 실행 중인 이미지의 SHA가 표시된다.
 - Compose 프로젝트는 `ssil-pr-preview`를 사용한다. PostgreSQL은 임시 디스크에서 실행되며, 미리보기를 교체할 때 새로 시작한다. 초기 데이터는 `seed.sql`의 공개 연구 소개 및 이미지이며 페이지마다 실데이터가 필요한 경우 검토용 데이터를 별도로 추가한다.
